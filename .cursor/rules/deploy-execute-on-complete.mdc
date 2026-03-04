@@ -7,7 +7,7 @@ alwaysApply: true
 
 **実装が完了したら、エージェントは毎回自動で以下を実行すること。** ユーザーに「送って」と依頼されなくても、実装デプロイ時はエージェント自身が scp を実行する。
 
-1. **ファイル送信**: 変更・追加したファイルを、PowerShell の `scp` で EC2 本番サーバーにアップロードする。
+1. **ファイル送信**: 変更・追加したファイルを `scp` で EC2 本番サーバーにアップロードする（Mac は bash / deploy.sh、Windows は PowerShell）。
 2. **SQL 対応**: マイグレーションやテーブル変更用の SQL がある場合は、SQL ファイルを EC2 に送り、本番 DB で実行する（手順は下記参照ドキュメントに従う）。
 
 ユーザーに「コマンドを案内する」だけでは足りない。**エージェント自身が scp コマンドを実行**し、必要なファイルを送信する。SQL はサーバーにファイルを送ったうえで、実行コマンドをユーザーに案内するか、可能な範囲で実行する。
@@ -22,14 +22,34 @@ alwaysApply: true
 
 **詳細は `DOCS/IMPLEMENTATION_DEPLOY.md` および `DOCS/SERVER_DEPLOY_AND_SQL.md` を読むこと。** 以下は要約。
 
-- **PEM キー**: `C:\Users\narak\Desktop\social9-key.pem`
+- **PEM キー（Mac）**: `~/.ssh/social9-key.pem`
+- **PEM キー（Windows）**: `C:\Users\narak\Desktop\social9-key.pem`
 - **EC2**: `ec2-user@54.95.86.79`
 - **Web ドキュメントルート**: `/var/www/html/`
-- **ローカルプロジェクト**: `c:\xampp\htdocs\nine`
+- **ローカルプロジェクト（Mac）**: `/Users/yusei/Documents/Project/nine`
+- **ローカルプロジェクト（Windows）**: `c:\xampp\htdocs\nine`
 
 ## ファイル送信の実行例
 
 実装で変更したファイルが `api/messages.php` と `includes/foo.php` の場合:
+
+### Mac / Linux（deploy.sh 利用）
+
+```bash
+cd /Users/yusei/Documents/Project/nine
+./deploy.sh api/messages.php includes/foo.php
+```
+
+### Mac / Linux（手動 scp）
+
+```bash
+KEY="$HOME/.ssh/social9-key.pem"
+EC2="ec2-user@54.95.86.79"
+scp -i "$KEY" api/messages.php "$EC2:/var/www/html/api/"
+scp -i "$KEY" includes/foo.php "$EC2:/var/www/html/includes/"
+```
+
+### Windows PowerShell
 
 ```powershell
 cd c:\xampp\htdocs\nine
@@ -37,7 +57,7 @@ scp -i "C:\Users\narak\Desktop\social9-key.pem" c:\xampp\htdocs\nine\api\message
 scp -i "C:\Users\narak\Desktop\social9-key.pem" c:\xampp\htdocs\nine\includes\foo.php ec2-user@54.95.86.79:/var/www/html/includes/
 ```
 
-複数ファイルは上記を繰り返すか、`DOCS/SERVER_DEPLOY_AND_SQL.md` の一括例を参考にする。
+複数ファイルは上記を繰り返すか、Mac は `deploy.sh`、Windows は `deploy-bulk.ps1` で一括実行。
 
 ## SQL の実行
 

@@ -1,14 +1,35 @@
 ---
-description: 本番反映は手順1（PowerShell scp）で案内する。実装完了時は送信まで実行する
+description: 本番反映は scp で案内する。実装完了時は送信まで実行する
 alwaysApply: true
 ---
 
 # 本番（EC2）へのファイル反映ルール
 
 - **実装完了時**: エージェントは**ファイル送信まで自ら実行**する。手順と必要情報は **`.cursor/rules/deploy-execute-on-complete.mdc`** および **`DOCS/SERVER_DEPLOY_AND_SQL.md`** を必ず参照すること。SQL がある場合も同ドキュメントに従い対応する。
-- **その他でユーザーが本番に反映したいとき**: **手順1のやり方（PowerShell で scp）** を案内する。
+- **その他でユーザーが本番に反映したいとき**: 環境に合った手順を案内する。
 
-## 手順1の内容
+## Mac / Linux の場合
+
+1. **プロジェクトへ移動**
+   ```bash
+   cd /Users/yusei/Documents/Project/nine
+   ```
+
+2. **deploy.sh で送信**
+   ```bash
+   ./deploy.sh api/messages.php includes/foo.php
+   ```
+
+3. **手動 scp の場合**
+   ```bash
+   scp -i ~/.ssh/social9-key.pem <ローカルファイル> ec2-user@54.95.86.79:<リモートパス>
+   ```
+
+- **キー**: `~/.ssh/social9-key.pem`
+- **EC2**: `ec2-user@54.95.86.79`
+- **Web のドキュメントルート**: `/var/www/html/`
+
+## Windows の場合
 
 1. **PowerShell でプロジェクトへ移動**
    ```powershell
@@ -22,12 +43,7 @@ alwaysApply: true
 
 - **キー**: `C:\Users\narak\Desktop\social9-key.pem`
 - **EC2**: `ec2-user@54.95.86.79`
-- **Web のドキュメントルート**: `/var/www/html/`（PHP・CSS 等はここに合わせる）
-
-例（API 1 ファイル）:
-```powershell
-scp -i "C:\Users\narak\Desktop\social9-key.pem" c:\xampp\htdocs\nine\api\messages.php ec2-user@54.95.86.79:/var/www/html/api/
-```
+- **Web のドキュメントルート**: `/var/www/html/`
 
 ## 参照ドキュメント
 
