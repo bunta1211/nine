@@ -1,0 +1,34 @@
+---
+description: 本番反映は手順1（PowerShell scp）で案内する。実装完了時は送信まで実行する
+alwaysApply: true
+---
+
+# 本番（EC2）へのファイル反映ルール
+
+- **実装完了時**: エージェントは**ファイル送信まで自ら実行**する。手順と必要情報は **`.cursor/rules/deploy-execute-on-complete.mdc`** および **`DOCS/SERVER_DEPLOY_AND_SQL.md`** を必ず参照すること。SQL がある場合も同ドキュメントに従い対応する。
+- **その他でユーザーが本番に反映したいとき**: **手順1のやり方（PowerShell で scp）** を案内する。
+
+## 手順1の内容
+
+1. **PowerShell でプロジェクトへ移動**
+   ```powershell
+   cd c:\xampp\htdocs\nine
+   ```
+
+2. **scp で対象ファイルを EC2 にアップロード**
+   ```powershell
+   scp -i "C:\Users\narak\Desktop\social9-key.pem" <ローカルファイルのパス> ec2-user@54.95.86.79:<リモートパス>
+   ```
+
+- **キー**: `C:\Users\narak\Desktop\social9-key.pem`
+- **EC2**: `ec2-user@54.95.86.79`
+- **Web のドキュメントルート**: `/var/www/html/`（PHP・CSS 等はここに合わせる）
+
+例（API 1 ファイル）:
+```powershell
+scp -i "C:\Users\narak\Desktop\social9-key.pem" c:\xampp\htdocs\nine\api\messages.php ec2-user@54.95.86.79:/var/www/html/api/
+```
+
+## 参照ドキュメント
+
+詳細は `DOCS/DEPLOY_POWERSHELL_SCP.md` に記載する。

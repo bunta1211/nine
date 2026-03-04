@@ -1,0 +1,66 @@
+/**
+ * Social9 チャット画面 - 新CSSエントリーポイント
+ * 
+ * このファイルは新しいコンポーネント分離構造への移行用です。
+ * 段階的に chat-main.css から機能を移行していきます。
+ * 
+ * 読み込み順序（優先度: 後のものが高い）:
+ * 1. chat-main.css (レガシー) - 既存スタイル
+ * 2. chat-new.css (このファイル) - 新スタイル
+ * 3. design_loader.php - テーマ動的CSS（最優先）
+ * 
+ * 注意: 現在はCSS変数のみを読み込み、レイアウト上書きは行わない
+ */
+
+/* CSS変数（デザイントークン）のみ読み込み */
+@import url('tokens/base.css');
+
+/* レイアウト・コンポーネントは段階的に有効化 */
+/* 現在は無効 - 既存スタイルとの競合を避けるため */
+/*
+@import url('layout/main-container.css');
+@import url('layout/header.css');
+@import url('layout/sidebar.css');
+@import url('layout/center-panel.css');
+@import url('layout/right-panel.css');
+@import url('components/input-area.css');
+@import url('components/message-card.css');
+*/
+
+/* ========================================
+   安全な追加スタイルのみ
+   既存スタイルを上書きしない
+   ======================================== */
+
+/* 遅延読み込みコンポーネント用のプレースホルダー */
+.lazy-loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.lazy-loaded {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* スケルトンローディング */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* フェードイン効果 */
+.fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,207 @@
+[
+    {
+        "name": "penguin",
+        "file": "penguin.svg",
+        "emoji": "🐧"
+    },
+    {
+        "name": "butterfly",
+        "file": "butterfly.svg",
+        "emoji": "🦋"
+    },
+    {
+        "name": "dolphin",
+        "file": "dolphin.svg",
+        "emoji": "🐬"
+    },
+    {
+        "name": "unicorn",
+        "file": "unicorn.svg",
+        "emoji": "🦄"
+    },
+    {
+        "name": "bee",
+        "file": "bee.svg",
+        "emoji": "🐝"
+    },
+    {
+        "name": "cactus",
+        "file": "cactus.svg",
+        "emoji": "🌵"
+    },
+    {
+        "name": "leaf",
+        "file": "leaf.svg",
+        "emoji": "🍂"
+    },
+    {
+        "name": "snow",
+        "file": "snow.svg",
+        "emoji": "❄️"
+    },
+    {
+        "name": "pizza",
+        "file": "pizza.svg",
+        "emoji": "🍕"
+    },
+    {
+        "name": "donut",
+        "file": "donut.svg",
+        "emoji": "🍩"
+    },
+    {
+        "name": "icecream",
+        "file": "icecream.svg",
+        "emoji": "🍦"
+    },
+    {
+        "name": "rocket",
+        "file": "rocket.svg",
+        "emoji": "🚀"
+    },
+    {
+        "name": "airplane",
+        "file": "airplane.svg",
+        "emoji": "✈️"
+    },
+    {
+        "name": "car",
+        "file": "car.svg",
+        "emoji": "🚗"
+    },
+    {
+        "name": "house",
+        "file": "house.svg",
+        "emoji": "🏠"
+    },
+    {
+        "name": "gift",
+        "file": "gift.svg",
+        "emoji": "🎁"
+    },
+    {
+        "name": "bell",
+        "file": "bell.svg",
+        "emoji": "🔔"
+    },
+    {
+        "name": "target",
+        "file": "target.svg",
+        "emoji": "🎯"
+    },
+    {
+        "name": "trophy",
+        "file": "trophy.svg",
+        "emoji": "🏆"
+    },
+    {
+        "name": "crown",
+        "file": "crown.svg",
+        "emoji": "👑"
+    },
+    {
+        "name": "briefcase",
+        "file": "briefcase.svg",
+        "emoji": "💼"
+    },
+    {
+        "name": "chart",
+        "file": "chart.svg",
+        "emoji": "📊"
+    },
+    {
+        "name": "growth",
+        "file": "growth.svg",
+        "emoji": "📈"
+    },
+    {
+        "name": "laptop",
+        "file": "laptop.svg",
+        "emoji": "💻"
+    },
+    {
+        "name": "folder",
+        "file": "folder.svg",
+        "emoji": "📁"
+    },
+    {
+        "name": "clipboard",
+        "file": "clipboard.svg",
+        "emoji": "📋"
+    },
+    {
+        "name": "pencil",
+        "file": "pencil.svg",
+        "emoji": "✏️"
+    },
+    {
+        "name": "memo",
+        "file": "memo.svg",
+        "emoji": "📝"
+    },
+    {
+        "name": "pin",
+        "file": "pin.svg",
+        "emoji": "📌"
+    },
+    {
+        "name": "gear",
+        "file": "gear.svg",
+        "emoji": "⚙️"
+    },
+    {
+        "name": "key",
+        "file": "key.svg",
+        "emoji": "🔑"
+    },
+    {
+        "name": "email",
+        "file": "email.svg",
+        "emoji": "📧"
+    },
+    {
+        "name": "phone",
+        "file": "phone.svg",
+        "emoji": "📞"
+    },
+    {
+        "name": "building",
+        "file": "building.svg",
+        "emoji": "🏢"
+    },
+    {
+        "name": "idea",
+        "file": "idea.svg",
+        "emoji": "💡"
+    },
+    {
+        "name": "shogi",
+        "file": "shogi.svg",
+        "emoji": "♟️"
+    },
+    {
+        "name": "earth",
+        "file": "earth.svg",
+        "emoji": "🌍"
+    },
+    {
+        "name": "person",
+        "file": "person.svg",
+        "emoji": "👤"
+    },
+    {
+        "name": "calendar",
+        "file": "calendar.svg",
+        "emoji": "📅"
+    },
+    {
+        "name": "clock",
+        "file": "clock.svg",
+        "emoji": "⏰"
+    },
+    {
+        "name": "lock",
+        "file": "lock.svg",
+        "emoji": "🔒"
+    }
+]

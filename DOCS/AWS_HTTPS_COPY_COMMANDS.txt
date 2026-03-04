@@ -1,0 +1,39 @@
+# EC2 HTTPS 設定 - コピー＆ペースト用コマンド
+# [ec2-user@ip-172-31-6-133 ~]$ の後に、順番に貼り付けて実行してください。
+
+# ========== ① VirtualHost 作成 ==========
+sudo tee /etc/httpd/conf.d/social9-vhost.conf << 'EOF'
+<VirtualHost *:80>
+    ServerName social9.jp
+    ServerAlias www.social9.jp
+    DocumentRoot /var/www/html
+    <Directory /var/www/html>
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+EOF
+
+# ========== ② Apache 設定テスト ==========
+sudo apachectl configtest
+
+# ========== ③ Apache 再起動 ==========
+sudo systemctl restart httpd
+
+# ========== ④ Certbot インストール ==========
+sudo dnf install -y certbot python3-certbot-apache
+
+# ========== ⑤ 自動更新タイマー有効化 ==========
+sudo systemctl enable --now certbot-renew.timer
+
+# ========== ⑥ 証明書取得（対話式・メールアドレス等を入力） ==========
+sudo certbot --apache -d social9.jp -d www.social9.jp
+
+# ========== ⑦ APP_URL 更新（証明書取得後に実行） ==========
+echo 'SetEnv APP_URL https://social9.jp' | sudo tee -a /etc/httpd/conf.d/db-env.conf
+
+# ========== ⑧ Apache 再起動 ==========
+sudo systemctl restart httpd
+
+# ========== ⑨ app.local.php 作成（オプション） ==========
+cp /var/www/html/config/app.local.production.php /var/www/html/config/app.local.php

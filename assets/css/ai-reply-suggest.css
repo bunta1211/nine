@@ -1,0 +1,176 @@
+/* ================================================
+   AIクローン 返信提案 UI
+   ================================================ */
+
+.ai-reply-suggest-bar {
+    margin: 2px 60px 8px;
+    animation: aiSuggestFadeIn .25s ease;
+}
+
+@keyframes aiSuggestFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.ai-reply-suggest-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border: 1px dashed var(--dt-primary, #9b8ec4);
+    border-radius: 18px;
+    background: rgba(155, 142, 196, .06);
+    color: var(--dt-primary, #9b8ec4);
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+}
+.ai-reply-suggest-btn:hover {
+    background: rgba(155, 142, 196, .14);
+    border-color: var(--dt-primary-dark, #7b6ea8);
+}
+
+.ai-reply-suggest-loading {
+    padding: 8px 14px;
+    font-size: 12.5px;
+    color: var(--dt-primary, #9b8ec4);
+    background: rgba(155, 142, 196, .06);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.ai-reply-suggest-error {
+    padding: 6px 12px;
+    font-size: 12.5px;
+    color: #c55;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-reply-suggest-card {
+    background: #fff;
+    border: 1px solid var(--dt-border, #e4ddf0);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+}
+
+.ai-reply-suggest-header {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--dt-primary, #9b8ec4);
+    margin-bottom: 8px;
+}
+
+.ai-reply-suggest-textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--dt-border, #d8d0e8);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--dt-text, #333);
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    overflow: hidden;
+    min-height: 60px;
+}
+.ai-reply-suggest-textarea:focus {
+    border-color: var(--dt-primary, #9b8ec4);
+    box-shadow: 0 0 0 2px rgba(155, 142, 196, .15);
+}
+
+.ai-reply-suggest-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+.ai-reply-suggest-cancel {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 7px;
+    background: #eee;
+    color: #555;
+    font-size: 12.5px;
+    cursor: pointer;
+}
+.ai-reply-suggest-cancel:hover {
+    background: #ddd;
+}
+.ai-reply-suggest-send {
+    padding: 6px 18px;
+    border: none;
+    border-radius: 7px;
+    background: var(--dt-primary, #9b8ec4);
+    color: #fff;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: background .15s;
+}
+.ai-reply-suggest-send:hover {
+    background: var(--dt-primary-dark, #7b6ea8);
+}
+.ai-reply-suggest-send:disabled {
+    opacity: .5;
+    cursor: default;
+}
+
+.ai-reply-suggest-sent {
+    padding: 8px 14px;
+    font-size: 12.5px;
+    color: #4a9;
+    text-align: center;
+    animation: aiSuggestFadeIn .25s ease;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+    .ai-reply-suggest-bar {
+        margin: 2px 12px 6px;
+    }
+
+    /* 返信提案表示中は Social9 の入力欄を非表示 */
+    body.ai-reply-suggest-open .input-area,
+    body.ai-reply-suggest-open .input-show-btn {
+        display: none !important;
+    }
+
+    /* 編集エリアをスクロール可能に（ネイティブキーボードで編集しやすく） */
+    .ai-reply-suggest-textarea {
+        max-height: 50vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* モバイル: 返信提案をオーバーレイ表示（飛ばされ防止） */
+    .ai-reply-suggest-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 5000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        box-sizing: border-box;
+    }
+    .ai-reply-suggest-overlay .ai-reply-suggest-card {
+        max-height: 85vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+    }
+    .ai-reply-suggest-overlay .ai-reply-suggest-textarea {
+        flex: 1 1 auto;
+        min-height: 120px;
+        max-height: 50vh;
+    }
+    .ai-reply-suggest-overlay .ai-reply-suggest-actions {
+        flex-shrink: 0;
+    }
+}

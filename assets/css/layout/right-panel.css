@@ -1,0 +1,214 @@
+/**
+ * 右パネル（詳細）レイアウト
+ * 
+ * 構造:
+ * .right-panel
+ * ├── .right-panel-header
+ * ├── .right-panel-content
+ * │   ├── .detail-section (複数)
+ * │   └── .member-list
+ * └── .right-panel-footer
+ */
+
+/* ========================================
+   右パネル - メインコンテナ
+   ======================================== */
+.right-panel {
+    width: var(--right-panel-width, 280px);
+    background: var(--theme-right-panel-bg, var(--theme-panel-bg, var(--dt-right-bg, rgba(255,255,255,0.95))));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+    font-family: var(--user-font, inherit);
+    border-radius: var(--ui-border-radius, 16px);
+}
+
+/* ========================================
+   ヘッダー
+   ======================================== */
+.right-panel-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border, #e0e0e0);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.right-panel-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dt-right-text, var(--text, #333));
+}
+
+.right-panel-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-muted, #999);
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.right-panel-close:hover {
+    background: var(--bg-hover, rgba(0,0,0,0.05));
+}
+
+/* ========================================
+   コンテンツ
+   ======================================== */
+.right-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+/* ========================================
+   詳細セクション
+   ======================================== */
+.detail-section {
+    margin-bottom: 20px;
+}
+
+.detail-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted, #999);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.detail-section-content {
+    background: var(--dt-right-section-bg, var(--bg-main, #f5f5f5));
+    border-radius: 8px;
+    padding: 12px;
+}
+
+/* ========================================
+   メンバーリスト
+   ======================================== */
+.member-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.member-item:hover {
+    background: var(--bg-hover, rgba(0,0,0,0.05));
+}
+
+.member-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-main, #f5f5f5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.member-name {
+    font-weight: 500;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.member-status {
+    font-size: 12px;
+    color: var(--text-muted, #999);
+}
+
+.member-status.online {
+    color: var(--success, #22c55e);
+}
+
+/* ========================================
+   メディアグリッド
+   ======================================== */
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+}
+
+.media-item {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.media-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.2s;
+}
+
+.media-item:hover img {
+    transform: scale(1.05);
+}
+
+/* ========================================
+   フッター
+   ======================================== */
+.right-panel-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border, #e0e0e0);
+}
+
+/* ========================================
+   レスポンシブ
+   ======================================== */
+@media (max-width: 1024px) {
+    .right-panel {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .right-panel {
+        display: flex;
+        position: fixed;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 300px;
+        z-index: 950;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        border-radius: 0;
+    }
+    
+    .right-panel.open {
+        transform: translateX(0);
+    }
+}

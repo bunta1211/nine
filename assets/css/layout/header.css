@@ -1,0 +1,853 @@
+/**
+ * ヘッダー（上パネル）レイアウト - 立体ニューモーフィズム
+ *
+ * 構造:
+ * .top-panel (外枠ベゼル)
+ * └── .top-panel-inner (内側凹み)
+ *     ├── .top-left
+ *     │   ├── .toggle-left-btn
+ *     │   ├── .logo
+ *     │   └── .search-box
+ *     ├── .top-center
+ *     └── .top-right
+ *         ├── .task-memo-buttons (凹みコンテナ)
+ *         ├── #toggleTaskMemoBtn (≡)
+ *         ├── .user-info
+ *         ├── .settings-btn
+ *         └── .toggle-right-btn
+ */
+
+/* ========================================
+   Layer1: 外枠ベゼル（メタリック・光源左上）
+   ======================================== */
+.top-panel {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    z-index: 1000;
+    height: auto;
+    min-height: 44px;
+    overflow: visible;
+    background: linear-gradient(180deg, #e6e8ec 0%, #dcdee2 100%);
+    border: 1px solid var(--dt-header-bezel-border, #e0e0e0);
+    border-radius: 18px;
+    padding: 7px;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.10),
+        0 1px 3px rgba(0, 0, 0, 0.06),
+        2px 2px 6px rgba(255, 255, 255, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        inset 1px 0 0 rgba(255, 255, 255, 0.3),
+        inset 1px 1px 2px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: stretch;
+    font-family: var(--user-font, inherit);
+}
+
+/* ========================================
+   Layer2: 内側凹みエリア（微細グラデ・窪み強調）
+   ======================================== */
+.top-panel-inner {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    overflow: visible;
+    background: var(--dt-header-inner-bg-gradient, linear-gradient(135deg, #f2f4f6 0%, #eceff3 50%, #e8eaef 100%));
+    border-radius: 12px;
+    padding: 5px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow:
+        inset 2px 2px 5px rgba(0, 0, 0, 0.12),
+        inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+}
+
+/* ========================================
+   左セクション
+   ======================================== */
+.top-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* 左収納・右収納ボタン: 凸スタイル（B仕様） */
+.toggle-left-btn,
+.toggle-right-btn {
+    background: var(--dt-header-convex-btn-bg, #f0f2f5);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    color: #555;
+    font-size: 16px;
+    padding: 5px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow:
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+        2px 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.toggle-left-btn:hover,
+.toggle-right-btn:hover {
+    background: #f4f6f8;
+    box-shadow:
+        inset 1px 1px 2px rgba(255, 255, 255, 0.9),
+        2px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-left-btn:active,
+.toggle-right-btn:active {
+    background: #e8eaee;
+    box-shadow:
+        inset 2px 2px 4px rgba(0, 0, 0, 0.1),
+        1px 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ロゴ: 凸スタイル・淡いブルー＋横グラデ（B仕様） */
+.top-panel .logo {
+    border: none;
+    border-radius: 8px;
+    padding: 2px 12px;
+    background: var(--dt-header-logo-bg-gradient, linear-gradient(90deg, #d4dce8, #d8e4f0, #d4dce8));
+    color: var(--dt-header-logo-text, #345678);
+    font-size: 20px;
+    font-weight: 700;
+    font-style: italic;
+    box-shadow:
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+        2px 2px 4px rgba(0, 0, 0, 0.12);
+    text-shadow: 0 0 1px rgba(200, 220, 240, 0.5);
+}
+
+.top-panel .logo .logo-pc { display: inline; }
+.top-panel .logo .logo-mobile { display: none; }
+.top-panel .logo .logo-mobile-chat-title { display: none; }
+
+/* ========================================
+   検索ボックス: 凹みスタイル（青みグレー・窪み強調 B仕様）
+   ======================================== */
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 220px;
+    background: var(--dt-header-recess-bg, #e8f0f8);
+    color: #555;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow:
+        inset 2px 2px 5px rgba(0, 0, 0, 0.12),
+        inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+}
+
+.search-box:hover {
+    background: #eef2f8;
+    box-shadow:
+        inset 1px 1px 3px rgba(0, 0, 0, 0.08),
+        inset -1px -1px 3px rgba(255, 255, 255, 0.6);
+}
+
+.search-box-icon {
+    flex-shrink: 0;
+}
+
+.search-box-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent !important;
+    border: none !important;
+    border-width: 0 !important;
+    border-color: transparent !important;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    outline: none !important;
+}
+
+.search-box-input::placeholder {
+    color: var(--dt-search-placeholder, #64748b);
+}
+
+.search-box-input:focus,
+.search-box-input:not(:focus) {
+    outline: none !important;
+    border: none !important;
+    border-width: 0 !important;
+    border-color: transparent !important;
+}
+
+.search-box .shortcut {
+    opacity: 0.6;
+    font-size: 11px;
+}
+
+/* ========================================
+   中央セクション
+   ======================================== */
+.top-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.top-center.topbar-deploy-test {
+    color: #555;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ========================================
+   右セクション
+   ======================================== */
+.top-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 凹み→凸ボタン（user-info, settings-btn, toggleTaskMemoBtn: B仕様） */
+.top-panel .user-info,
+.top-panel .settings-btn,
+.top-panel .top-panel-toggle-btn#toggleTaskMemoBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 10px;
+    min-height: 32px;
+    height: auto;
+    box-sizing: border-box;
+    background: var(--dt-header-convex-btn-bg, #f0f2f5);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    border-radius: 8px;
+    color: #555;
+    font-size: 13px;
+    cursor: pointer;
+    text-shadow: none;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow:
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+        2px 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.top-panel .user-info {
+    border-radius: 18px;
+    padding: 4px 12px;
+    max-width: 180px;
+}
+
+.top-panel .user-info .user-info-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.top-panel .user-info:hover,
+.top-panel .settings-btn:hover,
+.top-panel .top-panel-toggle-btn#toggleTaskMemoBtn:hover {
+    background: #f4f6f8;
+    box-shadow:
+        inset 1px 1px 2px rgba(255, 255, 255, 0.9),
+        2px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.top-panel .user-info:active,
+.top-panel .settings-btn:active,
+.top-panel .top-panel-toggle-btn#toggleTaskMemoBtn:active {
+    background: #e8eaee;
+    box-shadow:
+        inset 2px 2px 4px rgba(0, 0, 0, 0.1),
+        1px 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.top-panel .user-info .user-icon {
+    display: none !important;
+}
+
+.top-panel .settings-btn,
+.top-panel .toggle-right-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+}
+
+.top-panel .toggle-right-btn {
+    background: var(--dt-header-convex-btn-bg, #f0f2f5);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    color: #555;
+    font-size: 16px;
+    box-shadow:
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+        2px 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.top-panel .toggle-right-btn:hover {
+    background: #f4f6f8;
+    box-shadow:
+        inset 1px 1px 2px rgba(255, 255, 255, 0.9),
+        2px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.top-panel .toggle-right-btn:active {
+    background: #e8eaee;
+    box-shadow:
+        inset 2px 2px 4px rgba(0, 0, 0, 0.1),
+        1px 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.top-btn .badge {
+    background: var(--theme-accent, var(--current-accent, #10b981));
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+.notification-badge {
+    background: #ef4444 !important;
+}
+
+/* ========================================
+   タスク・メモボタングループ: 凹みコンテナ + 横並び（アイコン左・ラベル右）
+   ======================================== */
+.task-memo-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--dt-header-recess-bg, #e8f0f8);
+    border-radius: 14px;
+    padding: 4px 6px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    transition: opacity 0.2s, transform 0.2s;
+    box-shadow:
+        inset 2px 2px 5px rgba(0, 0, 0, 0.12),
+        inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+}
+
+.task-memo-buttons.hidden {
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    margin: 0;
+    gap: 0;
+    padding: 0;
+}
+
+/* アイコン群内の各ボタン: 横並び（アイコン左・ラベル右）、背景透明 */
+.task-memo-buttons .top-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    min-height: auto;
+    height: auto;
+    box-shadow: none;
+    color: #555;
+    position: relative;
+}
+
+/* タスク/メモ・通知をリンクにした場合の見た目統一 */
+.top-panel a.top-btn {
+    text-decoration: none;
+    color: #555;
+}
+
+.task-memo-buttons .top-btn .btn-label {
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.task-memo-buttons .top-btn img.icon-line {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.task-memo-buttons .top-btn:hover {
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.task-memo-buttons .top-btn .badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+}
+
+/* 収納ボタン（≡）はPCのみ表示 */
+@media (min-width: 769px) {
+    .top-panel .top-panel-toggle-btn#toggleTaskMemoBtn {
+        display: flex !important;
+    }
+}
+
+/* ========================================
+   アプリ・タスク・通知・言語ドロップダウン（構造は現状維持）
+   ======================================== */
+.top-panel .app-menu-container {
+    display: inline-block;
+    position: relative;
+}
+
+.app-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    min-width: 220px;
+    z-index: 9999;
+    border: 1px solid #ddd;
+    overflow: hidden;
+}
+.app-dropdown-header {
+    padding: 10px 16px;
+    font-size: 12px;
+    color: #666;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+    font-weight: 600;
+}
+.app-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+.app-dropdown-item:last-child {
+    border-bottom: none;
+}
+.app-dropdown-item:hover {
+    background: #f3f4f6;
+}
+.app-dropdown-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+/* ユーザーメニュー・ドロップダウン（設定ページなど chat-main を読まないページでも表示） */
+.top-panel .user-menu-container {
+    position: relative;
+}
+.top-panel .user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-width: 240px;
+    z-index: 10001;
+    display: none;
+    overflow: hidden;
+    color: #333;
+}
+.top-panel .user-dropdown.show {
+    display: block;
+}
+.top-panel .user-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    color: #333;
+}
+.top-panel .user-dropdown a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.15s;
+}
+.top-panel .user-dropdown a:hover {
+    background: #f0f4ff;
+    color: #333;
+}
+.top-panel .user-dropdown-divider {
+    height: 1px;
+    background: #e9ecef;
+    margin: 4px 0;
+}
+.top-panel .user-dropdown .logout-link {
+    color: #ef4444;
+}
+.top-panel .user-dropdown .logout-link:hover {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.topbar-lang-container {
+    position: relative;
+}
+.topbar-lang-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 160px;
+    background: var(--bg-primary, #ffffff);
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    z-index: 10000;
+    padding: 6px 0;
+    overflow: hidden;
+}
+.topbar-lang-option {
+    display: block;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--text-primary, #1e293b);
+    transition: background 0.15s;
+}
+.topbar-lang-option:hover {
+    background: var(--bg-hover, rgba(0, 0, 0, 0.05));
+}
+.topbar-lang-option.active {
+    background: var(--bg-secondary, #f1f5f9);
+    font-weight: 600;
+}
+.topbar-more-btn {
+    padding: 6px 10px !important;
+}
+.topbar-more-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 280px;
+    min-width: 260px;
+    max-width: min(320px, calc(100vw - 32px));
+    max-height: 80vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: var(--bg-primary, #ffffff);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    z-index: 10000;
+    padding: 8px 0;
+    box-sizing: border-box;
+}
+.topbar-more-container {
+    position: relative;
+}
+.topbar-more-dropdown.show {
+    display: block !important;
+}
+.topbar-more-section {
+    padding: 4px 0;
+}
+.topbar-more-section-title {
+    padding: 6px 16px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted, #64748b);
+}
+.topbar-more-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: var(--text-primary, #1e293b);
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.15s;
+}
+.topbar-more-item:hover {
+    background: var(--bg-hover, rgba(0, 0, 0, 0.05));
+}
+.topbar-more-divider {
+    height: 1px;
+    background: var(--border-light, #e2e8f0);
+    margin: 6px 12px;
+}
+.topbar-more-dropdown .app-dropdown-item {
+    margin: 0 8px;
+    border-radius: 8px;
+}
+.topbar-more-dropdown .notification-dropdown-item,
+.topbar-more-dropdown .notification-dropdown-hint {
+    margin: 0 8px;
+    border-radius: 6px;
+}
+.topbar-more-dropdown .language-option {
+    display: block;
+    margin: 2px 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+    box-sizing: border-box;
+}
+.topbar-more-dropdown .language-option:hover {
+    background: var(--bg-hover, rgba(0, 0, 0, 0.05));
+}
+.topbar-more-dropdown .language-option.active {
+    background: var(--bg-secondary, #f1f5f9);
+    font-weight: 600;
+}
+.topbar-more-dropdown .topbar-more-section,
+.topbar-more-dropdown .topbar-more-item,
+.topbar-more-dropdown .app-dropdown-item,
+.topbar-more-dropdown .notification-dropdown-item {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.user-info {
+    gap: 8px;
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ========================================
+   ユーザードロップダウン: 組織リスト・組織作成
+   ======================================== */
+.top-panel .user-dropdown-orgs {
+    padding: 4px 0;
+}
+.top-panel .user-org-item {
+    padding: 6px 15px;
+    font-size: 13px;
+    color: #555;
+}
+.top-panel .user-dropdown-create-org {
+    display: block;
+    padding: 8px 15px;
+    font-size: 12px;
+    color: #059669;
+    text-decoration: none;
+}
+
+/* ========================================
+   言語ドロップダウン（topbar.php の .language-dropdown）
+   ======================================== */
+.top-panel .language-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    min-width: 140px;
+    z-index: 10001;
+    display: none;
+    overflow: hidden;
+}
+.top-panel .language-dropdown.show {
+    display: block;
+}
+.top-panel .language-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: background 0.15s;
+}
+.top-panel .language-option:hover {
+    background: #f0f4ff;
+}
+.top-panel .language-option.active {
+    font-weight: 600;
+    background: #e0e7ff;
+}
+
+/* ========================================
+   タスク/メモ ドロップダウン（topbar.php の .task-dropdown-menu）
+   ======================================== */
+.top-panel .task-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    min-width: 280px;
+    z-index: 10001;
+    border: 1px solid #ddd;
+    overflow: hidden;
+    display: none;
+}
+.top-panel .task-dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+.top-panel .task-view-all {
+    font-size: 12px;
+    color: #059669;
+    text-decoration: none;
+}
+.top-panel .task-dropdown-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+.top-panel .task-dropdown-loading,
+.top-panel .task-dropdown-empty {
+    padding: 16px;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+}
+.top-panel .task-dropdown-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.top-panel .task-dropdown-item:hover {
+    background: #f5f5f5;
+}
+.top-panel .task-dropdown-item.completed {
+    opacity: 0.5;
+}
+.top-panel .task-dropdown-content {
+    flex: 1;
+    min-width: 0;
+}
+.top-panel .task-dropdown-title {
+    font-size: 13px;
+    color: #333;
+    word-break: break-word;
+}
+.top-panel .task-dropdown-meta {
+    font-size: 11px;
+    color: #999;
+    margin-top: 2px;
+}
+.top-panel .task-dropdown-divider {
+    height: 1px;
+    background: #eee;
+    margin: 4px 0;
+}
+
+/* ========================================
+   通知ドロップダウン（topbar.php の .notification-dropdown）
+   ======================================== */
+.top-panel .notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    min-width: 260px;
+    z-index: 10001;
+    border: 1px solid #ddd;
+    overflow: hidden;
+    padding: 8px 0;
+}
+.top-panel .notification-dropdown-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+    transition: background 0.15s;
+}
+.top-panel .notification-dropdown-item:hover {
+    background: #f5f5f5;
+}
+.top-panel .notification-dropdown-divider {
+    height: 1px;
+    background: #eee;
+    margin: 4px 0;
+}
+.top-panel .notification-dropdown-hint {
+    padding: 8px 16px;
+    font-size: 12px;
+    color: #999;
+}
+
+/* ========================================
+   レスポンシブ: 768px 以下でラベル非表示・ベゼル縮小
+   ======================================== */
+@media (max-width: 768px) {
+    .top-panel {
+        top: 4px;
+        left: 4px;
+        right: 4px;
+        padding: 5px;
+    }
+
+    .top-panel-inner {
+        padding: 4px 10px;
+    }
+
+    .top-panel .logo {
+        font-size: 16px;
+    }
+
+    .search-box {
+        display: none;
+    }
+
+    .task-memo-buttons .top-btn .btn-label {
+        display: none;
+    }
+
+    .top-panel .user-info {
+        max-width: 120px;
+    }
+}
+
+@media (min-width: 769px) {
+    .task-memo-buttons .top-btn .btn-label {
+        display: block;
+    }
+}

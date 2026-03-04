@@ -1,0 +1,42 @@
+■ サーバーに送るファイル（リアクション用）
+
+  ローカル                           → 本番（EC2）
+  -----------------------------------------------
+  api/messages.php                   → /var/www/html/api/messages.php
+  includes/chat/scripts.php          → /var/www/html/includes/chat/scripts.php
+  includes/chat/data.php             → /var/www/html/includes/chat/data.php
+  assets/css/chat-main.css           → /var/www/html/assets/css/chat-main.css
+
+■ やり方（PowerShell）
+
+  ※ /var/www/html/ は ec2-user が書けないため、いったんホームに送ってから EC2 上で sudo cp する。
+
+  cd c:\xampp\htdocs\nine
+
+  scp -i "C:\Users\narak\Desktop\social9-key.pem" api/messages.php ec2-user@54.95.86.79:/home/ec2-user/
+  scp -i "C:\Users\narak\Desktop\social9-key.pem" includes/chat/scripts.php ec2-user@54.95.86.79:/home/ec2-user/
+  scp -i "C:\Users\narak\Desktop\social9-key.pem" includes/chat/data.php ec2-user@54.95.86.79:/home/ec2-user/
+  scp -i "C:\Users\narak\Desktop\social9-key.pem" assets/css/chat-main.css ec2-user@54.95.86.79:/home/ec2-user/
+
+  （鍵のパスは自分の .pem の場所に書き換える）
+
+■ アップロード後（EC2 に SSH して実行）
+
+  1) EC2 に接続する（PowerShell）
+
+     ssh -i "C:\Users\narak\Desktop\social9-key.pem" ec2-user@54.95.86.79
+
+     （初回は "yes" と入力）
+
+  2) 接続できたら、次のコマンドを実行（EC2 の [ec2-user@... ~]$ のときだけ。Windows では実行しない）
+
+     sudo cp /home/ec2-user/messages.php /var/www/html/api/messages.php
+     sudo cp /home/ec2-user/scripts.php /var/www/html/includes/chat/scripts.php
+     sudo cp /home/ec2-user/data.php /var/www/html/includes/chat/data.php
+     sudo cp /home/ec2-user/chat-main.css /var/www/html/assets/css/chat-main.css
+     sudo chown apache:apache /var/www/html/api/messages.php /var/www/html/includes/chat/scripts.php /var/www/html/includes/chat/data.php /var/www/html/assets/css/chat-main.css
+     sudo systemctl restart php-fpm
+
+  3) 終了するときは exit
+
+  ※ grep や sudo は「EC2 に SSH したあと」の Linux で実行する。Windows の PowerShell では動かない。

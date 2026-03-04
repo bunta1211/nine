@@ -1,0 +1,27 @@
+# Guild アプリケーション .htaccess
+
+# エラー表示を無効化（本番環境）
+php_flag display_errors off
+php_flag log_errors on
+
+# 文字コード設定
+AddDefaultCharset UTF-8
+
+# ディレクトリリスティングを無効化
+Options -Indexes
+
+# ファイルタイプ別のアクセス制限
+<FilesMatch "\.(sql|log|md|txt)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# config、database、logsディレクトリへのアクセスを禁止
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+    RewriteRule ^logs/ - [F,L]
+    RewriteRule ^tmp/ - [F,L]
+    RewriteRule ^includes/ - [F,L]
+</IfModule>

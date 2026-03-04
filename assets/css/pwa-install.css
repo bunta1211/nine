@@ -1,0 +1,231 @@
+/**
+ * PWAインストールポップアップ スタイル
+ */
+
+/* インストールバナー（画面下部） */
+.pwa-install-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #2d4a2d 0%, #4a6741 100%);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 100010;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
+}
+
+.pwa-install-banner.show {
+    transform: translateY(0);
+}
+
+.pwa-install-banner .pwa-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.pwa-install-banner .pwa-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.pwa-install-banner .pwa-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.pwa-install-banner .pwa-desc {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.pwa-install-banner .pwa-buttons {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.pwa-install-banner .pwa-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pwa-install-banner .pwa-btn-install {
+    background: white;
+    color: #2d4a2d;
+}
+
+.pwa-install-banner .pwa-btn-install:hover {
+    background: #f0f0f0;
+    transform: scale(1.05);
+}
+
+.pwa-install-banner .pwa-btn-close {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.pwa-install-banner .pwa-btn-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* iOS用の手順説明モーダル */
+.pwa-ios-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100011;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    padding: 20px;
+}
+
+.pwa-ios-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.pwa-ios-modal .pwa-ios-content {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    color: #333;
+    transform: scale(0.9);
+    transition: transform 0.3s;
+}
+
+.pwa-ios-modal.show .pwa-ios-content {
+    transform: scale(1);
+}
+
+.pwa-ios-modal .pwa-ios-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.pwa-ios-modal .pwa-ios-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #2d4a2d;
+}
+
+.pwa-ios-modal .pwa-ios-steps {
+    text-align: left;
+    margin-bottom: 24px;
+}
+
+.pwa-ios-modal .pwa-ios-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.pwa-ios-modal .pwa-ios-step:last-child {
+    border-bottom: none;
+}
+
+.pwa-ios-modal .pwa-step-num {
+    width: 28px;
+    height: 28px;
+    background: #4a6741;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.pwa-ios-modal .pwa-step-text {
+    font-size: 14px;
+    line-height: 1.5;
+    padding-top: 4px;
+}
+
+.pwa-ios-modal .pwa-step-text .icon {
+    display: inline-block;
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.pwa-ios-modal .pwa-ios-close {
+    width: 100%;
+    padding: 14px;
+    background: #4a6741;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.pwa-ios-modal .pwa-ios-close:hover {
+    background: #3a5731;
+}
+
+/* モバイル最適化 */
+@media (max-width: 480px) {
+    .pwa-install-banner {
+        flex-wrap: wrap;
+        padding: 14px 16px;
+        gap: 12px;
+    }
+    
+    .pwa-install-banner .pwa-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .pwa-install-banner .pwa-content {
+        flex: 1 1 calc(100% - 56px);
+    }
+    
+    .pwa-install-banner .pwa-title {
+        font-size: 15px;
+    }
+    
+    .pwa-install-banner .pwa-desc {
+        font-size: 12px;
+    }
+    
+    .pwa-install-banner .pwa-buttons {
+        width: 100%;
+        justify-content: stretch;
+    }
+    
+    .pwa-install-banner .pwa-btn {
+        flex: 1;
+        padding: 12px 16px;
+    }
+}

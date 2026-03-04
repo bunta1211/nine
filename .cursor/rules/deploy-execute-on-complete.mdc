@@ -1,0 +1,50 @@
+---
+description: 実装完了時はサーバーへファイル送信とSQL実行まで必ず実行する（必読）。毎回エージェントが自動で送る。
+alwaysApply: true
+---
+
+# 実装完了時のサーバー反映ルール（必ず実行する）
+
+**実装が完了したら、エージェントは毎回自動で以下を実行すること。** ユーザーに「送って」と依頼されなくても、実装デプロイ時はエージェント自身が scp を実行する。
+
+1. **ファイル送信**: 変更・追加したファイルを、PowerShell の `scp` で EC2 本番サーバーにアップロードする。
+2. **SQL 対応**: マイグレーションやテーブル変更用の SQL がある場合は、SQL ファイルを EC2 に送り、本番 DB で実行する（手順は下記参照ドキュメントに従う）。
+
+ユーザーに「コマンドを案内する」だけでは足りない。**エージェント自身が scp コマンドを実行**し、必要なファイルを送信する。SQL はサーバーにファイルを送ったうえで、実行コマンドをユーザーに案内するか、可能な範囲で実行する。
+
+**サーバーに自動でファイルを送信した場合は、ユーザーに「サーバーに実装ファイルを自動で送信しました」とその旨を必ずお知らせすること。**
+
+## 実装デプロイの記録（必ず参照）
+
+**必要な情報と手順は `DOCS/IMPLEMENTATION_DEPLOY.md` にまとめてある。** 実装デプロイ時は必ずこのファイルを参照し、記載のとおり scp を実行すること。
+
+## 実行に必要な情報（要約）
+
+**詳細は `DOCS/IMPLEMENTATION_DEPLOY.md` および `DOCS/SERVER_DEPLOY_AND_SQL.md` を読むこと。** 以下は要約。
+
+- **PEM キー**: `C:\Users\narak\Desktop\social9-key.pem`
+- **EC2**: `ec2-user@54.95.86.79`
+- **Web ドキュメントルート**: `/var/www/html/`
+- **ローカルプロジェクト**: `c:\xampp\htdocs\nine`
+
+## ファイル送信の実行例
+
+実装で変更したファイルが `api/messages.php` と `includes/foo.php` の場合:
+
+```powershell
+cd c:\xampp\htdocs\nine
+scp -i "C:\Users\narak\Desktop\social9-key.pem" c:\xampp\htdocs\nine\api\messages.php ec2-user@54.95.86.79:/var/www/html/api/
+scp -i "C:\Users\narak\Desktop\social9-key.pem" c:\xampp\htdocs\nine\includes\foo.php ec2-user@54.95.86.79:/var/www/html/includes/
+```
+
+複数ファイルは上記を繰り返すか、`DOCS/SERVER_DEPLOY_AND_SQL.md` の一括例を参考にする。
+
+## SQL の実行
+
+- SQL ファイルを EC2 に scp で送る。
+- 本番 DB での実行手順は `DOCS/SERVER_DEPLOY_AND_SQL.md` および `DOCS/PRODUCTION_DB_ACCESS.md` に記載。エージェントは SQL ファイルを送信したうえで、必要なら実行コマンドをユーザーに案内するか、可能な範囲で実行する。
+
+## 参照ドキュメント（実装完了時に必ず読む）
+
+- **`DOCS/IMPLEMENTATION_DEPLOY.md`** — 実装デプロイの記録。必要な情報・パス対応・チェックリストをまとめた必須ドキュメント。
+- **`DOCS/SERVER_DEPLOY_AND_SQL.md`** — サーバー送信と SQL 実行の詳細手順。

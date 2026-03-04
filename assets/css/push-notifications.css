@@ -1,0 +1,325 @@
+/**
+ * Web Push通知 UI スタイル
+ */
+
+/* ============================================
+   通知許可バナー
+   ============================================ */
+.push-permission-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 16px;
+    z-index: 100000;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.push-permission-banner.show {
+    transform: translateY(0);
+}
+
+.push-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.push-banner-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.push-banner-text {
+    flex: 1;
+}
+
+.push-banner-text strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.push-banner-text p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.push-banner-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.push-banner-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.push-banner-enable {
+    background: white;
+    color: #667eea;
+}
+
+.push-banner-enable:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+}
+
+.push-banner-later {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.push-banner-later:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   トースト通知
+   ============================================ */
+.push-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 100001;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.push-toast.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+.push-toast-success {
+    background: #10b981;
+    color: white;
+}
+
+.push-toast-error {
+    background: #ef4444;
+    color: white;
+}
+
+.push-toast-info {
+    background: #3b82f6;
+    color: white;
+}
+
+/* ============================================
+   設定ページのプッシュ通知セクション
+   ============================================ */
+.push-settings-section {
+    padding: 16px;
+    background: var(--card-bg, #f9fafb);
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.push-settings-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.push-settings-header .icon {
+    font-size: 24px;
+}
+
+.push-settings-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.push-status {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.push-status.enabled {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.push-status.disabled {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.push-status.denied {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.push-status.unsupported {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.push-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light, #e5e7eb);
+}
+
+.push-toggle-row:last-child {
+    border-bottom: none;
+}
+
+.push-toggle-label {
+    font-size: 14px;
+}
+
+.push-toggle-desc {
+    font-size: 12px;
+    color: var(--text-muted, #6b7280);
+    margin-top: 2px;
+}
+
+.push-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.push-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.push-btn-primary {
+    background: var(--primary, #6366f1);
+    color: white;
+}
+
+.push-btn-primary:hover {
+    filter: brightness(1.1);
+}
+
+.push-btn-secondary {
+    background: var(--border-light, #e5e7eb);
+    color: var(--text, #374151);
+}
+
+.push-btn-secondary:hover {
+    background: #d1d5db;
+}
+
+.push-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   チャット画面の通知ボタン
+   ============================================ */
+.push-notification-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 8px;
+    color: inherit;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.push-notification-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.push-notification-btn.subscribed::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+}
+
+.push-notification-btn.denied::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+}
+
+/* ============================================
+   モバイル対応
+   ============================================ */
+@media (max-width: 768px) {
+    .push-permission-banner {
+        padding: 16px;
+    }
+    
+    .push-banner-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .push-banner-icon {
+        font-size: 40px;
+    }
+    
+    .push-banner-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .push-banner-btn {
+        width: 100%;
+        padding: 12px;
+    }
+    
+    .push-toast {
+        left: 16px;
+        right: 16px;
+        transform: translateX(0) translateY(100px);
+    }
+    
+    .push-toast.show {
+        transform: translateX(0) translateY(0);
+    }
+}

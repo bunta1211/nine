@@ -1,0 +1,450 @@
+/* ============================================
+   共有フォルダ (Shared Folder) CSS
+   ============================================ */
+
+/* --- 右パネル コンパクト表示 --- */
+.sv-usage-compact { padding: 4px 0 8px; }
+.sv-usage-bar-wrap {
+    height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;
+}
+.sv-usage-bar-fill {
+    height: 100%; background: #3b82f6; border-radius: 3px; transition: width .4s ease;
+}
+.sv-usage-bar-fill.sv-warn  { background: #f59e0b; }
+.sv-usage-bar-fill.sv-danger { background: #ef4444; }
+.sv-usage-text {
+    font-size: 11px; color: #6b7280; margin-top: 4px; text-align: right;
+}
+.sv-open-btn {
+    display: flex; align-items: center; gap: 6px; width: 100%;
+    padding: 8px 12px; margin-top: 6px;
+    background: var(--dt-bg-secondary, #f3f4f6); border: 1px solid var(--dt-border, #e5e7eb);
+    border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--dt-text-primary, #374151);
+    transition: background .2s;
+}
+.sv-open-btn:hover { background: var(--dt-bg-hover, #e5e7eb); }
+.sv-direct-open { cursor: pointer; transition: background .15s; }
+.sv-direct-open:hover { background: var(--dt-bg-hover, #e5e7eb); }
+/* 共有フォルダの▶を他セクションと同じ色に（親の section-header の色を継承） */
+.right-panel .section-header.sv-direct-open .toggle-icon {
+    color: inherit;
+}
+.sv-trash-note {
+    font-size: 10px; color: #9ca3af; margin-top: 6px; line-height: 1.4;
+}
+
+/* --- 中央パネル 保管庫ビュー --- */
+.sv-vault-view {
+    flex: 1; display: flex; flex-direction: column;
+    background: #fff; overflow: hidden;
+}
+.sv-vault-header {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 12px 16px; border-bottom: 1px solid #e5e7eb;
+    background: #fafbfc; min-height: 48px;
+}
+.sv-back-btn {
+    background: none; border: 1px solid #d1d5db; border-radius: 6px;
+    padding: 6px 12px; font-size: 13px; cursor: pointer; white-space: nowrap;
+    color: #374151; transition: background .15s;
+}
+.sv-back-btn:hover { background: #f3f4f6; }
+.sv-breadcrumbs {
+    display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0;
+    font-size: 13px; color: #6b7280; overflow-x: auto;
+}
+.sv-breadcrumbs a {
+    color: #3b82f6; text-decoration: none; white-space: nowrap;
+}
+.sv-breadcrumbs a:hover { text-decoration: underline; }
+.sv-breadcrumbs .sv-bc-sep { color: #d1d5db; margin: 0 2px; }
+.sv-breadcrumbs .sv-bc-current { color: #111827; font-weight: 600; white-space: nowrap; }
+.sv-header-actions {
+    display: flex; align-items: center; gap: 8px;
+}
+.sv-search-input {
+    width: 200px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+    font-size: 13px; outline: none; transition: border-color .2s;
+}
+.sv-search-input:focus { border-color: #3b82f6; }
+.sv-trash-btn {
+    background: none; border: 1px solid #d1d5db; border-radius: 6px;
+    padding: 6px 10px; cursor: pointer; font-size: 16px; transition: background .15s;
+}
+.sv-trash-btn:hover { background: #fef2f2; }
+
+/* --- 容量バー（大） --- */
+.sv-usage-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 16px; background: #f9fafb; border-bottom: 1px solid #f3f4f6;
+}
+.sv-usage-bar-lg {
+    flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;
+}
+.sv-usage-bar-fill-lg {
+    height: 100%; background: #3b82f6; border-radius: 4px; transition: width .4s ease;
+}
+.sv-usage-bar-fill-lg.sv-warn  { background: #f59e0b; }
+.sv-usage-bar-fill-lg.sv-danger { background: #ef4444; }
+.sv-usage-text-lg { font-size: 12px; color: #6b7280; white-space: nowrap; }
+
+/* --- コンテンツエリア --- */
+.sv-content { flex: 1; overflow-y: auto; position: relative; }
+.sv-drop-zone { min-height: 100%; padding: 16px; position: relative; }
+
+/* ドロップオーバーレイ（デフォルト非表示） */
+.sv-drop-overlay {
+    display: none; position: absolute; inset: 0; z-index: 50;
+    background: rgba(59,130,246,0.06);
+    pointer-events: none;
+}
+.sv-drop-overlay-inner {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; color: #3b82f6; gap: 8px; font-size: 16px; font-weight: 600;
+    pointer-events: none;
+}
+/* ドラッグ中のハイライト（svContent のみ） */
+.sv-content.sv-drop-active {
+    outline: 3px dashed #3b82f6; outline-offset: -3px;
+    background: rgba(59,130,246,0.05) !important;
+    border-radius: 4px;
+}
+.sv-content.sv-drop-active .sv-drop-overlay { display: flex; }
+
+.sv-toolbar {
+    display: flex; gap: 8px; margin-bottom: 16px;
+}
+.sv-new-folder-btn, .sv-upload-btn {
+    padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 8px;
+    background: #fff; cursor: pointer; font-size: 13px; color: #374151;
+    transition: all .15s;
+}
+.sv-new-folder-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+.sv-upload-btn:hover { background: #f0fdf4; border-color: #86efac; }
+
+/* --- リスト一覧（エクスプローラー風・divベース） --- */
+.sv-list-header {
+    display: flex; align-items: center;
+    padding: 6px 12px; background: #fafbfc;
+    border-bottom: 1px solid #e5e7eb; font-size: 12px; font-weight: 500; color: #6b7280;
+    position: sticky; top: 0; z-index: 2; user-select: none;
+}
+.sv-lh-name { flex: 1; min-width: 0; }
+.sv-lh-date { width: 140px; flex-shrink: 0; }
+.sv-lh-type { width: 160px; flex-shrink: 0; }
+.sv-lh-size { width: 90px; flex-shrink: 0; text-align: right; }
+
+.sv-list-row {
+    display: flex; align-items: center;
+    padding: 7px 12px; cursor: pointer; transition: background .1s;
+    border-bottom: 1px solid #f3f4f6;
+}
+.sv-list-row:hover { background: #f0f4ff; }
+.sv-lr-name {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px;
+    overflow: hidden; font-size: 13px; color: #111827;
+}
+.sv-lr-name-text {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sv-list-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
+.sv-list-share { font-size: 11px; opacity: .5; flex-shrink: 0; }
+.sv-list-folder-hint {
+    font-size: 11px; color: #9ca3af; background: #f3f4f6;
+    padding: 1px 6px; border-radius: 3px; flex-shrink: 0; margin-left: 4px;
+}
+.sv-lr-date { width: 140px; flex-shrink: 0; font-size: 12px; color: #6b7280; }
+.sv-lr-type { width: 160px; flex-shrink: 0; font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sv-lr-size { width: 90px; flex-shrink: 0; font-size: 12px; color: #6b7280; text-align: right; }
+.sv-lr-action { width: 60px; flex-shrink: 0; text-align: center; }
+
+.sv-section-title {
+    font-size: 13px; color: #6b7280; margin: 0 0 4px; padding: 8px 12px 4px;
+    border-bottom: 1px solid #f3f4f6;
+}
+.sv-shared-section { margin-bottom: 12px; }
+
+.sv-list-row.sv-selected { background: #dbeafe; }
+.sv-list-row.sv-selected:hover { background: #bfdbfe; }
+
+/* --- 表示切替: 画像で小さく見る（グリッド） --- */
+.sv-grid-mode {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    padding: 12px;
+}
+.sv-grid-mode .sv-list-header { display: none; }
+.sv-file-card-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #f3f4f6;
+    min-width: 0;
+}
+.sv-file-card-grid:hover { background: #f0f4ff; }
+.sv-grid-thumb-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+}
+.sv-grid-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.sv-grid-thumb-icon {
+    font-size: 32px;
+    line-height: 1;
+}
+.sv-grid-name {
+    font-size: 11px;
+    color: #111827;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+.sv-grid-meta {
+    font-size: 10px;
+    color: #9ca3af;
+    margin-top: 2px;
+    text-align: center;
+}
+
+/* --- 空状態 --- */
+.sv-empty {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 60px 20px; color: #9ca3af;
+}
+.sv-empty p { margin: 8px 0 0; font-size: 14px; }
+.sv-empty-hint { font-size: 12px; }
+
+/* --- アップロード進捗 --- */
+.sv-upload-progress {
+    position: sticky; bottom: 0; background: #fff;
+    border-top: 1px solid #e5e7eb; padding: 8px 16px;
+    max-height: 150px; overflow-y: auto;
+}
+.sv-upload-item {
+    display: flex; align-items: center; gap: 8px; padding: 4px 0;
+    font-size: 12px; color: #374151;
+}
+.sv-upload-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sv-upload-item-bar {
+    width: 80px; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;
+}
+.sv-upload-item-fill {
+    height: 100%; background: #3b82f6; transition: width .2s;
+}
+.sv-upload-item-status { width: 16px; text-align: center; }
+
+/* --- プレビューモーダル --- */
+.sv-preview-modal {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,.85); display: flex; flex-direction: column;
+}
+.sv-preview-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px; color: #fff;
+}
+.sv-preview-title { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.sv-preview-actions { display: flex; gap: 8px; }
+.sv-preview-actions button {
+    background: rgba(255,255,255,.15); border: none; border-radius: 6px;
+    color: #fff; padding: 8px 12px; cursor: pointer; font-size: 16px;
+    transition: background .15s;
+}
+.sv-preview-actions button:hover { background: rgba(255,255,255,.25); }
+.sv-preview-content {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 20px; overflow: auto;
+}
+.sv-preview-content img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
+.sv-preview-content video { max-width: 100%; max-height: 100%; border-radius: 4px; }
+.sv-preview-content iframe { width: 90%; height: 90%; border: none; border-radius: 4px; background: #fff; }
+.sv-preview-content .sv-preview-generic {
+    text-align: center; color: #fff;
+}
+.sv-preview-content .sv-preview-generic p { margin: 8px 0; }
+
+/* --- 共有モーダル / 権限モーダル --- */
+.sv-share-modal, .sv-perm-modal, .sv-password-modal {
+    position: fixed; inset: 0; z-index: 9998;
+    background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center;
+}
+.sv-share-inner, .sv-perm-inner, .sv-password-inner {
+    background: #fff; border-radius: 12px; width: 90%; max-width: 500px;
+    max-height: 80vh; display: flex; flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0,0,0,.15);
+}
+.sv-share-header, .sv-perm-header, .sv-password-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid #e5e7eb;
+}
+.sv-share-header h3, .sv-perm-header h3, .sv-password-header h3 { margin: 0; font-size: 16px; }
+.sv-share-header button, .sv-perm-header button, .sv-password-header button {
+    background: none; border: none; font-size: 20px; cursor: pointer; color: #6b7280;
+}
+.sv-share-body, .sv-perm-body {
+    flex: 1; overflow-y: auto; padding: 16px 20px;
+}
+.sv-password-body {
+    padding: 16px 20px;
+}
+.sv-password-desc {
+    font-size: 13px; color: #6b7280; margin: 0 0 12px; line-height: 1.5;
+}
+.sv-password-label {
+    display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px;
+}
+.sv-password-input {
+    width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px;
+    font-size: 14px; margin-bottom: 16px; box-sizing: border-box;
+}
+.sv-password-actions {
+    display: flex; gap: 10px; justify-content: flex-end;
+}
+.sv-password-btn {
+    padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 6px;
+    font-size: 13px; cursor: pointer; background: #fff; color: #374151;
+}
+.sv-password-btn-primary {
+    background: var(--dt-btn-primary-bg, #3b82f6); color: #fff; border-color: transparent;
+}
+.sv-password-btn-primary:hover {
+    background: var(--dt-btn-primary-hover, #2563eb);
+}
+.sv-share-group {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid #f3f4f6;
+}
+.sv-share-group-name { font-size: 14px; color: #111827; }
+.sv-share-group-actions { display: flex; align-items: center; gap: 8px; }
+.sv-share-group-actions select {
+    padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;
+}
+.sv-share-group-actions button {
+    padding: 4px 10px; border: 1px solid #d1d5db; border-radius: 4px;
+    font-size: 12px; cursor: pointer; background: #fff;
+}
+
+/* --- 権限テーブル --- */
+.sv-perm-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 0; border-bottom: 1px solid #f3f4f6;
+}
+.sv-perm-name { flex: 1; font-size: 14px; color: #111827; min-width: 80px; }
+.sv-perm-toggles { display: flex; gap: 12px; flex-wrap: wrap; }
+.sv-perm-toggle {
+    display: flex; align-items: center; gap: 4px; font-size: 11px; color: #6b7280;
+}
+.sv-perm-toggle input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+
+/* --- ゴミ箱 --- */
+.sv-trash-header { margin-bottom: 16px; }
+.sv-trash-header h3 { margin: 0 0 4px; font-size: 16px; color: #111827; }
+.sv-trash-info { font-size: 12px; color: #6b7280; margin: 0 0 8px; }
+.sv-empty-trash-btn {
+    padding: 6px 14px; background: #fef2f2; border: 1px solid #fecaca;
+    border-radius: 6px; color: #dc2626; font-size: 12px; cursor: pointer;
+}
+.sv-empty-trash-btn:hover { background: #fee2e2; }
+.sv-trash-days { font-size: 10px; color: #ef4444; font-weight: 600; }
+.sv-restore-btn {
+    padding: 3px 8px; background: #eff6ff; border: 1px solid #bfdbfe;
+    border-radius: 4px; color: #2563eb; font-size: 11px; cursor: pointer;
+}
+
+/* (選択状態はテーブル行のスタイルで定義) */
+
+/* --- コンテキストメニュー（エクスプローラー風） --- */
+.sv-ctx-menu {
+    position: fixed; z-index: 9999; background: #fff;
+    border: 1px solid #d1d5db; border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.18); padding: 4px 0;
+    min-width: 200px;
+    animation: svCtxFadeIn .12s ease;
+}
+@keyframes svCtxFadeIn {
+    from { opacity: 0; transform: scale(.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+.sv-ctx-item {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 9px 16px; border: none;
+    background: none; text-align: left; font-size: 13px; color: #374151;
+    cursor: pointer; transition: background .1s;
+}
+.sv-ctx-item:hover { background: #eff6ff; color: #1d4ed8; }
+.sv-ctx-item.sv-ctx-danger { color: #dc2626; }
+.sv-ctx-item.sv-ctx-danger:hover { background: #fef2f2; color: #b91c1c; }
+.sv-ctx-icon { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
+.sv-ctx-sep { height: 1px; background: #e5e7eb; margin: 4px 8px; }
+
+/* --- 検索結果 --- */
+.sv-search-results { padding: 8px 0; }
+.sv-search-result-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 6px; cursor: pointer;
+}
+.sv-search-result-item:hover { background: #f3f4f6; }
+.sv-search-result-icon { font-size: 20px; width: 28px; text-align: center; }
+.sv-search-result-info { flex: 1; min-width: 0; }
+.sv-search-result-name { font-size: 13px; color: #111827; }
+.sv-search-result-path { font-size: 11px; color: #9ca3af; }
+
+/* --- フォルダ作成ダイアログ --- */
+.sv-folder-dialog {
+    position: absolute; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.3);
+    display: flex; align-items: center; justify-content: center;
+}
+.sv-folder-dialog-inner {
+    background: #fff; border-radius: 12px; padding: 24px; width: 90%; max-width: 360px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.2);
+}
+.sv-folder-dialog-inner h4 { margin: 0 0 16px; font-size: 16px; color: #111827; }
+.sv-folder-name-input {
+    width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px;
+    font-size: 14px; outline: none; box-sizing: border-box;
+}
+.sv-folder-name-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+.sv-folder-dialog-btns {
+    display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;
+}
+.sv-folder-dialog-cancel {
+    padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 8px;
+    background: #fff; cursor: pointer; font-size: 13px; color: #374151;
+}
+.sv-folder-dialog-ok {
+    padding: 8px 20px; border: none; border-radius: 8px;
+    background: #3b82f6; color: #fff; cursor: pointer; font-size: 13px; font-weight: 500;
+}
+.sv-folder-dialog-cancel:hover { background: #f3f4f6; }
+.sv-folder-dialog-ok:hover { background: #2563eb; }
+
+/* --- レスポンシブ --- */
+@media (max-width: 768px) {
+    .sv-search-input { width: 120px; }
+    .sv-vault-header { padding: 8px 12px; }
+    .sv-drop-zone { padding: 12px; }
+    .sv-share-inner, .sv-perm-inner { width: 95%; }
+    .sv-lh-type, .sv-lr-type { display: none; }
+    .sv-lh-date { width: 110px; }
+    .sv-lh-size { width: 70px; }
+    .sv-lr-date { width: 110px; }
+    .sv-lr-size { width: 70px; }
+    .sv-grid-mode { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding: 8px; }
+    .sv-album-btn { font-size: 12px; padding: 6px 10px; }
+}

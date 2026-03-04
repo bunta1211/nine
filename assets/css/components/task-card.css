@@ -1,0 +1,116 @@
+/**
+ * タスクカード - 横長レイアウト
+ * 1行目: タスク依頼　（掲載日時）Ken ⇒ Nao
+ * 2行目〜: 内容　～～～～～～～～～～～～～～～～～～～～～
+ * 最終行: 期限　2026年02月07日　　削除アイコン
+ * ※📋・**は非表示。タスク依頼・内容・期限の先頭文字を左揃え。
+ */
+
+/* 📋 アイコンは非表示（過去のHTMLや他ファイル由来の残存対策） */
+.task-card .task-card-icon {
+    display: none !important;
+}
+
+.system-message.task-system-message.task-card {
+    max-width: min(560px, 95%);
+    min-height: auto !important;
+    text-align: left;
+}
+
+.task-card .task-card-header {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    padding: 10px 14px;
+}
+
+.task-card .task-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.task-card .task-card-posted {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 400;
+}
+
+.task-card .task-card-meta {
+    font-size: 13px;
+    color: #475569;
+    margin-left: auto;
+}
+
+.task-card .task-card-body {
+    padding: 10px 14px 8px;
+}
+
+/* ラベル幅を揃えて「タスク依頼」「内容」「期限」の先頭文字を左揃え */
+.task-card .task-card-label {
+    display: inline-block;
+    min-width: 4em;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-right: 0.35em;
+}
+
+.task-card .task-card-label.task-card-title {
+    flex-shrink: 0;
+}
+
+.task-card .task-card-row.task-card-row-content {
+    padding: 0;
+    border: none;
+}
+
+.task-card .task-card-row.task-card-row-content .task-card-value {
+    display: inline;
+    word-break: break-word;
+}
+
+.task-card .task-card-footer {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0 4px;
+    padding: 8px 14px 10px;
+}
+
+.task-card .task-card-footer .task-card-label {
+    flex-shrink: 0;
+}
+
+.task-card .task-card-deadline {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0284c7;
+}
+
+.task-card .task-card-footer .task-card-delete-btn {
+    margin-left: 0;
+}
+
+/* ダークテーマ */
+body[data-theme="transparent"] .task-card .task-card-posted,
+body[data-theme="dark"] .task-card .task-card-posted {
+    color: #94a3b8;
+}
+
+body[data-theme="transparent"] .task-card .task-card-meta,
+body[data-theme="dark"] .task-card .task-card-meta {
+    color: #cbd5e1;
+}
+
+body[data-theme="transparent"] .task-card .task-card-label,
+body[data-theme="dark"] .task-card .task-card-label {
+    color: #94a3b8;
+}
+
+body[data-theme="transparent"] .task-card .task-card-deadline,
+body[data-theme="dark"] .task-card .task-card-deadline {
+    color: #38bdf8;
+}

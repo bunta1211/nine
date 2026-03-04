@@ -1,0 +1,241 @@
+/**
+ * デザイントークン - 基本変数
+ * 
+ * 全てのCSS変数をここで定義
+ * design_loader.php で動的に上書き可能
+ * 
+ * 命名規則:
+ * --{category}-{property}: value
+ * --dt-{category}-{property}: デザイントークン（テーマ連動）
+ * 
+ * カテゴリ:
+ * - primary, secondary: ブランドカラー
+ * - text: テキスト色
+ * - bg: 背景色
+ * - border: ボーダー
+ * - ui: UIコンポーネント共通
+ * - font: フォント
+ * - dt: デザイントークン（design_loader.phpで上書き）
+ */
+
+/* ========================================
+   リセット
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ========================================
+   基本変数 (chat-main.cssから移行)
+   ======================================== */
+:root {
+    /* ========================================
+       ブランドカラー
+       ======================================== */
+    --primary: #6b8e23;
+    --primary-rgb: 107, 142, 35;
+    --primary-dark: #556b2f;
+    --primary-light: #8fbc8f;
+    
+    --secondary: #daa520;
+    --secondary-rgb: 218, 165, 32;
+    
+    --accent: #daa520;
+    --accent-rgb: 218, 165, 32;
+    
+    /* ========================================
+       テキストカラー
+       ======================================== */
+    --text: #333333;
+    --text-rgb: 51, 51, 51;
+    --text-light: #666666;
+    --text-muted: #999999;
+    --text-inverse: #ffffff;
+    
+    /* ========================================
+       背景カラー
+       ======================================== */
+    --bg-main: #f5f5f5;
+    --bg-white: #ffffff;
+    --bg-panel: #ffffff;
+    --bg-hover: rgba(0, 0, 0, 0.05);
+    --bg-active: rgba(0, 0, 0, 0.1);
+    
+    /* ========================================
+       ボーダー
+       ======================================== */
+    --border: #e0e0e0;
+    --border-light: #f1f5f9;
+    --border-dark: #cbd5e1;
+    
+    /* ========================================
+       レイアウト
+       ======================================== */
+    --header-height: 36px;
+    /* チャット: 上パネル(top:8 + height:36 + 余白8)との重なり・下端余白防止 */
+    --main-offset-top: 52px;
+    --left-panel-width: 260px;
+    --right-panel-width: 280px;
+    
+    /* ========================================
+       UIコンポーネント共通
+       ======================================== */
+    --ui-border-radius: 16px;
+    --ui-border-radius-sm: 8px;
+    --ui-border-radius-lg: 24px;
+    --ui-input-radius: 20px;
+    --ui-card-radius: 12px;
+    
+    --ui-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --ui-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --ui-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+    
+    --ui-transition: 0.2s ease;
+    
+    /* ========================================
+       フォント
+       ======================================== */
+    --font-base: 14px;
+    --font-sm: 12px;
+    --font-lg: 16px;
+    --font-xl: 18px;
+    --font-message: 14px;
+    
+    --font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+    
+    /* ========================================
+       ステータスカラー
+       ======================================== */
+    --success: #22c55e;
+    --success-rgb: 34, 197, 94;
+    --warning: #f59e0b;
+    --warning-rgb: 245, 158, 11;
+    --error: #ef4444;
+    --error-rgb: 239, 68, 68;
+    --info: #3b82f6;
+    --info-rgb: 59, 130, 246;
+    
+    /* ========================================
+       テーマ変数（デフォルト値）
+       design_loader.phpで上書き可能
+       ======================================== */
+    --theme-bg: #2d4a2d;
+    --theme-header: linear-gradient(90deg, #4a6741 0%, #5a7a4a 50%, #6b8e50 100%);
+    --theme-panel-bg: rgba(255,255,255,0.95);
+    --theme-card-bg: var(--bg-panel);
+    --theme-card-border: var(--border);
+    --theme-accent: var(--primary);
+    --theme-text: var(--text);
+    --theme-text-muted: var(--text-muted);
+    
+    /* ボタン */
+    --theme-btn-primary: var(--primary);
+    --theme-btn-text: white;
+    
+    /* 入力欄 */
+    --theme-input-bg: #fff;
+    --theme-input-border: var(--primary);
+    
+    /* ========================================
+       デザイントークン（dt-*）
+       design_loader.phpで動的に生成される
+       ここではデフォルト値を定義
+       ======================================== */
+    
+    /* グローバル */
+    --dt-accent: var(--primary);
+    --dt-accent-hover: var(--primary-dark);
+    --dt-text-primary: var(--text);
+    --dt-text-muted: var(--text-muted);
+    --dt-text-light: var(--text-light);
+    
+    /* フォント */
+    --dt-font-family: var(--font-family);
+    --dt-font-base: var(--font-base);
+    --dt-font-message: var(--font-message);
+    --dt-font-title: var(--font-lg);
+    
+    /* パネル */
+    --dt-header-bg: var(--theme-header);
+    --dt-header-text: #ffffff;
+    --dt-left-bg: var(--theme-panel-bg);
+    --dt-left-text: var(--text);
+    --dt-center-bg: var(--theme-panel-bg);
+    --dt-center-header-bg: rgba(255,255,255,0.9);
+    --dt-center-header-text: var(--text);
+    --dt-center-input-bg: transparent;
+    --dt-right-bg: var(--theme-panel-bg);
+    --dt-right-text: var(--text);
+    --dt-right-section-bg: var(--theme-panel-bg);
+    
+    /* ボタン */
+    --dt-btn-primary-bg: var(--primary);
+    --dt-btn-primary-text: #ffffff;
+    --dt-btn-primary-hover: var(--primary-dark);
+    --dt-btn-secondary-bg: rgba(100,116,139,0.2);
+    --dt-btn-secondary-text: #64748b;
+    --dt-btn-secondary-border: rgba(100,116,139,0.3);
+    --dt-btn-filter-bg: var(--dt-btn-secondary-bg);
+    --dt-btn-filter-text: var(--dt-btn-secondary-text);
+    --dt-btn-filter-active-bg: var(--dt-accent);
+    --dt-btn-filter-active-text: #ffffff;
+    
+    /* 入力欄 */
+    --dt-input-bg: #ffffff;
+    --dt-input-text: var(--text);
+    --dt-input-placeholder: var(--text-muted);
+    --dt-input-border: var(--border);
+    --dt-input-focus-border: var(--primary);
+    
+    /* メッセージ */
+    --dt-msg-self-bg: rgba(255,255,255,0.95);
+    --dt-msg-self-text: #1a1a2e;
+    --dt-msg-self-border: transparent;
+    --dt-msg-self-time: #1a1a2e;
+    --dt-msg-other-bg: rgba(255,255,255,0.95);
+    --dt-msg-other-text: #1a1a2e;
+    --dt-msg-other-border: transparent;
+    --dt-msg-other-time: #6b7280;
+    
+    /* メンション */
+    --dt-msg-mention-bg: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    --dt-msg-mention-text: #92400e;
+    --dt-msg-mention-border: rgba(251,191,36,0.4);
+    
+    /* スクロールバー */
+    --dt-scroll-track: transparent;
+    --dt-scroll-thumb: rgba(100,100,100,0.15);
+    --dt-scroll-thumb-hover: rgba(100,100,100,0.25);
+    
+    /* カード */
+    --dt-card-bg: var(--bg-panel);
+    --dt-card-border: var(--border);
+    --dt-card-hover-bg: var(--bg-hover);
+    --dt-card-active-bg: var(--primary);
+    --dt-card-active-text: #ffffff;
+}
+
+/* ========================================
+   透明テーマ用オーバーライド
+   ======================================== */
+body[data-bg-style="transparent"],
+.theme-transparent {
+    --theme-panel-bg: rgba(0, 0, 0, 0.3);
+    --text: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.7);
+    --text-light: rgba(255, 255, 255, 0.8);
+    --border: rgba(255, 255, 255, 0.2);
+    
+    --dt-text-primary: #ffffff;
+    --dt-text-muted: rgba(255, 255, 255, 0.7);
+    --dt-text-light: rgba(255, 255, 255, 0.8);
+}
+
+/* ========================================
+   ユーザーフォント変数
+   design_loader.phpで設定される
+   ======================================== */
+/* --user-font: 'Noto Sans JP', sans-serif; */
+/* --current-accent: #6b8e23; */

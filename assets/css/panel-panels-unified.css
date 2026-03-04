@@ -1,0 +1,114 @@
+/**
+ * パネル間の空間を自然に埋める - 統一カード風デザイン
+ * チャット・デザイン画面: body の padding-top で上パネル分を確保し、
+ * .main-container は margin-top:0 と固定高さで統一。
+ * 上パネル立体デザイン: top 8px + パネル高さ（padding 7px*2 + コンテンツ）≒ 70px を確保。
+ */
+
+/* 上パネル共有ページ: body の padding で上パネル分を確保（立体パネルは 8+約60px のため 70px 確保） */
+body.page-chat,
+body.design-page,
+body.page-settings,
+body.tasks-page,
+body.notifications-page {
+    padding-top: 70px !important;
+    min-height: 100vh !important;
+    height: auto !important; /* design_loader の height:100% を上書きし下端余白を防ぐ */
+    box-sizing: border-box !important;
+}
+
+body.page-chat .main-container,
+body.design-page .main-container,
+body.page-settings .main-container,
+body.tasks-page .main-container,
+body.notifications-page .main-container {
+    border-radius: var(--ui-border-radius, 20px);
+    box-sizing: border-box !important;
+    overflow: hidden;
+    gap: 8px;
+    margin-top: 0 !important;
+    margin-right: 8px !important;
+    margin-bottom: 0 !important;
+    margin-left: 8px !important;
+    padding: 8px 8px 0 8px !important;
+    height: calc(100vh - 70px) !important;
+    max-height: calc(100vh - 70px) !important;
+}
+
+/* チャット画面のみ: メインコンテナの背景・影（デザイン画面は自前で指定） */
+body.page-chat .main-container {
+    background: var(--theme-panel-bg, rgba(248, 252, 249, 0.98));
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* 上記以外のページ用フォールバック */
+body:not(.page-chat):not(.design-page):not(.page-settings):not(.tasks-page):not(.notifications-page) .main-container {
+    margin-top: var(--main-offset-top, 64px) !important;
+    margin-bottom: 0 !important;
+    height: calc(100vh - var(--main-offset-top, 64px)) !important;
+    max-height: calc(100vh - var(--main-offset-top, 64px)) !important;
+    padding: 8px 8px 0 8px !important;
+}
+
+/* リサイズハンドルをテーマ区切り色に馴染ませる */
+.panel-resize-handle:hover,
+.panel-resize-handle.resizing {
+    background: var(--theme-divider, rgba(0, 0, 0, 0.06));
+}
+
+.panel-resize-handle::after {
+    background: var(--theme-divider, rgba(0, 0, 0, 0.08));
+}
+
+.panel-resize-handle:hover::after,
+.panel-resize-handle.resizing::after {
+    background: var(--theme-accent, rgba(0, 0, 0, 0.18));
+}
+
+/* 左・中央・右パネルの角を統一カード内で自然に、flex で高さを適切に分配 */
+.main-container .left-panel,
+.main-container .center-panel,
+.main-container .right-panel {
+    border-radius: 10px;
+    min-height: 0; /* flex 子のオーバーフロー防止 */
+    align-self: stretch;
+}
+
+/* モバイル: ヘッダー高さに合わせて body padding-top と .main-container 高さを変更 */
+@media (max-width: 768px) {
+    body.page-chat,
+    body.design-page,
+    body.page-settings,
+    body.tasks-page,
+    body.notifications-page {
+        padding-top: var(--mobile-header-height, 56px) !important;
+    }
+    
+    body.page-chat .main-container,
+    body.design-page .main-container,
+    body.page-settings .main-container,
+    body.tasks-page .main-container,
+    body.notifications-page .main-container {
+        margin-top: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        height: calc(100vh - var(--mobile-header-height, 56px)) !important;
+        max-height: calc(100vh - var(--mobile-header-height, 56px)) !important;
+        padding: 0 !important;
+        gap: 0;
+        background: transparent;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    
+    .main-container .left-panel,
+    .main-container .center-panel,
+    .main-container .right-panel {
+        border-radius: var(--ui-border-radius, 16px);
+    }
+}
+
+/* ========================================
+  標準デザイン（lavender）のみ。透明・カスタム背景用ルールは削除済み。
+   ======================================== */

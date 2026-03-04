@@ -1,0 +1,174 @@
+/* 専門AI管理ページ */
+.aisp-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.aisp-controls select {
+    padding: 8px 12px;
+    border: 1px solid var(--dt-border, #ccc);
+    border-radius: 6px;
+    font-size: 14px;
+}
+.aisp-empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--dt-text-secondary, #888);
+}
+.aisp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+.aisp-card {
+    padding: 18px;
+    border: 1px solid var(--dt-border, #e0e0e0);
+    border-radius: 10px;
+    background: var(--dt-bg-primary, #fff);
+    transition: box-shadow 0.2s;
+}
+.aisp-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.aisp-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.aisp-card-name {
+    font-weight: 700;
+    font-size: 16px;
+}
+.aisp-card-type {
+    font-size: 12px;
+    color: var(--dt-text-secondary, #888);
+}
+.aisp-card-status {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.aisp-card-status.enabled {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+.aisp-card-status.disabled {
+    background: #fafafa;
+    color: #999;
+}
+.aisp-card-meta {
+    font-size: 13px;
+    color: var(--dt-text-secondary, #888);
+    margin-bottom: 12px;
+}
+.aisp-card-actions {
+    display: flex;
+    gap: 6px;
+}
+.aisp-card-actions button {
+    padding: 6px 14px;
+    border: 1px solid var(--dt-border, #ccc);
+    border-radius: 5px;
+    background: var(--dt-bg-primary, #fff);
+    cursor: pointer;
+    font-size: 13px;
+}
+.aisp-card-actions button:hover {
+    background: var(--dt-bg-hover, #f0f0f5);
+}
+.aisp-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.aisp-modal-content {
+    background: var(--dt-bg-primary, #fff);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 650px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.aisp-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--dt-border, #e0e0e0);
+}
+.aisp-modal-header h3 { margin: 0; }
+.aisp-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+.aisp-modal-body {
+    padding: 20px;
+}
+.aisp-modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--dt-border, #e0e0e0);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.aisp-form-group {
+    margin-bottom: 14px;
+}
+.aisp-form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+.aisp-input-full,
+.aisp-textarea-full {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--dt-border, #ccc);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+.aisp-textarea-full {
+    resize: vertical;
+    min-height: 100px;
+}
+.aisp-flags {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.aisp-flag-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border: 1px solid var(--dt-border, #e0e0e0);
+    border-radius: 6px;
+    font-size: 14px;
+}
+.aisp-flag-num {
+    font-weight: 700;
+    min-width: 30px;
+}
+.aisp-flag-name {
+    flex: 1;
+}
+.aisp-flag-status select {
+    padding: 4px 8px;
+    border: 1px solid var(--dt-border, #ccc);
+    border-radius: 4px;
+    font-size: 13px;
+}

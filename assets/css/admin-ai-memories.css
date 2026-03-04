@@ -1,0 +1,256 @@
+/* AI記憶管理ページ */
+.aimem-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.aimem-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+.aimem-filters select,
+.aimem-filters input[type="text"],
+.aimem-filters input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid var(--dt-border, #ccc);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--dt-bg-primary, #fff);
+    color: var(--dt-text-primary, #333);
+}
+.aimem-search-input {
+    min-width: 200px;
+}
+.aimem-actions {
+    display: flex;
+    gap: 8px;
+}
+.aimem-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.aimem-stat-card {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: var(--dt-bg-secondary, #f0f0f5);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.aimem-stat-card .aimem-stat-count {
+    font-weight: 700;
+    font-size: 18px;
+}
+.aimem-table-wrap {
+    overflow-x: auto;
+}
+.aimem-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.aimem-table th,
+.aimem-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--dt-border, #e0e0e0);
+    text-align: left;
+    vertical-align: top;
+}
+.aimem-table th {
+    background: var(--dt-bg-secondary, #f5f5fa);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.aimem-table tbody tr:hover {
+    background: var(--dt-bg-hover, #f8f8fc);
+}
+.aimem-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--dt-text-secondary, #888);
+}
+.aimem-type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--dt-accent-light, #e8e0f0);
+    color: var(--dt-accent, #6b5b95);
+    white-space: nowrap;
+}
+.aimem-source-badge {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--dt-bg-secondary, #eee);
+}
+.aimem-btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+    border: 1px solid var(--dt-border, #ccc);
+    border-radius: 4px;
+    background: var(--dt-bg-primary, #fff);
+    cursor: pointer;
+    margin-right: 4px;
+}
+.aimem-btn-sm:hover {
+    background: var(--dt-bg-hover, #f0f0f5);
+}
+.aimem-btn-sm.aimem-btn-danger {
+    color: #d32f2f;
+    border-color: #d32f2f;
+}
+.aimem-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 16px;
+}
+.aimem-pagination button {
+    padding: 6px 14px;
+    border: 1px solid var(--dt-border, #ccc);
+    border-radius: 4px;
+    background: var(--dt-bg-primary, #fff);
+    cursor: pointer;
+    font-size: 13px;
+}
+.aimem-pagination button.active {
+    background: var(--dt-accent, #6b5b95);
+    color: #fff;
+    border-color: var(--dt-accent, #6b5b95);
+}
+.aimem-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.aimem-modal-content {
+    background: var(--dt-bg-primary, #fff);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.aimem-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--dt-border, #e0e0e0);
+}
+.aimem-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+.aimem-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--dt-text-secondary, #888);
+}
+.aimem-modal-body {
+    padding: 20px;
+}
+.aimem-modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--dt-border, #e0e0e0);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.aimem-form-group {
+    margin-bottom: 14px;
+}
+.aimem-form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+.aimem-input-full,
+.aimem-textarea-full {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--dt-border, #ccc);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--dt-bg-primary, #fff);
+    color: var(--dt-text-primary, #333);
+    box-sizing: border-box;
+}
+.aimem-textarea-full {
+    resize: vertical;
+    min-height: 120px;
+}
+.aimem-history-item {
+    padding: 10px;
+    border-bottom: 1px solid var(--dt-border, #eee);
+    font-size: 13px;
+}
+.aimem-history-item:last-child {
+    border-bottom: none;
+}
+.aimem-history-action {
+    font-weight: 600;
+    margin-right: 8px;
+}
+.aimem-history-date {
+    color: var(--dt-text-secondary, #888);
+    font-size: 12px;
+}
+.btn-primary {
+    padding: 8px 20px;
+    background: var(--dt-accent, #6b5b95);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-primary:hover {
+    opacity: 0.9;
+}
+.btn-success {
+    padding: 8px 20px;
+    background: #43a047;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-secondary {
+    padding: 8px 20px;
+    background: var(--dt-bg-secondary, #e0e0e0);
+    color: var(--dt-text-primary, #333);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-outline {
+    padding: 8px 20px;
+    background: transparent;
+    color: var(--dt-text-primary, #333);
+    border: 1px solid var(--dt-border, #ccc);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}

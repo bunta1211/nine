@@ -1,0 +1,70 @@
+/**
+ * メインコンテナレイアウト
+ * 
+ * 構造:
+ * body
+ * └── .main-container
+ *     ├── .left-panel (sidebar.css)
+ *     ├── .center-panel (center-panel.css)
+ *     └── .right-panel (right-panel.css)
+ * 
+ * レイアウトルール:
+ * - Flexboxで横方向に配置
+ * - 高さは100vh - ヘッダー高さ
+ * - overflow: hidden でスクロールを各パネル内に限定
+ */
+
+/* ========================================
+   メインコンテナ
+   ======================================== */
+/* 上パネルとの重なり防止・下端まで埋める（panel-panels-unified.css で上書きされる場合あり） */
+.main-container {
+    display: flex;
+    --main-offset-top: calc(8px + var(--header-height, 48px) + 8px);
+    margin-top: var(--main-offset-top);
+    margin-bottom: 0;
+    height: calc(100vh - var(--main-offset-top));
+    max-height: calc(100vh - var(--main-offset-top));
+    padding: 0 8px 8px 8px;
+    gap: 8px;
+    overflow: hidden;
+}
+
+/* ========================================
+   モバイルオーバーレイ
+   ======================================== */
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 900;
+}
+
+.mobile-overlay.active {
+    display: block;
+}
+
+/* ========================================
+   パネル共通スタイル
+   ======================================== */
+.left-panel,
+.center-panel,
+.right-panel {
+    border-radius: var(--ui-border-radius, 16px);
+    overflow: hidden;
+}
+
+/* ========================================
+   レスポンシブ
+   ======================================== */
+@media (max-width: 768px) {
+    .main-container {
+        padding: 0 4px 4px 4px;
+        gap: 0;
+        margin-top: var(--main-offset-top);
+        margin-bottom: 0;
+        height: calc(100vh - var(--main-offset-top));
+        max-height: calc(100vh - var(--main-offset-top));
+    }
+}

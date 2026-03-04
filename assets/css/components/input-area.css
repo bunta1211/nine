@@ -1,0 +1,377 @@
+/**
+ * 入力エリアコンポーネント
+ * BEM命名規則: .input-area__element--modifier
+ * 
+ * 構造:
+ * .input-area
+ *   ├── .input-area__edit-bar (編集モード時のみ表示)
+ *   ├── .input-area__reply-bar (返信モード時のみ表示)
+ *   ├── .input-area__toolbar
+ *   │   ├── .input-area__toolbar-left
+ *   │   └── .input-area__toolbar-right
+ *   └── .input-area__row
+ *       ├── .input-area__wrapper
+ *       │   └── .input-area__textarea
+ *       └── .input-area__send-btn
+ */
+
+/* ========================================
+   入力エリア - メインコンテナ
+   ======================================== */
+.input-area {
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+    background: transparent;
+    border-radius: 0 0 16px 16px;
+}
+
+.input-area__container {
+    background: transparent;
+    border: none;
+    border-radius: 0 0 16px 16px;
+    overflow: hidden;
+}
+
+/* ========================================
+   編集モードバー
+   ======================================== */
+.input-area__edit-bar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: rgba(55, 65, 81, 0.95);
+    color: white;
+    font-size: 13px;
+    border-radius: 8px 8px 0 0;
+    margin: 0;
+    border-left: 3px solid #3b82f6;
+}
+
+.input-area__edit-bar--visible {
+    display: flex;
+}
+
+.input-area__edit-icon {
+    font-size: 14px;
+}
+
+.input-area__edit-text {
+    flex: 1;
+    font-weight: 500;
+}
+
+.input-area__edit-cancel {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.input-area__edit-cancel:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* ========================================
+   返信モードバー
+   ======================================== */
+.input-area__reply-bar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: rgba(55, 65, 81, 0.95);
+    color: white;
+    font-size: 13px;
+    border-radius: 8px 8px 0 0;
+    margin: 0;
+    border-left: 3px solid #10b981;
+}
+
+.input-area__reply-bar--visible {
+    display: flex;
+}
+
+.input-area__reply-icon {
+    font-size: 14px;
+}
+
+.input-area__reply-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.input-area__reply-label {
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.input-area__reply-sender {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.input-area__reply-text {
+    color: rgba(255,255,255,0.85);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+}
+
+.input-area__reply-cancel {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-area__reply-cancel:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* ========================================
+   ツールバー
+   ======================================== */
+.input-area__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 16px;
+    background: transparent;
+    border: none;
+}
+
+.input-area__toolbar-left,
+.input-area__toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.input-area__toolbar-left {
+    position: relative;
+}
+
+/* ツールバーボタン：枠線グレー・内側白・フォント黒・ホバー薄オレンジ */
+.input-area__btn {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #9ca3af;
+    background: #ffffff;
+    cursor: pointer;
+    font-size: 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #1a1a1a;
+}
+
+.input-area__btn:hover {
+    background: #ffedd5;
+    color: #1a1a1a;
+}
+
+.input-area__btn--active {
+    background: var(--dt-accent, #6b7280);
+    border-color: var(--dt-accent, #6b7280);
+    color: white;
+}
+
+/* アクションボタン（TO, GIF, 通話, 添付）：枠線グレー・内側白・フォント黒・ホバー薄オレンジ */
+.input-area__action-btn {
+    font-size: 11px;
+    min-width: 32px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    background: #ffffff;
+    color: #1a1a1a;
+    border: 2px solid #9ca3af;
+}
+
+.input-area__action-btn:hover {
+    background: #ffedd5;
+}
+
+.input-area__action-btn--to.input-area__btn--active {
+    background: #22c55e;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+}
+
+/* Enterで送信ラベル */
+.input-area__enter-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-muted, #64748b);
+    white-space: nowrap;
+}
+
+.input-area__enter-label input {
+    margin: 0;
+}
+
+/* トグルボタン：枠線グレー・内側白・フォント黒・ホバー薄オレンジ */
+.input-area__toggle-btn {
+    background: #ffffff;
+    color: #1a1a1a;
+    border: 2px solid #9ca3af;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-area__toggle-btn:hover {
+    background: #ffedd5;
+}
+
+/* ========================================
+   入力行
+   ======================================== */
+.input-area__row {
+    display: flex;
+    align-items: stretch;
+    padding: 8px 16px 16px;
+    gap: 8px;
+}
+
+.input-area__wrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+}
+
+.input-area__textarea {
+    flex: 1;
+    border: 2px solid #9ca3af;
+    border-radius: var(--ui-input-radius, 20px);
+    resize: none;
+    font-size: var(--font-message, 14px);
+    line-height: 1.5;
+    min-height: 56px;
+    max-height: 130px;
+    outline: none;
+    padding: 10px 16px;
+    font-family: var(--user-font, inherit);
+    background: #ffffff;
+    transition: all 0.2s;
+    overflow-y: auto;
+}
+
+.input-area__textarea:focus {
+    border-color: var(--dt-input-focus-border, #6b7280);
+    box-shadow: 0 0 0 1px var(--dt-input-focus-border, #6b7280);
+}
+
+.input-area__textarea::placeholder {
+    color: var(--text-muted, #64748b);
+    font-size: 13px;
+}
+
+/* 送信ボタン：枠線グレー・内側白・フォント黒・ホバー薄オレンジ */
+.input-area__send-btn {
+    width: 48px;
+    min-width: 48px;
+    border-radius: var(--ui-input-radius, 20px);
+    background: #ffffff;
+    color: #1a1a1a;
+    border: 2px solid #9ca3af;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.input-area__send-btn:hover {
+    background: #ffedd5;
+    transform: scale(1.02);
+}
+
+.input-area__send-btn:active {
+    transform: scale(0.98);
+}
+
+/* ========================================
+   非表示状態
+   ======================================== */
+.input-area--hidden .input-area__row {
+    display: none;
+}
+
+.input-area--hidden .input-area__toggle-btn {
+    transform: rotate(90deg);
+}
+
+/* 表示用フローティングボタン */
+.input-area__show-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 50%;
+    transform: translateX(50%);
+    background: var(--primary, #6366f1);
+    color: white;
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.input-area__show-btn:hover {
+    transform: translateX(50%) scale(1.1);
+}
+
+.input-area--hidden ~ .input-area__show-btn {
+    display: flex;
+}
+
+/* ========================================
+   後方互換性（既存クラス名のサポート）
+   これらは段階的に削除予定
+   ======================================== */
+/* 既存のクラス名を新しいスタイルにマッピング */
+.input-container { /* → .input-area__container */ }
+.edit-mode-bar { /* → .input-area__edit-bar */ }
+.reply-mode-bar { /* → .input-area__reply-bar */ }
+.input-toolbar { /* → .input-area__toolbar */ }
+.input-row { /* → .input-area__row */ }
+.input-wrapper { /* → .input-area__wrapper */ }
+#messageInput { /* → .input-area__textarea */ }

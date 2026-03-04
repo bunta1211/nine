@@ -1,0 +1,123 @@
+/**
+ * GIFピッカー コンポーネント
+ * 遅延読み込み対象
+ */
+
+.gif-picker {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 320px;
+    max-height: 400px;
+    background: var(--dt-card-bg, #ffffff);
+    border: 1px solid var(--dt-card-border, rgba(0,0,0,0.1));
+    border-radius: var(--dt-border-radius, 12px);
+    box-shadow: var(--dt-card-shadow, 0 4px 20px rgba(0,0,0,0.15));
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.gif-picker.visible {
+    display: flex;
+}
+
+.gif-picker__header {
+    padding: 12px;
+    border-bottom: 1px solid var(--dt-divider, rgba(0,0,0,0.1));
+    flex-shrink: 0;
+}
+
+.gif-picker__search {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--dt-input-border, rgba(0,0,0,0.2));
+    border-radius: 20px;
+    font-size: 14px;
+    background: var(--dt-input-bg, #ffffff);
+    color: var(--dt-input-text, #333);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.gif-picker__search:focus {
+    border-color: var(--dt-input-focus-border, #3b82f6);
+}
+
+.gif-picker__search::placeholder {
+    color: var(--dt-input-placeholder, #999);
+}
+
+.gif-picker__content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.gif-picker__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.gif-picker__item {
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    background: var(--dt-divider, #f0f0f0);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gif-picker__item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.gif-picker__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.gif-picker__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--dt-text-muted, #666);
+}
+
+.gif-picker__empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--dt-text-muted, #666);
+}
+
+.gif-picker__footer {
+    padding: 8px 12px;
+    border-top: 1px solid var(--dt-divider, rgba(0,0,0,0.1));
+    text-align: center;
+    font-size: 11px;
+    color: var(--dt-text-light, #999);
+    flex-shrink: 0;
+}
+
+/* スクロールバー */
+.gif-picker__content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.gif-picker__content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.gif-picker__content::-webkit-scrollbar-thumb {
+    background: var(--dt-scroll-thumb, rgba(0,0,0,0.2));
+    border-radius: 3px;
+}
+
+.gif-picker__content::-webkit-scrollbar-thumb:hover {
+    background: var(--dt-scroll-thumb-hover, rgba(0,0,0,0.3));
+}

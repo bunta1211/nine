@@ -1,0 +1,54 @@
+---
+description: デザイン変更時は標準デザイン規格に従う
+alwaysApply: true
+---
+
+# デザイン変更ルール（標準デザイン規格）
+
+デザイン・テーマ・色・フォント・枠線スタイルを変更・追加するときは、次の構成に従ってください。
+
+## 参照するドキュメント
+
+- **規格の正式定義**: `DOCS/STANDARD_DESIGN_SPEC.md`  
+  色一覧、トークン、変更手順、運用のコツ、助言（キャッシュ・セレクタ・アクセシビリティ・確認手順）を記載。
+- **実体の定義**: `includes/design_config.php`  
+  テーマ（lavender のみ）、スタイル、フォント、定数（`DESIGN_DEFAULT_THEME` など）を一元管理。
+- **CSS 出力**: `includes/design_loader.php`  
+  ユーザー設定に基づく `:root` とスタイルの動的生成。
+
+## 変更時に守ること
+
+1. **色・グラデーションの変更**  
+   `includes/design_config.php` の `getThemeConfigs()['lavender']` または `getDefaultDesignTokens()` を編集する。CSS に直接 hex/rgba を新規に書かない。
+2. **新規 CSS**  
+   色は `var(--dt-〇〇)` を優先する。クラス名は既存と重複しないよう付ける（必要ならコンポーネント接頭辞）。
+3. **新規ページ**  
+   body に `data-theme="<?= DESIGN_DEFAULT_THEME ?>"` を付与。枠線スタイルは `getEffectiveStyleId()` の結果を `style-〇〇` で付与。
+4. **トークン・色の追加・削除**  
+   `DOCS/STANDARD_DESIGN_SPEC.md` の該当セクション（カラーパレットなど）を更新する。
+5. **キャッシュ**  
+   デザインの見た目を変えたら `includes/design_config.php` の `DESIGN_ASSET_VERSION` を 1 つ上げる。
+6. **トークン名**  
+   新規 CSS 変数は `--dt-〇〇`（dt = design token）に揃える。既存の `--dt-*` と同じ命名規則を踏襲する。
+7. **変更の順序**  
+   先に `design_config.php` を編集し、そのあと `DOCS/STANDARD_DESIGN_SPEC.md` の該当セクションを更新する（実装とドキュメントのずれ防止）。
+8. **コミット前チェック**  
+   色を変えた → DESIGN_ASSET_VERSION を上げたか。トークンを増減した → STANDARD_DESIGN_SPEC に追記・修正したか。
+
+## 上パネル共有ページのルール
+
+settings.php / design.php / tasks.php / notifications.php はトップページ（chat.php）と同じ上パネルを共有する。
+
+1. **CSS 読み込み順序**  
+   `header.css` → `panel-panels-unified.css` → インライン `<style>` → `generateDesignCSS()`。この順序を守る。
+2. **インラインで触らないもの**  
+   `.top-panel` の配置、ドロップダウン（`.user-dropdown`, `.language-dropdown` 等）、`body { overflow: hidden }`。これらは `header.css` と `design_loader.php` が管理する。
+3. **`--header-height`**  
+   `:root` に `70px` を設定する（48px は使わない）。
+4. **PC版タスク/通知アイコン**  
+   画面幅 > 768px では `tasks.php` / `notifications.php` へ直接ページ遷移（ドロップダウンではない）。
+
+## テーマ・背景について
+
+- アプリは**標準デザイン（lavender）のみ**。透明テーマ・背景画像・ダークモードは廃止済み。
+- `theme` は常に `lavender`、`background_image` は常に `none` として扱う。

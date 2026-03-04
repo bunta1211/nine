@@ -1,0 +1,106 @@
+# ページチェッカーで報告コマンド
+
+ユーザーが「ページチェッカーで報告」「ページチェック」「サイト全体を確認」などと指示した場合、以下の手順を実行してください。
+
+## 実行手順
+
+### 1. APIでクイックチェック
+
+```bash
+curl "http://localhost/nine/api/page-check.php?action=full"
+```
+
+または、Webブラウザでアクセス:
+- **ページチェッカー画面**: `http://localhost/nine/admin/page-checker.php`
+- **API (フルチェック)**: `http://localhost/nine/api/page-check.php?action=full`
+
+### 2. 結果の解釈
+
+APIレスポンスには以下が含まれます:
+
+```json
+{
+  "success": true,
+  "type": "full",
+  "summary": {
+    "total": 11,
+    "ok": 10,
+    "warnings": 1,
+    "errors": 0,
+    "status": "ok"
+  },
+  "results": [...],
+  "js_errors": [...],
+  "recommendations": [...]
+}
+```
+
+### 3. 問題があった場合の対処
+
+#### HTTPエラー (4xx, 5xx)
+- 該当ページのPHPファイルを確認
+- エラーログを確認: `c:\xampp\apache\logs\error.log`
+
+#### 応答が遅い (2000ms以上)
+- データベースクエリを確認
+- 不要なincludeがないか確認
+
+#### JavaScriptエラー
+- `admin/page-checker.php` でエラー詳細を確認
+- ブラウザのコンソールで `PageInspector.inspect()` を実行
+
+### 4. 詳細UI検査
+
+各ページで以下を実行:
+
+```javascript
+// ブラウザコンソールで
+PageInspector.inspect()
+```
+
+これにより以下がチェックされます:
+- テキストの可視性（フォントサイズ、コントラスト）
+- ボタンの機能性（クリックハンドラの有無）
+- 画像の読み込み状態
+- レイアウト（画面外要素、水平スクロール）
+- アクセシビリティ（lang属性、見出し階層）
+
+## レポート形式
+
+ユーザーへの報告例:
+
+```
+## ページチェック結果
+
+**実行日時**: 2026-01-28 10:30:00
+
+### サマリー
+- 検査ページ数: 11
+- 正常: 10
+- 警告: 1
+- エラー: 0
+
+### 詳細
+| ページ | ステータス | 応答時間 |
+|--------|-----------|---------|
+| チャット | ✅ 200 | 150ms |
+| 設定 | ✅ 200 | 120ms |
+| ...
+
+### 検出された問題
+1. **[中] 設定ページ**: 応答時間が遅い (2500ms)
+   - 推奨: データベースクエリの最適化
+
+### JavaScriptエラー
+なし
+
+### 推奨アクション
+すべてのチェックに合格しました。
+```
+
+## 関連ファイル
+
+- `admin/page-checker.php` - ページチェッカーUI
+- `api/page-check.php` - ページチェックAPI
+- `assets/js/page-inspector.js` - UI検査スクリプト
+- `assets/js/test-runner.js` - テストランナー

@@ -1,0 +1,146 @@
+/**
+ * 中央パネルレイアウト
+ * BEM命名規則: .center-panel__element--modifier
+ * 
+ * 構造:
+ * .center-panel
+ *   ├── .center-panel__header (.chat-header)
+ *   ├── .center-panel__messages (.messages-area)
+ *   └── .center-panel__input (.input-area)
+ * 
+ * レイアウトルール:
+ * - Flexboxで縦方向に配置
+ * - header: 固定高さ（flex-shrink: 0）
+ * - messages: 可変高さ（flex: 1）、スクロール可能
+ * - input: 固定高さ（flex-shrink: 0）
+ */
+
+/* ========================================
+   中央パネル - メインコンテナ
+   ======================================== */
+.center-panel {
+    /* Flexアイテムとして */
+    flex: 1 1 0;
+    min-width: 0;
+    
+    /* Flexコンテナとして */
+    display: flex;
+    flex-direction: column;
+    
+    /* 高さ制限 */
+    min-height: 0;
+    max-height: 100%;
+    
+    /* 見た目 */
+    position: relative;
+    border-radius: var(--ui-border-radius, 16px);
+    overflow: hidden;
+    font-family: var(--user-font, inherit);
+    
+    /* デフォルト背景（テーマで上書き可能） */
+    background: 
+        linear-gradient(135deg, rgba(107,142,35,0.3) 0%, rgba(218,165,32,0.3) 50%, rgba(139,69,19,0.2) 100%),
+        linear-gradient(to bottom, #87a96b 0%, #6b8e23 30%, #daa520 60%, #cd853f 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+/* 装飾用オーバーレイ */
+.center-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(ellipse at 30% 20%, rgba(255,255,200,0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(139,69,19,0.2) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ========================================
+   ヘッダー部分
+   ======================================== */
+.center-panel__header,
+.chat-header {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.9);
+    
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    font-family: var(--user-font, inherit);
+    
+    /* 左右下隅も丸く（全デザインで統一） */
+    border-bottom-left-radius: var(--ui-border-radius, 16px);
+    border-bottom-right-radius: var(--ui-border-radius, 16px);
+}
+
+/* ========================================
+   メッセージエリア
+   ======================================== */
+.center-panel__messages,
+.messages-area {
+    position: relative;
+    z-index: 1;
+    
+    /* Flexアイテムとして - 残りスペースを埋める */
+    flex: 1 1 0;
+    min-height: 0;
+    
+    /* スクロール */
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    /* 内部レイアウト */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    padding: 20px;
+}
+
+/* ========================================
+   入力エリア（レイアウトのみ）
+   ======================================== */
+.center-panel__input,
+.input-area {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   会話未選択時
+   ======================================== */
+.center-panel__empty,
+.no-conversation {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted, #64748b);
+    text-align: center;
+    padding: 40px;
+}
+
+.center-panel__empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.center-panel__empty-text {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.center-panel__empty-hint {
+    font-size: 14px;
+    opacity: 0.7;
+}

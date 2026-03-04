@@ -1,0 +1,46 @@
+/**
+ * グレー1本ラインアイコン（透明背景・各種デザインに適用可能）
+ * assets/icons/line/*.svg を使用
+ */
+.icon-line {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: -0.25em;
+  flex-shrink: 0;
+}
+.icon-line--sm {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+}
+.icon-line--lg {
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: -0.3em;
+}
+.top-btn .icon-line,
+.btn .icon-line {
+  margin-right: 4px;
+}
+.top-btn .icon-line:last-child,
+.btn .icon-line:last-child {
+  margin-right: 0;
+}
+.search-box-icon.icon-line {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+}
+.fab-btn .icon-line,
+.fab-btn img.icon-line {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+}
+.line-menu-icon .icon-line,
+.line-menu-icon img.icon-line {
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+}

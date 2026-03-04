@@ -1,0 +1,294 @@
+/**
+ * メッセージカードコンポーネント
+ * BEM命名規則: .message-card__element--modifier
+ * 
+ * 構造:
+ * .message-card
+ *   ├── .message-card__avatar
+ *   ├── .message-card__bubble
+ *   │   ├── .message-card__header
+ *   │   │   ├── .message-card__sender
+ *   │   │   └── .message-card__time
+ *   │   ├── .message-card__content
+ *   │   ├── .message-card__media
+ *   │   └── .message-card__reactions
+ *   └── .message-card__actions
+ * 
+ * Modifiers:
+ *   --own: 自分のメッセージ
+ *   --mentioned: メンション付き
+ *   --system: システムメッセージ
+ */
+
+/* ========================================
+   メッセージカード - メインコンテナ
+   ======================================== */
+.message-card {
+    display: flex;
+    gap: 10px;
+    max-width: 80%;
+    align-self: flex-start;
+}
+
+/* 自分のメッセージ */
+.message-card--own {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+/* ========================================
+   アバター
+   ======================================== */
+.message-card__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-main, #f5f5f5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.message-card__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 自分のメッセージではアバター非表示 */
+.message-card--own .message-card__avatar {
+    display: none;
+}
+
+/* ========================================
+   吹き出し
+   ======================================== */
+.message-card__bubble {
+    background: var(--dt-msg-other-bg, rgba(255,255,255,0.95));
+    border-radius: var(--ui-card-radius, 12px);
+    padding: 10px 14px;
+    min-width: 60px;
+    max-width: 100%;
+    font-family: var(--user-font, inherit);
+    color: var(--dt-msg-other-text, #1a1a2e);
+    border: 1px solid var(--dt-msg-other-border, transparent);
+    position: relative;
+}
+
+/* 自分のメッセージ：枠なし */
+.message-card--own .message-card__bubble {
+    background: var(--dt-msg-self-bg, rgba(255,255,255,0.95));
+    color: var(--dt-msg-self-text, #1a1a2e);
+    border: none !important;
+}
+
+/* メンション付きメッセージ（mention-frame：自分宛のみ枠あり） */
+.message-card--mentioned.mention-frame .message-card__bubble {
+    border: 2px solid var(--dt-mention-border, var(--theme-accent, #10b981)) !important;
+}
+
+/* 自分宛ではない・To全員：枠なし */
+.message-card--mentioned:not(.mention-frame) .message-card__bubble {
+    border: none !important;
+}
+
+/* ========================================
+   ヘッダー（送信者・時間）
+   ======================================== */
+.message-card__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.message-card__sender {
+    font-weight: 600;
+    font-size: calc(var(--font-base, 14px) - 2px);
+    color: var(--dt-msg-other-text, #10b981);
+}
+
+.message-card--own .message-card__sender {
+    color: var(--dt-msg-self-text, #1a1a2e);
+}
+
+.message-card__to-label {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--dt-mention-badge-bg, var(--theme-accent, #10b981)) 15%, transparent);
+    color: var(--dt-mention-badge-bg, var(--theme-accent, #10b981));
+}
+
+@supports not (color: color-mix(in srgb, red, blue)) {
+    .message-card__to-label {
+        background: rgba(16, 185, 129, 0.1);
+    }
+}
+
+.message-card--own .message-card__to-label {
+    background: rgba(255,255,255,0.15);
+    color: inherit;
+}
+
+.message-card__time {
+    font-size: calc(var(--font-base, 14px) - 2px);
+    color: var(--dt-msg-other-time, var(--dt-text-muted, #6b7280));
+    margin-left: auto;
+}
+
+.message-card--own .message-card__time {
+    color: var(--dt-msg-self-time, var(--dt-text-muted, #1a1a2e));
+}
+
+/* ========================================
+   コンテンツ
+   ======================================== */
+.message-card__content {
+    font-size: var(--font-message, 14px);
+    line-height: 1.5;
+    word-wrap: break-word;
+    font-family: var(--user-font, inherit);
+}
+
+.message-card__content a {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+/* ========================================
+   メディア（画像・動画）
+   ======================================== */
+.message-card__media {
+    margin-top: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.message-card__media img,
+.message-card__media video {
+    max-width: 100%;
+    max-height: 300px;
+    display: block;
+}
+
+/* ========================================
+   リアクション
+   ======================================== */
+.message-card__reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.message-card__reaction {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.message-card__reaction:hover {
+    background: rgba(0,0,0,0.1);
+}
+
+.message-card__reaction--own {
+    background: rgba(var(--primary-rgb, 107, 142, 35), 0.2);
+}
+
+/* ========================================
+   アクションメニュー
+   ======================================== */
+.message-card__actions {
+    position: absolute;
+    top: -8px;
+    right: 8px;
+    display: none;
+    gap: 4px;
+}
+
+.message-card:hover .message-card__actions {
+    display: flex;
+}
+
+.message-card__action-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: var(--bg-panel, #fff);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.message-card__action-btn:hover {
+    transform: scale(1.1);
+}
+
+/* ========================================
+   システムメッセージ
+   ======================================== */
+.message-card--system {
+    max-width: 100%;
+    justify-content: center;
+}
+
+.message-card--system .message-card__bubble {
+    background: rgba(0,0,0,0.05);
+    color: var(--text-muted, #999);
+    font-size: 12px;
+    padding: 6px 12px;
+}
+
+/* ========================================
+   返信プレビュー
+   ======================================== */
+.message-card__reply-preview {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 6px;
+    border-left: 3px solid #10b981;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.15s;
+}
+
+.message-card__reply-preview:hover {
+    background: rgba(0,0,0,0.12);
+}
+
+.message-card--own .message-card__reply-preview {
+    background: rgba(255,255,255,0.15);
+    border-left-color: rgba(255,255,255,0.6);
+}
+
+/* ========================================
+   後方互換性
+   既存クラスとの対応
+   ======================================== */
+/* 
+.message-card { } → そのまま
+.message-card.own { } → .message-card--own
+.message-card.mentioned-me { } → .message-card--mentioned
+.message-card .sender { } → .message-card__sender
+.message-card .content { } → .message-card__content
+.message-card .timestamp { } → .message-card__time
+*/

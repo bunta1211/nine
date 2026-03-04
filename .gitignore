@@ -1,0 +1,39 @@
+# 機密情報を含むファイル（Git にコミットしない）
+config/database.aws.php
+config/app.local.php
+config/ai_config.local.php
+config/google_calendar.local.php
+config/google_login.local.php
+config/push.local.php
+config/mail.local.php
+config/vault.local.php
+config/env.example.txt
+config/google.php
+
+# バックアップ（DB ダンプ等はリポジトリに含めない）
+backup/
+
+# 秘密鍵・証明書
+*.pem
+private_key.pem
+
+# ログ・一時ファイル
+logs/*.log
+logs/*.csv
+tmp/sessions/*
+!tmp/sessions/.htaccess
+
+# 今日の話題キャッシュ（RSS 取得結果の日次キャッシュ）
+storage/cache/*.json
+!storage/cache/.gitkeep
+
+# 環境依存
+.env
+.env.local
+.env.*.local
+
+# OS・エディタ
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

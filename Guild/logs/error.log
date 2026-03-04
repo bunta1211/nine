@@ -1,0 +1,40 @@
+[20-Jan-2026 14:48:25 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'social9.guild_notifications' doesn't exist in C:\xampp\htdocs\nine\Guild\includes\common.php:219
+Stack trace:
+#0 C:\xampp\htdocs\nine\Guild\includes\common.php(219): PDO->prepare('\n        SELECT...')
+#1 C:\xampp\htdocs\nine\Guild\templates\header.php(10): getUnreadNotificationCount()
+#2 C:\xampp\htdocs\nine\Guild\home.php(18): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\nine\Guild\includes\common.php on line 219
+[20-Jan-2026 14:48:28 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'social9.guild_notifications' doesn't exist in C:\xampp\htdocs\nine\Guild\includes\common.php:219
+Stack trace:
+#0 C:\xampp\htdocs\nine\Guild\includes\common.php(219): PDO->prepare('\n        SELECT...')
+#1 C:\xampp\htdocs\nine\Guild\templates\header.php(10): getUnreadNotificationCount()
+#2 C:\xampp\htdocs\nine\Guild\home.php(18): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\nine\Guild\includes\common.php on line 219
+[20-Jan-2026 14:49:39 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'social9.guild_notifications' doesn't exist in C:\xampp\htdocs\nine\Guild\includes\common.php:220
+Stack trace:
+#0 C:\xampp\htdocs\nine\Guild\includes\common.php(220): PDO->prepare('\n        SELECT...')
+#1 C:\xampp\htdocs\nine\Guild\templates\header.php(10): getUnreadNotificationCount()
+#2 C:\xampp\htdocs\nine\Guild\home.php(18): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\nine\Guild\includes\common.php on line 220
+[20-Jan-2026 14:51:41 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'gm.can_issue_requests' in 'field list' in C:\xampp\htdocs\nine\Guild\includes\common.php:146
+Stack trace:
+#0 C:\xampp\htdocs\nine\Guild\includes\common.php(146): PDO->prepare('\n        SELECT...')
+#1 C:\xampp\htdocs\nine\Guild\templates\header.php(11): getUserGuilds()
+#2 C:\xampp\htdocs\nine\Guild\home.php(18): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\nine\Guild\includes\common.php on line 146
+[20-Jan-2026 14:54:24 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'gm.is_active' in 'where clause' in C:\xampp\htdocs\nine\Guild\includes\common.php:146
+Stack trace:
+#0 C:\xampp\htdocs\nine\Guild\includes\common.php(146): PDO->prepare('\n        SELECT...')
+#1 C:\xampp\htdocs\nine\Guild\templates\header.php(11): getUserGuilds()
+#2 C:\xampp\htdocs\nine\Guild\home.php(18): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\nine\Guild\includes\common.php on line 146
+[20-Jan-2026 14:55:40 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 't.from_guild_id' in 'on clause' in C:\xampp\htdocs\nine\Guild\home.php:61
+Stack trace:
+#0 C:\xampp\htdocs\nine\Guild\home.php(61): PDO->prepare('\n    SELECT t.*...')
+#1 {main}
+  thrown in C:\xampp\htdocs\nine\Guild\home.php on line 61

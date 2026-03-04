@@ -1,0 +1,248 @@
+/**
+ * Guild 管理者画面CSS
+ */
+
+.admin-dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* 統計カードグリッド */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.stat-card {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-card.wide {
+    grid-column: span 2;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    background-color: var(--color-bg);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.stat-sub {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+/* プログレスバー */
+.progress-bar {
+    height: 8px;
+    background-color: var(--color-bg);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin: var(--spacing-sm) 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    border-radius: var(--radius-full);
+    transition: width var(--transition-normal);
+}
+
+/* 管理メニューグリッド */
+.admin-menu-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.admin-menu-card {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    text-align: center;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-menu-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.menu-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.menu-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+}
+
+.menu-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+/* パネル */
+.admin-panels {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.admin-panel {
+    max-height: 400px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-panel .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.admin-panel .card-body {
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* 保留リスト */
+.pending-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.pending-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+}
+
+.pending-info {
+    flex: 1;
+}
+
+.pending-title {
+    font-weight: 500;
+    margin-bottom: var(--spacing-xs);
+}
+
+.pending-meta {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.pending-earth {
+    font-weight: 600;
+    color: var(--color-accent);
+}
+
+.pending-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+/* 活動リスト */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border-light);
+    font-size: var(--font-size-sm);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-time {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    width: 120px;
+}
+
+.activity-user {
+    font-weight: 500;
+    width: 100px;
+}
+
+.activity-action {
+    color: var(--color-text-secondary);
+}
+
+/* レスポンシブ */
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stat-card.wide {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 1024px) {
+    .admin-menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .admin-panels {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card.wide {
+        grid-column: auto;
+    }
+    
+    .admin-menu-grid {
+        grid-template-columns: 1fr;
+    }
+}

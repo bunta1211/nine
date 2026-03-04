@@ -1,0 +1,3897 @@
+/**
+ * Social9 モバイル専用CSS
+ * PC版（chat-main.css）はそのままで、モバイル用のスタイルを追加
+ * 
+ * ブレークポイント:
+ * - 768px以下: タブレット・スマートフォン
+ * - 480px以下: スマートフォン（小）
+ */
+
+/* 携帯初回画面メニューはデスクトップでは非表示（768px以下で表示する） */
+.center-panel-start-menu {
+    display: none !important;
+}
+
+/* ========================================
+   Phase 1: 基本レイアウト（1カラム化、スライドパネル）
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* 会話選択時: メッセージ表示欄を確実に表示（他ルールより優先） */
+    body.page-chat[data-has-conversation="1"] .center-panel #messagesArea,
+    body.page-chat[data-has-conversation="1"] .center-panel .messages-area {
+        min-height: 55vh !important;
+        height: auto !important;
+        display: block !important;
+        flex: 1 1 0% !important;
+        overflow-y: auto !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    body.page-chat[data-has-conversation="1"] .center-panel {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 60vh !important;
+    }
+
+    /* ========== CSS変数（モバイル用） ========== */
+    :root {
+        --mobile-header-height: 56px;
+        /* 入力エリア実高（ツールバー行+入力行+パディング）。被り防止で十分な余白を確保 */
+        --mobile-input-height: 130px;
+        --mobile-panel-width: 85vw;
+        --mobile-panel-max-width: 320px;
+    }
+
+    /* PC専用要素を非表示 */
+    .pc-only {
+        display: none !important;
+    }
+
+    /* モバイル専用要素を表示 */
+    .mobile-only {
+        display: block !important;
+    }
+
+    /* ========================================
+       重要: パネルが開いたときに中央パネルを完全に隠す
+       ======================================== */
+    
+    /* 左右パネルが開いているとき: 中央を非表示（:hasでCSS単体対応） */
+    body.mobile-panel-open .center-panel,
+    .main-container:has(.right-panel.mobile-open) .center-panel,
+    .main-container:has(.left-panel.mobile-open) .center-panel {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    
+    body.mobile-panel-open .chat-header,
+    .main-container:has(.right-panel.mobile-open) .chat-header,
+    .main-container:has(.left-panel.mobile-open) .chat-header {
+        display: none !important;
+    }
+    
+    body.mobile-panel-open .messages-area,
+    .main-container:has(.right-panel.mobile-open) .messages-area,
+    .main-container:has(.left-panel.mobile-open) .messages-area {
+        display: none !important;
+    }
+    
+    body.mobile-panel-open .input-area,
+    .main-container:has(.right-panel.mobile-open) .input-area,
+    .main-container:has(.left-panel.mobile-open) .input-area {
+        display: none !important;
+    }
+    
+    /* メンバーポップアップも非表示 */
+    body.mobile-panel-open .member-popup,
+    body.mobile-panel-open .member-popup-overlay {
+        display: none !important;
+    }
+
+    /* 携帯: 左右パネルを開いているときは上パネルを白・ロゴ・左右収納ボタンを表示 */
+    body.mobile-panel-open .top-panel {
+        background: #ffffff !important;
+        color: #1e293b !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        z-index: 100002 !important; /* 右パネル(99999)より前面で⇒で閉じられるように */
+    }
+    body.mobile-panel-open .top-panel .logo,
+    body.mobile-panel-open .top-panel .logo * {
+        color: #1e293b !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    /* 左側は .mobile-menu-btn（⇒）のみ表示。.toggle-left-btn は重複するので非表示 */
+    /* 携帯: 左右収納ボタンは廃止（スワイプでページ移動するため表示しない） */
+    body.mobile-panel-open .top-panel .toggle-left-btn,
+    body.mobile-panel-open .top-panel .toggle-right-btn,
+    body.mobile-panel-open .top-panel .mobile-menu-btn {
+        display: none !important;
+    }
+    /* パネル開放時も個人アカウントは歯車のみ */
+    body.mobile-panel-open .top-panel .user-info .user-info-pc-only {
+        display: none !important;
+    }
+    body.mobile-panel-open .top-panel .user-info .user-info-mobile-gear {
+        display: block !important;
+        visibility: visible !important;
+    }
+
+    /* ========================================
+       左右パネル: 完全不透明な背景（最重要）
+       ======================================== */
+    
+    /* 左パネル - テーマの背景色を使用 */
+    aside.left-panel {
+        background: var(--theme-panel-bg, rgba(255,255,255,0.97)) !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+    
+    /* 左パネルが開いているとき（携帯版は常に視認性を確保） */
+    aside.left-panel.mobile-open {
+        background: rgba(255, 255, 255, 0.98) !important;
+        color: #1e293b !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        backdrop-filter: blur(12px) !important;
+    }
+
+    /* 右パネル - テーマの背景色を使用 */
+    aside.right-panel {
+        background: var(--theme-right-panel-bg, var(--theme-panel-bg, rgba(255,255,255,0.97))) !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+    
+    /* 右パネルが開いているとき（携帯版は常に視認性を確保） */
+    aside.right-panel.mobile-open {
+        background: rgba(255, 255, 255, 0.98) !important;
+        color: #1e293b !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        backdrop-filter: blur(12px) !important;
+    }
+    
+    /* ========================================
+       透明テーマ - モバイルパネル不透明化
+       ======================================== */
+    
+    /* 中央パネル（チャットエリア）は背景画像が見えるように透明を維持 */
+    .center-panel {
+        background: transparent !important;
+    }
+
+    /* 左パネル内のテキスト - テーマの色を使用 */
+    aside.left-panel {
+        color: var(--theme-text, #1e293b) !important;
+    }
+
+    /* 携帯でパネルを開いたときは常に濃い文字で視認性を確保 */
+    aside.left-panel.mobile-open .conv-item:not(.active) .name,
+    aside.left-panel.mobile-open .conv-item:not(.active) .conv-name,
+    aside.left-panel.mobile-open .conv-item:not(.active) .time,
+    aside.left-panel.mobile-open .conv-item:not(.active) .conv-time,
+    aside.left-panel.mobile-open .conv-item:not(.active) .preview,
+    aside.left-panel.mobile-open .conv-item:not(.active) .conv-preview,
+    aside.left-panel.mobile-open .left-tab:not(.active),
+    aside.left-panel.mobile-open .left-header button,
+    aside.left-panel.mobile-open .left-header-btns button,
+    aside.left-panel.mobile-open .filter-tabs button,
+    aside.left-panel.mobile-open .chat-title-area h2 {
+        color: #1e293b !important;
+    }
+    aside.left-panel.mobile-open .conv-item:not(.active) .time,
+    aside.left-panel.mobile-open .conv-item:not(.active) .conv-time,
+    aside.left-panel.mobile-open .conv-item:not(.active) .preview,
+    aside.left-panel.mobile-open .conv-item:not(.active) .conv-preview {
+        color: #64748b !important;
+    }
+    aside.left-panel.mobile-open .left-tab:not(.active),
+    aside.left-panel.mobile-open .left-header button,
+    aside.left-panel.mobile-open .left-header-btns button {
+        background: rgba(0, 0, 0, 0.06) !important;
+        border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    }
+
+    aside.left-panel .conv-item .name,
+    aside.left-panel .conv-item .conv-name {
+        color: var(--theme-text, #1e293b) !important;
+    }
+
+    aside.left-panel .conv-item .time,
+    aside.left-panel .conv-item .conv-time,
+    aside.left-panel .conv-item .preview,
+    aside.left-panel .conv-item .conv-preview {
+        color: var(--theme-text-muted, #64748b) !important;
+    }
+
+    /* ピン留めボタン（モバイル: ピン済みのみ表示、未ピンは非表示＝長押しで操作） */
+    .conv-pin-btn {
+        display: none !important;
+    }
+    .conv-item.is-pinned .conv-pin-btn {
+        display: inline-block !important;
+        opacity: 1;
+        font-size: 10px;
+    }
+
+    /* 左パネルのタブとボタン */
+    aside.left-panel .left-tab,
+    aside.left-panel .left-header button {
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05)) !important;
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+        color: var(--theme-text, #1e293b) !important;
+    }
+
+    aside.left-panel .left-tab.active {
+        background: var(--theme-accent, #22c55e) !important;
+        color: #ffffff !important;
+    }
+
+    aside.left-panel .left-header-btns button {
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05)) !important;
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+        color: var(--theme-text, #1e293b) !important;
+    }
+
+    aside.left-panel .conv-item.active {
+        background: var(--theme-accent-dark, #047857) !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    aside.left-panel .conv-item.active,
+    aside.left-panel .conv-item.active .name,
+    aside.left-panel .conv-item.active .conv-name,
+    aside.left-panel .conv-item.active .time,
+    aside.left-panel .conv-item.active .conv-time,
+    aside.left-panel .conv-item.active .preview,
+    aside.left-panel .conv-item.active .conv-preview,
+    aside.left-panel .conv-item.active .conv-member-count {
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    aside.left-panel .conv-item:not(.active):hover,
+    aside.left-panel .conv-item:not(.active):active {
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05)) !important;
+    }
+
+    /* 右パネル内のテキスト - テーマの色を使用 */
+    aside.right-panel {
+        color: var(--theme-text, #1e293b) !important;
+    }
+
+    aside.right-panel .section-title,
+    aside.right-panel h4,
+    aside.right-panel label {
+        color: var(--theme-text, #1e293b) !important;
+    }
+
+    aside.right-panel .group-setting-item {
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.03)) !important;
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+        color: var(--theme-text, #1e293b) !important;
+    }
+
+    aside.right-panel .group-setting-item:active {
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.08)) !important;
+    }
+
+    aside.right-panel .group-setting-item.danger {
+        color: #dc2626 !important;
+    }
+
+    /* 右パネルのセクションタイトル */
+    aside.right-panel .section-title {
+        color: var(--theme-text-muted, #64748b) !important;
+        font-size: 12px !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* モバイル用閉じるボタン */
+    .mobile-close-panel,
+    .mobile-close-left {
+        color: var(--theme-text, #1e293b) !important;
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05)) !important;
+    }
+
+    /* 未選択時の中央パネルメッセージ */
+    .center-panel .no-conversation,
+    .center-panel .empty-chat {
+        background: rgba(30, 30, 40, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        margin: 20px;
+    }
+
+    .center-panel .no-conversation *,
+    .center-panel .empty-chat * {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    /* ========== 上パネル（ヘッダー） ========== */
+    .top-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--mobile-header-height);
+        border-radius: 0;
+        padding: 0 8px;
+        z-index: 1000;
+    }
+
+    /* ロゴを小さく */
+    .logo {
+        font-size: 16px;
+    }
+
+    /* 携帯・チャット表示時: ロゴ位置にグループ名を表示し、下のグループ名行は非表示 */
+    .center-panel .chat-header {
+        display: none !important;
+    }
+    /* 上記で chat-header を非表示にしたとき、中央パネルに高さと flex を指定（ストリップ内は後続ブロックで上書き） */
+    body.page-chat .center-panel {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+    }
+    body.page-chat .center-panel .messages-area {
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+    .top-panel .logo .logo-mobile-chat-title {
+        display: inline !important;
+    }
+    .top-panel .logo:has(.logo-mobile-chat-title) .logo-pc,
+    .top-panel .logo:has(.logo-mobile-chat-title) .logo-mobile {
+        display: none !important;
+    }
+
+    /* 検索ボックス非表示 */
+    .search-box {
+        display: none !important;
+    }
+
+    /* 上部ボタンのテキスト非表示 */
+    .top-btn span {
+        display: none;
+    }
+
+    .top-btn {
+        padding: 10px;
+        min-width: 44px;
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    /* トップメニュー - タッチターゲット間隔改善 */
+    .top-right {
+        gap: 8px; /* タッチターゲット間隔: 8px以上 */
+    }
+
+    /* ========== メインコンテナ ========== */
+    .main-container {
+        padding: 0;
+        margin-top: var(--mobile-header-height);
+        height: calc(100vh - var(--mobile-header-height));
+        gap: 0;
+    }
+
+    /* ========== Phase 3: 携帯用3ページ横並びストリップ（左｜中央｜右） ========== */
+    /* Phase 3.3: 横のみスクロール・1ページ分でスナップ。縦スクロールは各パネル内で処理。スワイプしやすく overscroll-behavior-x: contain */
+    .main-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        overscroll-behavior-y: none;
+    }
+    .mobile-pages-strip {
+        display: flex;
+        flex-direction: row;
+        width: 300vw;
+        min-height: 100%;
+        flex-shrink: 0;
+    }
+    .mobile-pages-strip .panel-resize-handle {
+        flex: 0 0 0;
+        width: 0;
+        min-width: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    .mobile-pages-strip .left-panel,
+    .mobile-pages-strip .center-panel,
+    .mobile-pages-strip .right-panel {
+        flex: 0 0 100vw;
+        width: 100vw;
+        min-width: 100vw;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    /* 携帯・チャット表示時: 中央パネルは高さを確定し overflow は子の .messages-area に任せる（ログが読めなくなるのを防ぐ） */
+    body.page-chat .main-container {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+    }
+    body.page-chat .mobile-pages-strip {
+        flex: 1 1 0% !important;
+        min-height: calc(100vh - var(--mobile-header-height, 50px)) !important; /* 親高さ未確定時のフォールバック */
+        height: 100% !important;
+        align-self: stretch !important;
+    }
+    body.page-chat .mobile-pages-strip .center-panel {
+        height: 100% !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    /* グループ名行削除後: 非表示の chat-header が flex で幅を取らないよう高さ0で確定 */
+    body.page-chat .mobile-pages-strip .center-panel .chat-header {
+        display: none !important;
+        flex: 0 0 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+    body.page-chat .mobile-pages-strip .center-panel .messages-area,
+    body.page-chat .center-panel #messagesArea {
+        flex: 1 1 0% !important;
+        min-height: 50vh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: block !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+    /* 入力欄が潰れないように固定（メッセージエリアが確実に残る） */
+    body.page-chat .mobile-pages-strip .center-panel .input-area,
+    body.page-chat .center-panel .input-area {
+        flex-shrink: 0 !important;
+    }
+    body.page-chat .mobile-pages-strip .center-panel .messages-area .message-card,
+    body.page-chat .center-panel #messagesArea .message-card {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    /* ストリップ内では固定スライドではなくフロー内に配置 */
+    .mobile-pages-strip .left-panel {
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        z-index: 1 !important;
+    }
+    .mobile-pages-strip .right-panel {
+        position: relative !important;
+        right: auto !important;
+        top: auto !important;
+        z-index: 1 !important;
+    }
+    /* ストリップ非適用時のみ: ボタンで開いたときは fixed でオーバーレイ表示（3.4 でストリップ時はスクロールに統一済み） */
+    .mobile-pages-strip .left-panel.mobile-open {
+        position: fixed !important;
+        left: 0 !important;
+        top: var(--mobile-header-height) !important;
+        z-index: 2000 !important;
+    }
+    .mobile-pages-strip .right-panel.mobile-open {
+        position: fixed !important;
+        right: 0 !important;
+        top: var(--mobile-header-height) !important;
+        z-index: 2000 !important;
+    }
+
+    /* ========== 左パネル（グループ一覧） ========== */
+    aside.left-panel {
+        position: fixed !important;
+        left: -100vw !important;
+        top: var(--mobile-header-height) !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: calc(100vh - var(--mobile-header-height)) !important;
+        z-index: 2000 !important; /* モーダル(5000)より低く設定 */
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        /* テーマの背景色を使用 */
+        background: var(--theme-panel-bg, rgba(255,255,255,0.97)) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    aside.left-panel.mobile-open {
+        left: 0 !important;
+    }
+
+    /* 携帯でグループ一覧をトップ表示するとき: 会話未選択時は左パネルを常に表示（スクロール復元・遅延に依存しない） */
+    body.page-chat[data-mobile-list-first="1"] aside.left-panel {
+        position: fixed !important;
+        left: 0 !important;
+        z-index: 2000 !important;
+    }
+
+    /* 携帯で会話未選択時は「会話を選択してください」を非表示にし、白い画面にメニュー（.center-panel-start-menu）を表示する */
+    body.page-chat[data-has-conversation="0"] .center-panel-empty-state-prompt {
+        display: none !important;
+    }
+    body.page-chat[data-has-conversation="0"] .center-panel-start-menu {
+        display: flex !important;
+    }
+    /* 携帯・初回画面のメニュー（白い画面に表示・画面中央・クリエイティブデザイン） */
+    .center-panel-start-menu {
+        flex-direction: column;
+        align-items: center;
+        align-self: center;
+        width: 100%;
+        max-width: 320px;
+        padding: 20px 16px;
+        gap: 12px;
+        box-sizing: border-box;
+    }
+    .center-panel-start-menu-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 16px 20px;
+        border-radius: 16px;
+        background: var(--dt-bg-secondary, #f8fafc);
+        color: var(--dt-text, #1e293b);
+        text-decoration: none;
+        font-size: 1.05rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1px solid var(--dt-border-subtle, rgba(0, 0, 0, 0.06));
+        position: relative;
+        overflow: hidden;
+    }
+    .center-panel-start-menu-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--dt-primary, #7c3aed);
+        border-radius: 4px 0 0 4px;
+        opacity: 0.85;
+    }
+    .center-panel-start-menu-item:hover,
+    .center-panel-start-menu-item:active {
+        background: var(--dt-bg-tertiary, #f1f5f9);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .center-panel-start-menu-item:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    /* 左パネルヘッダー */
+    aside.left-panel .left-header {
+        position: relative !important;
+        padding: 12px !important;
+        padding-right: 50px !important; /* 閉じるボタン分のスペース */
+        background: var(--theme-panel-bg, rgba(255,255,255,0.97)) !important;
+        z-index: 1 !important;
+    }
+
+    /* 左パネル用閉じるボタンのスタイル */
+    .mobile-close-left {
+        display: flex !important;
+        position: absolute !important;
+        top: 12px !important;
+        right: 12px !important;
+        width: 44px !important; /* 最小タッチターゲット: 44px */
+        height: 44px !important;
+        border-radius: 50% !important;
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05)) !important;
+        color: var(--theme-text, #1e293b) !important;
+        font-size: 22px !important;
+        cursor: pointer !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 10 !important;
+    }
+
+    .mobile-close-left:active {
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.1)) !important;
+    }
+
+    /* 左パネルヘッダーのボタン（グループ作成、友達追加） */
+    .left-header-tabs {
+        display: flex !important;
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .left-header-tabs button {
+        padding: 10px 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        border-radius: 8px !important;
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+        background: var(--theme-card-bg, rgba(255, 255, 255, 0.9)) !important;
+        color: var(--theme-text, #1e293b) !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent !important;
+        touch-action: manipulation !important;
+    }
+
+    .left-header-tabs button:active {
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.1)) !important;
+        transform: scale(0.98);
+    }
+
+    .left-header-tabs button.secondary {
+        background: var(--theme-accent, #22c55e) !important;
+        color: #ffffff !important;
+        border-color: transparent !important;
+    }
+
+    /* ========== モバイル用インラインフォーム ========== */
+    .mobile-inline-form {
+        background: var(--theme-card-bg, rgba(255, 255, 255, 0.95)) !important;
+        border-bottom: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+        animation: slideDown 0.2s ease-out !important;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .mobile-form-section {
+        padding: 12px !important;
+    }
+
+    .mobile-form-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 12px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        color: var(--theme-text, #1e293b) !important;
+    }
+
+    .mobile-friend-qr-scan-btn {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        border: none !important;
+        border-radius: 8px !important;
+        background: var(--theme-accent, #22c55e) !important;
+        color: #fff !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent !important;
+        touch-action: manipulation !important;
+    }
+
+    .mobile-form-close {
+        width: 28px !important;
+        height: 28px !important;
+        border: none !important;
+        border-radius: 50% !important;
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05)) !important;
+        color: var(--theme-text, #1e293b) !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .mobile-form-body {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .mobile-form-body .mobile-friend-search-desc {
+        width: 100% !important;
+        order: 3 !important;
+        margin: 4px 0 0 !important;
+        font-size: 12px !important;
+        color: var(--theme-text-muted, #64748b) !important;
+        line-height: 1.4 !important;
+    }
+
+    .mobile-form-body input {
+        flex: 1 !important;
+        padding: 12px 16px !important;
+        font-size: 15px !important;
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.15)) !important;
+        border-radius: 12px !important;
+        background: var(--theme-panel-bg, rgba(255, 255, 255, 0.9)) !important;
+        color: var(--theme-text, #1e293b) !important;
+        outline: none !important;
+    }
+
+    .mobile-form-body input::placeholder {
+        color: var(--theme-text-muted, #64748b) !important;
+    }
+
+    .mobile-form-body input:focus {
+        border-color: var(--theme-accent, #22c55e) !important;
+    }
+
+    .mobile-friend-invite-row {
+        margin-top: 12px !important;
+        padding-top: 12px !important;
+        border-top: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+    }
+
+    .mobile-friend-invite-btn {
+        width: 100% !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        border: none !important;
+        border-radius: 10px !important;
+        background: var(--theme-accent, #22c55e) !important;
+        color: #fff !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    .mobile-show-my-qr-btn {
+        width: 100% !important;
+        margin-top: 12px !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.15)) !important;
+        border-radius: 10px !important;
+        background: var(--theme-panel-bg, rgba(255, 255, 255, 0.9)) !important;
+        color: var(--theme-text, #1e293b) !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    .mobile-my-qr-container {
+        margin-top: 12px !important;
+        padding: 16px !important;
+        background: var(--theme-card-bg, #fff) !important;
+        border-radius: 12px !important;
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+        text-align: center !important;
+    }
+
+    .mobile-my-qr-inner .mobile-my-qr-title {
+        margin: 0 0 12px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: var(--theme-text, #1e293b) !important;
+    }
+
+    .mobile-my-qr-img {
+        display: block !important;
+        margin: 0 auto 12px !important;
+        border-radius: 8px !important;
+        background: #fff !important;
+        padding: 8px !important;
+    }
+
+    .mobile-my-qr-close {
+        padding: 8px 20px !important;
+        font-size: 14px !important;
+        border: none !important;
+        border-radius: 8px !important;
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.06)) !important;
+        color: var(--theme-text, #1e293b) !important;
+        cursor: pointer !important;
+    }
+
+    .mobile-form-submit {
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        border: none !important;
+        border-radius: 12px !important;
+        background: var(--theme-accent, #22c55e) !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        white-space: nowrap !important;
+    }
+
+    .mobile-form-submit:active {
+        transform: scale(0.97);
+    }
+
+    .mobile-form-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* メンバー選択セクション */
+    .mobile-member-section {
+        margin-top: 12px !important;
+        padding-top: 12px !important;
+        border-top: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+    }
+
+    .mobile-member-label {
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        color: var(--theme-text-muted, #64748b) !important;
+        margin-bottom: 10px !important;
+    }
+
+    .mobile-member-list {
+        max-height: 200px !important;
+        overflow-y: auto !important;
+        background: var(--theme-panel-bg, rgba(255, 255, 255, 0.9)) !important;
+        border-radius: 12px !important;
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+    }
+
+    .mobile-member-loading {
+        padding: 20px !important;
+        text-align: center !important;
+        color: var(--theme-text-muted, #64748b) !important;
+        font-size: 14px !important;
+    }
+
+    .mobile-member-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 12px !important;
+        cursor: pointer !important;
+        border-bottom: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.05)) !important;
+        transition: background 0.15s !important;
+    }
+
+    .mobile-member-item:last-child {
+        border-bottom: none !important;
+    }
+
+    .mobile-member-item:active {
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05)) !important;
+    }
+
+    .mobile-member-item.selected {
+        background: rgba(34, 197, 94, 0.1) !important;
+    }
+
+    .mobile-member-checkbox {
+        width: 22px !important;
+        height: 22px !important;
+        border: 2px solid var(--theme-divider, rgba(0, 0, 0, 0.2)) !important;
+        border-radius: 6px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 14px !important;
+        color: transparent !important;
+        transition: all 0.15s !important;
+        flex-shrink: 0 !important;
+    }
+
+    .mobile-member-item.selected .mobile-member-checkbox {
+        background: var(--theme-accent, #22c55e) !important;
+        border-color: var(--theme-accent, #22c55e) !important;
+        color: #ffffff !important;
+    }
+
+    .mobile-member-avatar {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        background: var(--theme-accent, #22c55e) !important;
+        color: #ffffff !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        flex-shrink: 0 !important;
+    }
+
+    .mobile-member-name {
+        flex: 1 !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        color: var(--theme-text, #1e293b) !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    .mobile-selected-count {
+        margin-top: 10px !important;
+        font-size: 13px !important;
+        color: var(--theme-accent, #22c55e) !important;
+        font-weight: 500 !important;
+    }
+
+    .mobile-form-actions {
+        margin-top: 16px !important;
+        padding-top: 12px !important;
+        border-top: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+    }
+
+    .mobile-form-actions .mobile-form-submit {
+        width: 100% !important;
+        padding: 14px !important;
+        font-size: 15px !important;
+    }
+
+    .mobile-member-empty {
+        padding: 20px !important;
+        text-align: center !important;
+        color: var(--theme-text-muted, #64748b) !important;
+        font-size: 14px !important;
+    }
+
+    /* 友達検索結果 */
+    .mobile-search-results {
+        margin-top: 12px !important;
+        max-height: 200px !important;
+        overflow-y: auto !important;
+    }
+
+    .mobile-search-results:empty {
+        display: none !important;
+    }
+
+    .mobile-search-result-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 12px !important;
+        background: var(--theme-panel-bg, rgba(255, 255, 255, 0.9)) !important;
+        border-radius: 12px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .mobile-search-result-avatar {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        background: var(--theme-accent, #22c55e) !important;
+        color: #ffffff !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+    }
+
+    .mobile-search-result-info {
+        flex: 1 !important;
+    }
+
+    .mobile-search-result-name {
+        font-size: 15px !important;
+        font-weight: 500 !important;
+        color: var(--theme-text, #1e293b) !important;
+    }
+
+    .mobile-search-result-id {
+        font-size: 12px !important;
+        color: var(--theme-text-muted, #64748b) !important;
+    }
+
+    .mobile-search-result-action {
+        padding: 8px 16px !important;
+        background: var(--theme-accent, #22c55e) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 20px !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+    }
+
+    .mobile-search-no-result {
+        text-align: center !important;
+        padding: 16px !important;
+        color: var(--theme-text-muted, #64748b) !important;
+        font-size: 14px !important;
+    }
+
+    /* フィルタータブ（すべて、未読、グループ、DM） */
+    aside.left-panel .filter-tabs {
+        display: flex !important;
+        padding: 8px 12px !important;
+        gap: 10px !important;
+        background: var(--theme-panel-bg, rgba(255,255,255,0.97)) !important;
+        border-bottom: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+
+    aside.left-panel .filter-tabs button {
+        flex: 1 !important;
+        padding: 10px 8px !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        border: none !important;
+        border-radius: 8px !important;
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05)) !important;
+        color: var(--theme-text, #1e293b) !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent !important;
+        touch-action: manipulation !important;
+        transition: background 0.15s, transform 0.1s !important;
+    }
+
+    aside.left-panel .filter-tabs button:active {
+        transform: scale(0.96);
+    }
+
+    aside.left-panel .filter-tabs button.active {
+        background: var(--theme-accent-dark, #047857) !important;
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 左パネル フィルター（1タブ＋ドロップダウン）モバイル */
+    aside.left-panel .left-panel-filter {
+        padding: 8px 12px !important;
+    }
+    aside.left-panel .left-panel-filter-trigger {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+        -webkit-tap-highlight-color: transparent !important;
+        touch-action: manipulation !important;
+    }
+    aside.left-panel .left-panel-filter-dropdown {
+        left: 12px !important;
+        right: 12px !important;
+        max-height: 60vh !important;
+    }
+
+    /* グループ追加フォーム表示中はフィルターと会話リストを非表示 */
+    .left-panel.left-panel-group-form-open .left-panel-filter,
+    .left-panel.left-panel-group-form-open .conversation-list,
+    .left-panel.left-panel-group-form-open #conversationList {
+        display: none !important;
+    }
+
+    .left-tab {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    /* グループ追加ボタン */
+    .left-header-btns button {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    /* グループリスト */
+    #convList,
+    #conversationList {
+        padding: 8px;
+        overflow-y: auto !important;
+        max-height: calc(100vh - 200px) !important;
+    }
+
+    /* モバイルでもフィルタで非表示にした会話は隠す（クラスで強制） */
+    #conversationList .conv-item.conv-item-filtered-out {
+        display: none !important;
+    }
+    #conversationList .conv-item {
+        display: flex;
+    }
+
+    .conv-item .conv-name,
+    .conv-item .name {
+        font-size: 14px;
+        color: var(--theme-text, #1e293b);
+        white-space: normal !important;
+        word-break: break-word;
+        line-height: 1.35;
+    }
+
+    .conv-item .conv-preview,
+    .conv-item .preview {
+        font-size: 12px;
+        color: var(--theme-text-muted, #64748b);
+    }
+
+    /* 「他X件を表示」フッター */
+    .conv-list-footer {
+        display: block !important;
+        padding: 14px !important;
+        text-align: center !important;
+        background: var(--theme-accent, #22c55e) !important;
+        color: #ffffff !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        border-radius: 12px !important;
+        margin: 8px !important;
+        cursor: pointer !important;
+    }
+
+    .conv-list-footer:active {
+        opacity: 0.8;
+    }
+
+    .conv-list-footer.expanded {
+        background: var(--theme-text-muted, #64748b) !important;
+    }
+
+    /* ========== 中央パネル（チャットエリア） ========== */
+    /* 解決シート: CHAT_LAYOUT_OVERLAP_AND_BLANK_FIX.md に合わせ body.page-chat でチャット画面のみ指定 */
+    /* 通常時: 表示高さ - 上バー - 入力欄 */
+    body.page-chat .center-panel {
+        width: 100%;
+        border-radius: 0;
+        margin: 0;
+        height: calc(var(--visual-viewport-height, 100vh) - var(--mobile-header-height) - var(--mobile-input-height));
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* キーボード表示時: 入力欄をキーボード直上に密着させるため、中央パネルは「見えている高さ − ヘッダ − 入力欄高さ」に縮める（50vh は使わず空白が出ないようにする） */
+    /* 変数更新遅延対策: max-height で上限を設け、キーボードアニメーション中の一瞬の 100vh による大きな空白を防ぐ */
+    body.page-chat.mobile-input-focused .center-panel {
+        height: calc(var(--visual-viewport-height, 100vh) - var(--mobile-header-height) - var(--mobile-input-height)) !important;
+        max-height: min(calc(var(--visual-viewport-height, 100vh) - var(--mobile-header-height) - var(--mobile-input-height)), calc(70vh - var(--mobile-header-height))) !important;
+    }
+
+    /* チャットヘッダーは高さを維持（flexで潰れない） */
+    .center-panel .chat-header {
+        flex-shrink: 0;
+    }
+
+    /* メッセージエリア：中央パネル内でスクロール可能。下余白は最後の1行が読みやすい程度 */
+    .messages-area {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding: 12px 8px;
+        padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* メッセージカード */
+    .message-card {
+        max-width: 85%;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .message-card .sender-name {
+        font-size: 12px;
+    }
+
+    .message-card .timestamp,
+    .message-card .time {
+        font-size: 10px;
+    }
+
+    /* 入力エリア */
+    .input-area {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 8px;
+        background: var(--theme-panel-bg, rgba(255, 255, 255, 0.95));
+        backdrop-filter: blur(10px);
+        border-top: 1px solid var(--border);
+        z-index: 800;
+        border-radius: 0;
+        /* スクロール時のアニメーション用 */
+        transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+        will-change: transform, opacity;
+    }
+
+    /* 解決シート（CHAT_LAYOUT_OVERLAP_AND_BLANK_FIX）に合わせ body.page-chat で上書き。携帯は入力欄を左右ギリギリまで・フォント小さく・空白も有効利用 */
+    body.page-chat .input-area {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+        padding-top: 6px !important;
+        padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    body.page-chat .input-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: none !important;
+    }
+    body.page-chat .input-toolbar {
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+        padding-top: 4px !important;
+        padding-bottom: 4px !important;
+        margin: 0 !important;
+    }
+    body.page-chat .input-toolbar-left,
+    body.page-chat .input-toolbar-right {
+        padding: 0 !important;
+        gap: 4px !important;
+    }
+    body.page-chat .input-row {
+        gap: 4px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    body.page-chat .input-wrapper {
+        padding: 0 !important;
+        margin: 0 !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    .input-row {
+        gap: 8px;
+    }
+
+    .input-icons {
+        gap: 8px; /* タッチターゲット間隔: 8px以上 */
+    }
+
+    .input-icons button {
+        padding: 10px;
+        font-size: 18px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .message-input-wrapper {
+        flex: 1;
+    }
+
+    .message-input {
+        padding: 12px 14px;
+        font-size: 16px; /* iOS拡大防止 */
+        min-height: 44px;
+        border-radius: 22px;
+    }
+
+    /* 携帯: 文字入力欄は初期2行・最大15行（入力に応じて2〜15行で広がる） */
+    body.page-chat #messageInput,
+    body.page-chat .input-row textarea,
+    body.page-chat .input-wrapper textarea,
+    body.page-chat .message-input {
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+        min-height: 52px !important;  /* 2行分（13px×1.4×2＋余白≒52px） */
+        max-height: 300px !important; /* 携帯最大15行（13px×1.4×15＋余白≒300px） */
+        width: 100% !important;
+        max-width: none !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 左側To・GIF・電話・添付を収納・送信と同じ40px・円形に統一 */
+    body.page-chat .input-area .input-toolbar-left .toolbar-btn {
+        width: 40px !important;
+        min-width: 40px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        padding: 0 !important;
+        font-size: 14px !important;
+        border-radius: 50% !important;
+    }
+    /* 常時起動ボタンは角丸長方形（4文字程度）・PCと同一 */
+    body.page-chat .input-area .input-toolbar-left .toolbar-btn.ai-always-on-btn {
+        width: 5.2em !important;
+        min-width: 5.2em !important;
+        max-width: 5.2em !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        padding: 0 10px !important;
+        font-size: 12px !important;
+        border-radius: 8px !important;
+    }
+    body.page-chat .input-area .input-toolbar-left .toolbar-btn .btn-icon {
+        font-size: 18px !important;
+    }
+    body.page-chat .input-area .input-toolbar-left .toolbar-btn .btn-icon-mic svg {
+        width: 20px !important;
+        height: 20px !important;
+    }
+    body.page-chat .input-area .input-toolbar-left .toolbar-btn.mic-btn.chat-mic-listening {
+        background: rgba(239, 68, 68, 0.25) !important;
+        color: #dc2626 !important;
+    }
+    body.page-chat .input-area .input-toolbar-left .toolbar-btn.mic-btn.chat-mic-listening .btn-icon-mic svg {
+        color: #dc2626 !important;
+    }
+    /* 上記以外の入力欄内ツールバーボタン（input-icons 等） */
+    body.page-chat .input-area .input-icons button {
+        min-height: 22px !important;
+        height: 22px !important;
+        padding: 2px 8px !important;
+        font-size: 14px !important;
+    }
+    /* 収納・送信ボタン：ツールバー右で同サイズに統一（タッチターゲット 40px・必ず表示） */
+    body.page-chat .input-area .input-toolbar-right .toolbar-toggle-btn,
+    body.page-chat .input-area .input-toolbar-right .input-send-btn {
+        width: 40px !important;
+        min-width: 40px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        padding: 0 !important;
+        font-size: 16px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        visibility: visible !important;
+    }
+    body.page-chat .input-area .enter-send-label {
+        font-size: 11px !important;
+        min-height: 22px !important;
+        align-items: center !important;
+    }
+    body.page-chat .input-area .enter-send-label input[type="checkbox"] {
+        width: 14px !important;
+        height: 14px !important;
+    }
+
+    .input-row {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    /* 送信ボタンはツールバー右（収納ボタン隣）に移動済み */
+
+    /* ========== 右パネル（設定） ========== */
+    aside.right-panel {
+        position: fixed !important;
+        right: -100vw !important;
+        top: var(--mobile-header-height) !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: calc(100vh - var(--mobile-header-height)) !important;
+        z-index: 2000 !important; /* モーダル(5000)より低く設定 */
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        display: block !important; /* 1024px以下で非表示になるのを上書き */
+        /* テーマの背景色を使用 */
+        background: var(--theme-panel-bg, rgba(255,255,255,0.97)) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    aside.right-panel.mobile-open {
+        right: 0 !important;
+    }
+    
+    /* 右パネルヘッダー */
+    aside.right-panel .right-header {
+        background: var(--theme-panel-bg, rgba(255,255,255,0.97)) !important;
+    }
+
+    /* Phase 4: 左・右パネルヘッダーの設定＋アカウントバー */
+    .left-header .panel-account-bar,
+    .right-header .panel-account-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .left-header .panel-account-bar .panel-settings-link,
+    .right-header .panel-account-bar .panel-settings-link {
+        display: inline-flex;
+        padding: 4px;
+        color: var(--theme-text, #1e293b);
+    }
+    .left-header .panel-account-bar .panel-user-info,
+    .right-header .panel-account-bar .panel-user-info {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        padding: 4px 8px;
+        border-radius: 8px;
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05));
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1));
+        color: var(--theme-text, #1e293b);
+        cursor: pointer;
+        font-size: 13px;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .left-header .panel-account-bar .panel-details-btn,
+    .right-header .panel-account-bar .panel-details-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 8px;
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05));
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1));
+        color: var(--theme-text, #1e293b);
+        cursor: pointer;
+        font-size: 13px;
+        text-decoration: none;
+    }
+    .left-header .panel-account-bar .user-dropdown,
+    .right-header .panel-account-bar .user-dropdown {
+        right: 0;
+        left: auto;
+    }
+    .right-header .panel-account-bar .user-dropdown {
+        left: auto;
+        right: 0;
+    }
+
+    /* モバイル用閉じるボタン（両パネル共通） */
+    .mobile-close-panel {
+        display: flex !important;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 44px; /* 最小タッチターゲット: 44px */
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1));
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05));
+        color: var(--theme-text, #1e293b);
+        font-size: 22px;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+
+    .mobile-close-panel:active {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* 右パネル内のセクション */
+    .right-panel .section-title {
+        font-size: 13px;
+        padding: 12px;
+    }
+
+    .right-panel .group-setting-item {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    /* ========== オーバーレイ ========== */
+    .mobile-overlay {
+        display: none;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: #000 !important; /* 完全な黒 */
+        z-index: 1999 !important; /* パネル(2000)より少し低いz-index */
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .mobile-overlay.show {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    /* ========== モバイルメニューボタン（グループ一覧を開くボタン） ========== */
+    /* スタイルは後半の統一デザインセクションで定義 */
+
+    /* 右パネル表示ボタン（チャットヘッダー内） */
+    .mobile-settings-btn {
+        display: flex !important;
+        background: var(--primary);
+        border: none;
+        color: white;
+        font-size: 18px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* ========== タブレット向け非表示ボタンを表示 ========== */
+    .toggle-left-btn,
+    .toggle-right-btn {
+        display: none !important;
+    }
+
+    /* ========== システムメッセージ（入室案内） ========== */
+    .system-message {
+        min-width: min(320px, 90%);
+        max-width: 90%;
+        font-size: 12px;
+        padding: 6px 12px;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .system-message-content {
+        display: block;
+    }
+    .system-message-time {
+        display: block;
+        font-size: 11px;
+    }
+    
+    /* タスクカード（モバイル） */
+    .task-system-message.task-card {
+        max-width: calc(100% - 24px);
+    }
+    .task-card .task-card-header {
+        padding: 12px 14px;
+    }
+    .task-card .task-card-title {
+        font-size: 14px;
+    }
+    .task-card .task-card-body {
+        padding: 10px 14px 8px;
+    }
+    .task-card .task-card-row {
+        padding: 5px 0;
+        font-size: 12px;
+    }
+    .task-card .task-card-label {
+        min-width: 52px;
+        font-size: 11px;
+    }
+    .task-card .task-card-footer {
+        padding: 6px 14px 8px;
+    }
+
+    /* ========== 自動翻訳表示（モバイル） ========== */
+    .message-card.showing-translation::before,
+    .message-card.showing-original::before {
+        font-size: 8px;
+        padding: 1px 4px;
+        top: 2px;
+        right: 8px;
+    }
+    
+    .translation-result {
+        padding: 8px 24px 8px 10px;
+        margin: 6px 0;
+        font-size: 12px;
+    }
+    
+    .translation-header {
+        font-size: 10px;
+    }
+    
+    .translation-loading {
+        font-size: 12px;
+    }
+
+    /* ========== メッセージ内のインラインメニューを非表示 ========== */
+    .message-actions-inline {
+        display: none !important;
+    }
+
+    .message-hover-actions {
+        display: none !important;
+    }
+
+    /* メッセージカードをコンパクトに */
+    .message-card {
+        padding: 10px 14px !important;
+    }
+
+    .message-card .message-footer {
+        margin-top: 4px;
+    }
+
+    .message-card .message-footer .timestamp {
+        font-size: 11px;
+    }
+
+    /* ========== モーダル調整 ========== */
+    .modal-content {
+        width: 95vw !important;
+        max-width: none !important;
+        margin: 8px;
+        max-height: calc(100vh - 16px);
+    }
+
+    .modal-content h2,
+    .modal-content h3 {
+        font-size: 16px;
+    }
+
+    /* ========== メンバーポップアップ ========== */
+    .member-popup {
+        width: 95vw !important;
+        max-width: none !important;
+        max-height: 70vh;
+    }
+
+    .member-popup-item {
+        padding: 12px;
+    }
+
+    .member-popup-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .member-popup-name {
+        font-size: 14px;
+    }
+
+    /* ========== ボタンサイズ（タップしやすく） ========== */
+    button, 
+    .btn,
+    [role="button"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* ========== スクロール改善 ========== */
+    .left-panel,
+    .right-panel,
+    .messages-area,
+    .member-popup-list {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
+    /* ========== 選択状態のハイライト無効化 ========== */
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+/* ========================================
+   Phase 2: 入力欄の最適化、ヘッダー調整
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* ========== 入力エリアの強化 ========== */
+    .input-area {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 8px 12px;
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); /* iPhone対応 */
+        background: var(--theme-panel-bg, rgba(255, 255, 255, 0.98));
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 800;
+    }
+
+    /* 入力行のレイアウト */
+    .input-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    /* アイコンボタン - タッチターゲット間隔改善 */
+    .input-icons {
+        display: flex;
+        gap: 8px; /* タッチターゲット間隔: 8px以上推奨 */
+        flex-shrink: 0;
+    }
+
+    .input-icons button {
+        width: 44px; /* 最小タッチターゲット: 44px */
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        background: transparent;
+        border: none;
+        border-radius: 50%;
+        color: var(--theme-text, #666);
+        cursor: pointer;
+        transition: background 0.2s;
+        /* タッチしやすいようにタップ領域を確保 */
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .input-icons button:active {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    /* メッセージ入力欄 */
+    .message-input-wrapper {
+        flex: 1;
+        position: relative;
+    }
+
+    /* 携帯チャットは body.page-chat で最大15行に統一（後続の .message-input が 120px で上書きしないよう !important） */
+    body.page-chat .message-input {
+        max-height: 300px !important;
+    }
+
+    .message-input {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 16px; /* iOSでズームを防止 */
+        line-height: 1.4;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 24px;
+        background: var(--theme-card-bg, #fff);
+        color: var(--theme-text, #333);
+        resize: none;
+        outline: none;
+        min-height: 44px;
+        max-height: 300px; /* 携帯でも最大15行（従来120pxは3行で見えていた） */
+        transition: border-color 0.2s;
+    }
+
+    .message-input:focus {
+        border-color: var(--primary, #6b8e23);
+        box-shadow: 0 0 0 2px rgba(107, 142, 35, 0.2);
+    }
+
+    .message-input::placeholder {
+        color: var(--theme-text-muted, #999);
+    }
+
+    /* 送信ボタン（入力欄の高さに合わせる） */
+    /* 入力オプション行 */
+    .input-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 6px;
+        padding: 0 4px;
+    }
+
+    .input-options label {
+        font-size: 12px;
+        color: var(--theme-text-muted, #888);
+    }
+
+    /* ========== チャットヘッダー（コンパクト1行版・角丸） ========== */
+    .chat-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding: 4px 12px !important;
+        margin: 3px 6px !important;
+        background: var(--theme-panel-bg, rgba(255, 255, 255, 0.95)) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        border-radius: 20px !important;
+        min-height: 0 !important;
+        height: 28px !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+        width: calc(100% - 12px) !important;
+    }
+
+    .chat-header-left {
+        display: block !important;
+        width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    /* グループアイコンを非表示 */
+    .chat-avatar,
+    .chat-header .group-icon {
+        display: none !important;
+    }
+
+    /* 携帯版: 中央パネルのグループ名横のアイコンは表示しない */
+    .center-panel .chat-title-area.clickable-group .chat-header-icon {
+        display: none !important;
+    }
+
+    /* タイトルエリア - 1行に収める */
+    .chat-title-area {
+        display: block !important;
+        width: 100% !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+    }
+
+    /* グループ名 - 全文表示（スペースがあれば） */
+    .chat-title-area h2 {
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        line-height: 20px !important;
+        display: inline !important;
+        color: var(--theme-text, #333) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 管理者バッジ - インライン */
+    .chat-title-area h2 .badge {
+        font-size: 10px !important;
+        padding: 2px 6px !important;
+        border-radius: 4px !important;
+        background: var(--theme-accent, #f59e0b) !important;
+        color: #fff !important;
+        vertical-align: middle !important;
+        margin-left: 4px !important;
+        display: inline !important;
+    }
+
+    /* オンライン状態 - インライン表示 */
+    .chat-title-area .status {
+        display: inline !important;
+        font-size: 10px !important;
+        color: var(--theme-text-muted, #888) !important;
+        white-space: nowrap !important;
+        margin-left: 8px !important;
+    }
+
+    .chat-title-area .status .dot {
+        display: inline-block !important;
+        width: 5px !important;
+        height: 5px !important;
+        border-radius: 50% !important;
+        background: #22c55e !important;
+        vertical-align: middle !important;
+        margin-right: 3px !important;
+    }
+
+    .chat-title-area .status .dot {
+        width: 6px !important;
+        height: 6px !important;
+        background: #22c55e !important;
+        border-radius: 50% !important;
+    }
+
+    /* 右側エリア非表示（トップバーに移動済み） */
+    .chat-header-right {
+        display: none !important;
+    }
+
+    .mobile-detail-btn {
+        display: none !important;
+    }
+
+    .chat-header .group-info,
+    .chat-header .group-name,
+    .chat-header .group-members {
+        display: none !important;
+    }
+
+    /* ヘッダーアクションボタン */
+    .chat-header-actions {
+        display: none !important;
+    }
+
+    /* ========== メッセージエリアの調整 ========== */
+    .messages-area {
+        padding: 12px 8px;
+        /* 入力欄と被らないよう下余白を十分に（変数は768pxで定義済み） */
+        padding-bottom: calc(var(--mobile-input-height, 130px) + 24px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* ========== 未選択時の表示 ========== */
+    .no-conversation {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .no-conversation-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .no-conversation-text {
+        font-size: 16px;
+        color: var(--theme-text-muted, #888);
+    }
+
+    .no-conversation-hint {
+        font-size: 13px;
+        color: var(--theme-text-muted, #aaa);
+        margin-top: 8px;
+    }
+}
+
+/* ========================================
+   小型スマートフォン向け（480px以下）
+   ======================================== */
+
+@media (max-width: 480px) {
+    :root {
+        --mobile-panel-width: 100vw;
+        --mobile-panel-max-width: 100vw;
+    }
+
+    /* ロゴをさらに小さく */
+    .logo {
+        font-size: 14px;
+    }
+
+    /* ヘッダーボタン - タッチターゲット改善 */
+    .top-btn {
+        padding: 6px;
+        min-width: 44px; /* 最小タッチターゲット: 44px */
+        min-height: 44px;
+    }
+
+    .top-btn .icon {
+        font-size: 16px;
+    }
+
+    /* グループ一覧を全画面 */
+    .left-panel {
+        width: 100vw;
+        max-width: 100vw;
+    }
+
+    /* 右パネルを全画面 */
+    .right-panel {
+        width: 100vw;
+        max-width: 100vw;
+    }
+
+    /* メッセージをさらに大きく */
+    .message-card {
+        max-width: 90%;
+    }
+
+    /* 入力欄をさらに調整 */
+    .message-input {
+        font-size: 16px;
+        padding: 10px 12px;
+    }
+}
+
+/* ========================================
+   Phase 4: ポップアップ・モーダルの最適化
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* ========== モーダル全般 ========== */
+    .modal-overlay {
+        padding: 0;
+        align-items: flex-end; /* ボトムシート形式 */
+        z-index: 5000 !important; /* パネルより上に表示 */
+    }
+    
+    .modal-overlay.active {
+        display: flex !important;
+    }
+
+    .modal, .modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 90vh;
+        margin: 0;
+        border-radius: 20px 20px 0 0;
+        animation: slideUpModal 0.3s ease-out;
+        background: white !important;
+        color: #1a1a2e !important;
+    }
+    
+    
+
+    @keyframes slideUpModal {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-content h2,
+    .modal-content h3 {
+        font-size: 18px;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border, #e0e0e0);
+        margin: 0;
+    }
+
+    .modal-body {
+        padding: 16px;
+        max-height: calc(90vh - 120px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+    }
+
+    /* ========== メンバーポップアップ ========== */
+    .member-popup-overlay {
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    .member-popup {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 75vh;
+        border-radius: 20px 20px 0 0;
+        transform: translateY(100%);
+        transition: transform 0.3s ease-out;
+    }
+
+    .member-popup.show {
+        transform: translateY(0);
+    }
+
+    .member-popup-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border, #e0e0e0);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .member-popup-header span {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .member-popup-close {
+        width: 44px; /* 最小タッチターゲット: 44px */
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 24px;
+        background: transparent;
+        border: none;
+        color: var(--theme-text, #666);
+        cursor: pointer;
+    }
+
+    .member-popup-list {
+        max-height: calc(75vh - 80px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 8px 0;
+    }
+
+    .member-popup-item {
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .member-popup-item:active {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    .member-popup-avatar {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        font-size: 18px;
+    }
+
+    .member-popup-name {
+        font-size: 15px;
+    }
+
+    .member-popup-role {
+        font-size: 11px;
+        padding: 3px 8px;
+    }
+
+    .member-popup-action {
+        margin-left: auto;
+    }
+
+    .member-popup-action .dm-icon {
+        font-size: 22px;
+    }
+
+    .member-popup-notice {
+        padding: 12px 20px;
+        font-size: 13px;
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* ========== 友達追加モーダル ========== */
+    #addFriendModal .modal-content {
+        max-height: 85vh;
+    }
+
+    .friend-tabs {
+        display: flex;
+        padding: 0;
+        border-bottom: 1px solid var(--border, #e0e0e0);
+    }
+
+    .friend-tab {
+        flex: 1;
+        padding: 14px;
+        font-size: 14px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .friend-tab.active {
+        border-bottom: 2px solid var(--primary, #6b8e23);
+        color: var(--primary, #6b8e23);
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 16px;
+        border: 1px solid var(--border, #e0e0e0);
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+    /* ========== グループ作成モーダル ========== */
+    #createGroupModal .modal-content {
+        max-height: 90vh;
+    }
+
+    #createGroupModal input[type="text"] {
+        padding: 14px 16px;
+        font-size: 16px;
+        border-radius: 12px;
+    }
+
+    /* ========== 確認ダイアログ ========== */
+    .confirm-dialog {
+        width: 90% !important;
+        max-width: 320px !important;
+        border-radius: 16px !important;
+        margin: auto !important;
+    }
+
+    .confirm-dialog .btn {
+        padding: 14px 24px;
+        font-size: 15px;
+    }
+
+    /* ========== コンテキストメニュー ========== */
+    .context-menu,
+    .message-context-menu,
+    #memberContextMenu {
+        display: none !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 20px 20px 0 0 !important;
+        padding: 8px 0 !important;
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+        animation: slideUpModal 0.2s ease-out;
+    }
+    
+    .context-menu.show,
+    .message-context-menu.show,
+    #memberContextMenu.show,
+    .member-context-menu.show {
+        display: block !important;
+    }
+
+    .context-menu-item,
+    .message-context-menu button,
+    #memberContextMenu button {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px !important;
+        font-size: 15px !important;
+        width: 100%;
+        text-align: left;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    .context-menu-item:active,
+    .message-context-menu button:active,
+    #memberContextMenu button:active {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* ========== 絵文字ピッカー ========== */
+    .emoji-picker {
+        position: fixed !important;
+        bottom: 60px !important;
+        left: 8px !important;
+        right: 8px !important;
+        width: auto !important;
+        max-height: 50vh;
+        border-radius: 16px;
+    }
+
+    .emoji-picker .emoji-grid {
+        grid-template-columns: repeat(8, 1fr);
+    }
+
+    .emoji-picker .emoji-item {
+        font-size: 24px;
+        padding: 8px;
+    }
+
+    /* ========== ファイルアップロードモーダル ========== */
+    .upload-modal {
+        border-radius: 20px 20px 0 0;
+    }
+
+    .upload-preview {
+        max-height: 40vh;
+    }
+
+    /* ========== ファイル送信画面（貼り付けプレビュー）携帯版は画面いっぱい ========== */
+    .paste-preview-backdrop.active {
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    .paste-preview {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        height: 100% !important;
+        border-radius: 0 !important;
+        border: none !important;
+        padding: 16px !important;
+        padding-top: max(16px, env(safe-area-inset-top)) !important;
+        padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
+        padding-left: max(16px, env(safe-area-inset-left)) !important;
+        padding-right: max(16px, env(safe-area-inset-right)) !important;
+        box-shadow: none !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .paste-preview.active {
+        display: block !important;
+    }
+
+    .paste-preview img#pastePreviewImage {
+        max-height: min(200px, 25vh);
+    }
+
+    .paste-preview .paste-to-options {
+        max-height: 120px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .paste-preview .paste-to-selector {
+        display: block !important;
+    }
+
+    .paste-preview .paste-preview-actions {
+        margin-top: 16px;
+    }
+
+    /* 携帯: キャンセルボタンをタップしやすく（1タップで削除できるように） */
+    .paste-preview .paste-preview-actions .cancel-btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 10px 16px;
+    }
+
+    /* 携帯: メディアカードの削除×をタップしやすく */
+    .media-card-delete {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 10px;
+        margin: -10px;
+    }
+
+    /* ========== 検索モーダル ========== */
+    #searchModal .modal-content {
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    #searchModal .search-input {
+        font-size: 18px;
+        padding: 16px;
+    }
+
+    /* ========== メンバー管理モーダル ========== */
+    #addMemberModal .modal-content {
+        max-height: 90vh;
+    }
+
+    .member-management-item {
+        padding: 14px 16px;
+    }
+
+    .member-management-item button {
+        min-width: 44px;
+        min-height: 36px;
+    }
+}
+
+/* ========================================
+   ランドスケープモード（横向き）
+   ======================================== */
+
+@media (max-width: 768px) and (orientation: landscape) {
+    :root {
+        --mobile-header-height: 48px;
+    }
+
+    .top-panel {
+        height: var(--mobile-header-height);
+    }
+
+    .main-container {
+        margin-top: var(--mobile-header-height);
+        height: calc(100vh - var(--mobile-header-height));
+    }
+
+    .left-panel,
+    .right-panel {
+        top: var(--mobile-header-height);
+        height: calc(100vh - var(--mobile-header-height));
+    }
+
+    .messages-area {
+        padding-bottom: calc(var(--mobile-input-height) + 16px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* 入力エリアを少しコンパクトに */
+    .input-area {
+        padding: 6px 8px;
+    }
+
+    .message-input {
+        min-height: 38px;
+        padding: 8px 12px;
+    }
+}
+
+/* ========================================
+   Phase 5: 細かいUIの調整
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* ========== フォントと間隔の調整 ========== */
+    body {
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    /* ========== グループリストの調整 ========== */
+    /* フィルタで非表示の会話は携帯でも確実に隠す（.conv-item の display:flex !important より優先） */
+    #conversationList .conv-item.conv-item-filtered-out {
+        display: none !important;
+    }
+    .conv-item {
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 4px;
+        transition: background 0.15s;
+        background: var(--theme-card-bg, rgba(255,255,255,0.9));
+        color: var(--theme-text, #1e293b);
+        display: flex !important;
+        align-items: flex-start !important;
+        gap: 10px;
+        width: 100% !important;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .conv-item:active {
+        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.08));
+    }
+
+    
+    .conv-item.active {
+        background: var(--theme-accent-dark, #047857) !important;
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .conv-item.active .conv-name,
+    .conv-item.active .conv-time,
+    .conv-item.active .conv-member-count,
+    .conv-item.active .conv-preview {
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .conv-item .conv-avatar {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    /* 携帯版: 左パネルではグループ名にアイコンを表示（中央パネルは .chat-header-icon で別途非表示） */
+    .left-panel .conv-item[data-conv-type="group"] .conv-avatar {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* グループ名は左づめ、上下は中央配置（PCと同じ） */
+    .conv-item .conv-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    .conv-item .conv-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--theme-text, #1e293b);
+        text-align: left;
+        /* 長い名前を折り返して全文表示 */
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        line-height: 1.4;
+        word-break: break-word;
+        display: block !important;
+        flex-wrap: wrap !important;
+    }
+
+    /* モバイルでは全文表示 */
+    .conv-item .conv-name-text {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        word-break: break-word !important;
+        display: inline !important;
+    }
+
+    .conv-item .conv-preview {
+        font-size: 12px;
+        color: var(--theme-text-muted, #64748b);
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .conv-item .conv-time {
+        font-size: 10px;
+        color: var(--theme-text-muted, #64748b);
+        flex-shrink: 0;
+    }
+
+    /* ピン留めかつ未読ありのときは日時を非表示 */
+    .conv-item.is-pinned.has-unread .conv-time {
+        display: none;
+    }
+
+    .conv-item .conv-member-count {
+        font-size: 11px;
+        color: var(--theme-text-muted, #64748b);
+    }
+
+    /* グループ名表示エリアを広くする（時間・ピン・未読は横並びで行高を一定に） */
+    .conv-item .conv-meta {
+        flex-shrink: 0;
+        margin-left: 8px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+    }
+
+    /* 未読バッジ（横並びのため margin-top なし） */
+    .conv-item .conv-meta .conv-unread {
+        min-width: 22px;
+        height: 22px;
+        font-size: 12px;
+        padding: 0 6px;
+        border-radius: 11px;
+        margin-top: 0;
+    }
+
+    /* ピン留めアイコン */
+    .conv-pin {
+        font-size: 12px;
+    }
+
+    /* ========== メッセージカードの調整 ========== */
+    .message-card {
+        margin-bottom: 8px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        max-width: 85%;
+    }
+
+    .message-card.own {
+        border-radius: 16px 16px 4px 16px;
+    }
+
+    .message-card:not(.own) {
+        border-radius: 16px 16px 16px 4px;
+    }
+
+    .message-card .sender-name {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .message-card .content {
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    .message-card .timestamp,
+    .message-card .time {
+        font-size: 10px;
+        margin-top: 4px;
+    }
+
+    /* 返信プレビュー */
+    .reply-preview {
+        padding: 8px 10px;
+        font-size: 12px;
+        border-radius: 8px;
+        margin-bottom: 6px;
+    }
+
+    /* リアクション */
+    .message-reactions {
+        margin-top: 6px;
+        gap: 4px;
+    }
+
+    .reaction-badge {
+        font-size: 14px;
+        padding: 2px 6px;
+        border-radius: 10px;
+    }
+
+    /* ========== 右パネル内の調整 ========== */
+    .right-panel .section-title {
+        font-size: 13px;
+        font-weight: 600;
+        padding: 14px 16px 8px;
+        color: var(--theme-text-muted, #888);
+    }
+
+    .right-panel .section-content {
+        padding: 0 8px;
+    }
+
+    .group-setting-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        margin: 4px 0;
+        border-radius: 12px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .group-setting-item:active {
+        background: rgba(0, 0, 0, 0.08);
+    }
+
+    .group-setting-item.danger {
+        color: #dc2626;
+    }
+
+    .group-setting-item.danger:active {
+        background: rgba(220, 38, 38, 0.1);
+    }
+
+    /* トグルスイッチ */
+    .toggle-switch {
+        width: 50px;
+        height: 28px;
+    }
+
+    .toggle-switch .slider::before {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* ========== タイムスタンプの位置調整 ========== */
+    .message-card .time,
+    .message-card .timestamp {
+        display: inline-block;
+        float: right;
+        margin-left: 8px;
+        margin-top: 2px;
+    }
+
+    /* ========== 既読マーク ========== */
+    .read-status {
+        font-size: 12px;
+    }
+
+    /* ========== 空のチャット表示 ========== */
+    .empty-chat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    .empty-chat-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+        opacity: 0.3;
+    }
+
+    .empty-chat-text {
+        font-size: 16px;
+        color: var(--theme-text-muted, #888);
+    }
+
+    /* ========== ローディングインジケーター ========== */
+    .loading-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        gap: 8px;
+    }
+
+    .loading-spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-top-color: var(--primary, #6b8e23);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* ========== タッチフィードバック ========== */
+    button, 
+    .btn,
+    [role="button"],
+    .clickable {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    /* ボタンのアクティブ状態 */
+    button:active,
+    .btn:active {
+        transform: scale(0.98);
+    }
+
+    /* ========== スクロール関連 ========== */
+    .scrollable {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
+    /* スクロールバーを細く */
+    ::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 2px;
+    }
+
+    /* ========== セーフエリア対応 ========== */
+    .top-panel {
+        padding-top: env(safe-area-inset-top, 0px);
+        height: calc(var(--mobile-header-height) + env(safe-area-inset-top, 0px));
+    }
+
+    .main-container {
+        margin-top: calc(var(--mobile-header-height) + env(safe-area-inset-top, 0px));
+    }
+
+    .left-panel,
+    .right-panel {
+        top: calc(var(--mobile-header-height) + env(safe-area-inset-top, 0px));
+        height: calc(100vh - var(--mobile-header-height) - env(safe-area-inset-top, 0px));
+    }
+
+    /* ========== 画像・メディアの調整 ========== */
+    .message-card img {
+        max-width: 100%;
+        border-radius: 8px;
+    }
+
+    .message-card video {
+        max-width: 100%;
+        border-radius: 8px;
+    }
+
+    /* ========== リンクプレビュー ========== */
+    .link-preview {
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    .link-preview-image {
+        max-height: 120px;
+        border-radius: 6px;
+    }
+
+    /* ========== アクセシビリティ ========== */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+    /* ========== ダークモード対応 ========== */
+    @media (prefers-color-scheme: dark) {
+        .mobile-overlay {
+            background: rgba(0, 0, 0, 0.7);
+        }
+    }
+}
+
+/* ========================================
+   PC版では非表示にする要素
+   ======================================== */
+
+@media (min-width: 769px) {
+    /* Phase 3: PCでは3ページストリップをレイアウトに影響させない */
+    .mobile-pages-strip {
+        display: contents;
+    }
+
+    .mobile-menu-btn,
+    .mobile-settings-btn,
+    .mobile-overlay,
+    .mobile-close-panel,
+    .mobile-close-left,
+    .mobile-only {
+        display: none !important;
+    }
+
+    /* PC版: 個人アカウントは名前＋▼表示、携帯用歯車アイコンは非表示 */
+    .top-panel .user-info .user-info-mobile-gear {
+        display: none !important;
+    }
+    .top-panel .user-info .user-info-pc-only {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+
+    /* PC版では表示する要素 */
+    .pc-only {
+        display: flex !important;
+    }
+}
+
+/* ========================================
+   LINE風メッセージメニュー
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* 携帯では×閉じるボタンは非表示（⇒で右を閉じる／⇐で左を閉じるルールで上パネルの矢印で代用） */
+    .right-panel .mobile-close-panel,
+    .left-panel .mobile-close-left {
+        display: none !important;
+    }
+
+    /* オーバーレイ */
+    .line-menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 99990;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .line-menu-overlay.show {
+        display: block;
+        opacity: 1;
+    }
+
+    /* ボトムシート（コンパクト版） */
+    .line-menu-sheet {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border-radius: 16px 16px 0 0;
+        z-index: 99991;
+        transform: translateY(100%);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        padding-bottom: env(safe-area-inset-bottom, 0);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .line-menu-sheet.show {
+        display: block;
+        transform: translateY(0);
+    }
+
+    /* ハンドル */
+    .line-menu-handle {
+        width: 36px;
+        height: 4px;
+        background: #ddd;
+        border-radius: 2px;
+        margin: 10px auto 8px;
+    }
+
+    /* プレビュー（非表示でコンパクトに） */
+    .line-menu-preview {
+        display: none;
+    }
+
+    /* メニューグリッド（横スクロール式） - タッチターゲット間隔改善 */
+    .line-menu-grid {
+        display: flex;
+        gap: 8px; /* タッチターゲット間隔: 8px以上 */
+        padding: 8px 12px 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .line-menu-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* メニューアイテム（コンパクト） */
+    .line-menu-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 60px;
+        padding: 10px 8px;
+        background: #f5f5f5;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.1s;
+        flex-shrink: 0;
+    }
+
+    .line-menu-item:active {
+        background: #e0e0e0;
+        transform: scale(0.95);
+    }
+
+    .line-menu-icon {
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+
+    .line-menu-label {
+        font-size: 10px;
+        color: #555;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .line-menu-item.line-menu-danger {
+        background: #fee2e2;
+    }
+
+    .line-menu-item.line-menu-danger:active {
+        background: #fecaca;
+    }
+
+    .line-menu-item.line-menu-danger .line-menu-label {
+        color: #dc2626;
+    }
+
+    /* キャンセルボタン */
+    .line-menu-cancel {
+        display: block;
+        width: calc(100% - 24px);
+        margin: 4px 12px 12px;
+        padding: 12px;
+        background: #f0f0f0;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #666;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .line-menu-cancel:active {
+        background: #e0e0e0;
+    }
+
+    /* リアクションピッカー */
+    .line-reaction-picker-container {
+        padding: 16px;
+    }
+
+    .line-reaction-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        text-align: center;
+        margin-bottom: 16px;
+    }
+
+    .line-reaction-picker {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .line-reaction-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 28px;
+        background: #f5f5f5;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.15s, background 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .line-reaction-btn:active {
+        transform: scale(1.1);
+        background: #e8e8e8;
+    }
+
+    /* トースト通知 */
+    .mobile-toast {
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 24px;
+        font-size: 14px;
+        z-index: 99999;
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+        pointer-events: none;
+    }
+
+    .mobile-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* ========================================
+   アニメーション
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* パネルスライドアニメーション */
+    .left-panel,
+    .right-panel {
+        will-change: transform;
+    }
+
+    /* フェードイン効果 */
+    @keyframes mobileSlideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .left-panel.mobile-open .conv-item {
+        animation: mobileSlideIn 0.2s ease-out forwards;
+    }
+
+    /* 右からスライド */
+    @keyframes mobileSlideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .right-panel.mobile-open .section-content {
+        animation: mobileSlideInRight 0.2s ease-out forwards;
+    }
+}
+
+/* ========================================
+   フローティングアクションボタン (FAB)
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* ヘッダーのメニューボタンを非表示 */
+    .top-panel .task-memo-buttons,
+    .top-panel .top-divider,
+    .top-panel .settings-btn {
+        display: none !important;
+    }
+
+    /* ヘッダーを最小化 */
+    .top-panel .top-right {
+        gap: 8px;
+    }
+
+    /* ========== 上パネル: 携帯は左右収納ボタンなし（スワイプでページ移動）。タップでアイコン表示 ========== */
+    .top-panel .mobile-menu-btn,
+    .top-panel .fab-container,
+    .top-panel .fab-container .fab-main,
+    .top-panel .mobile-group-mgmt-btn,
+    .top-panel .user-info,
+    .top-panel .user-menu-container {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    .top-panel.top-panel-icons-visible .fab-container,
+    .top-panel.top-panel-icons-visible .fab-container .fab-main,
+    .top-panel.top-panel-icons-visible .mobile-group-mgmt-btn,
+    .top-panel.top-panel-icons-visible .user-info,
+    .top-panel.top-panel-icons-visible .user-menu-container {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    /* 携帯: 左右収納ボタンは常に非表示（スワイプでページ移動するため） */
+    .top-panel .toggle-left-btn,
+    .top-panel .toggle-right-btn,
+    .top-panel .mobile-menu-btn {
+        display: none !important;
+    }
+
+    /* 携帯: 個人アカウントは歯車アイコンのみ（名前・▼のブロックごと非表示） */
+    .top-panel .user-info .user-info-pc-only {
+        display: none !important;
+    }
+    .top-panel .user-info {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        max-width: 44px;
+    }
+    .top-panel .user-info .user-info-mobile-gear {
+        display: block !important;
+        visibility: visible !important;
+        width: 22px !important;
+        height: 22px !important;
+        flex-shrink: 0;
+        opacity: 1 !important;
+    }
+    /* 携帯: 三本線(≡)を確実に非表示（他CSS・詳細度に負けないよう複数指定） */
+    body.page-chat .top-panel .top-panel-toggle-btn#toggleTaskMemoBtn,
+    body .top-panel .top-panel-toggle-btn#toggleTaskMemoBtn,
+    .top-panel .top-panel-toggle-btn#toggleTaskMemoBtn {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+    .top-panel {
+        cursor: pointer;
+    }
+
+    /* チャットヘッダーの詳細ボタンは非表示（トップバーに移動） */
+    .chat-header-right .mobile-detail-btn {
+        display: none !important;
+    }
+
+    /* チャットヘッダー右側を非表示 */
+    .chat-header-right {
+        display: none !important;
+    }
+
+    /* ========== 統一デザイン: トップパネルアイコン ========== */
+    /* 共通スタイル: 4つのアイコンボタン */
+    .mobile-menu-btn,
+    .fab-main,
+    .top-panel .user-info .user-icon,
+    .mobile-group-mgmt-btn {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        border-radius: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        flex-shrink: 0 !important;
+        font-weight: 600 !important;
+        border: none !important;
+        color: #ffffff !important;
+    }
+
+    /* 左矢印ボタン (⇒) - グループ一覧を開く - テーマアクセントカラー */
+    .mobile-menu-btn {
+        background: var(--theme-accent, #22c55e) !important;
+        font-size: 18px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .mobile-menu-btn:active {
+        transform: scale(0.92) !important;
+        filter: brightness(0.9) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* FABコンテナ（左側に配置） */
+    .fab-container {
+        position: relative !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 1001 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        margin: 0 !important;
+        height: 44px !important;
+    }
+
+    /* FABメインボタン (+) - メニューを開く - 明るいコントラストカラー */
+    .fab-main {
+        background: var(--theme-self-msg-bg, var(--theme-accent, #22c55e)) !important;
+        font-size: 20px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+        position: relative !important;
+        z-index: 99999 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        filter: brightness(1.1) saturate(1.2) !important;
+    }
+
+    .fab-main:active {
+        transform: scale(0.92) !important;
+        filter: brightness(0.95) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .fab-main.open {
+        transform: rotate(45deg) !important;
+        filter: brightness(0.7) grayscale(0.5) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* ユーザーアイコン - テーマアクセントカラー（やや暗め） */
+    .top-panel .user-info {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .top-panel .user-info .user-icon {
+        background: var(--theme-accent, #22c55e) !important;
+        font-size: 16px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+        margin: 0 !important;
+        filter: brightness(0.85) !important;
+    }
+
+    .top-panel .user-info:active .user-icon {
+        transform: scale(0.92) !important;
+        filter: brightness(0.75) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* 右パネル用⇐ボタンは廃止（⇒のみ残す） */
+    .top-panel .mobile-group-mgmt-btn {
+        display: none !important;
+    }
+
+    /* トップパネル全体のレイアウト */
+    .top-panel {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* 左側: ⇒ と ＋ */
+    .top-panel .top-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex: 0 0 auto !important;
+    }
+
+    .top-panel .top-left .toggle-left-btn {
+        display: none !important;
+    }
+
+    /* 携帯: ロゴは「Social9」を表示（９のみはやめる）。チャット表示時は .logo-mobile-chat-title でグループ名に差し替え */
+    .top-panel .top-left .logo .logo-pc {
+        display: inline !important;
+    }
+    .top-panel .top-left .logo .logo-mobile {
+        display: none !important;
+    }
+    .top-panel .top-left .logo:has(.logo-mobile-chat-title) .logo-pc,
+    .top-panel .top-left .logo:has(.logo-mobile-chat-title) .logo-mobile {
+        display: none !important;
+    }
+    .top-panel .top-left .logo .logo-mobile-chat-title {
+        display: inline !important;
+        max-width: 50vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .top-panel .top-left .logo img {
+        display: none !important;
+    }
+    .top-panel .top-left .logo {
+        position: absolute !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        color: inherit !important;
+        white-space: nowrap !important;
+        background: none !important;
+        overflow: visible !important;
+        min-width: 7em !important;
+        max-width: none !important;
+    }
+
+    /* 右側: 収納(≡)・ユーザーアイコン 等（常にクリック可能にするためz-indexを指定） */
+    .top-panel .top-right {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex: 0 0 auto !important;
+        position: relative !important;
+        z-index: 1001 !important;
+    }
+
+    /* FABコンテナを左側に配置 */
+    .fab-container {
+        order: 2 !important;
+    }
+
+    /* FABメニュー（画面中央に表示）※チェリー等テーマの .top-panel * 色指定に負けないよう固定 */
+    .fab-menu,
+    .top-panel .fab-container .fab-menu {
+        position: fixed !important;
+        left: 50% !important;
+        top: 50% !important;
+        right: auto !important;
+        bottom: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translate(-50%, -50%) translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 12px !important;
+        background: rgba(0, 0, 0, 0.9) !important;
+        border-radius: 16px !important;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+        z-index: 100001 !important;
+        min-width: 200px;
+    }
+
+    .fab-container.open .fab-menu {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translate(-50%, -50%) translateY(0);
+    }
+
+    .fab-menu-item {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        flex-direction: row !important;
+        gap: 12px !important;
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: all 0.2s ease-out;
+        cursor: pointer !important;
+        padding: 8px 12px !important;
+        border-radius: 12px !important;
+        width: 100% !important;
+        pointer-events: auto !important;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+        touch-action: manipulation;
+        box-sizing: border-box;
+    }
+
+    .fab-menu-item:active,
+    .fab-menu-item:hover {
+        background: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .fab-container.open .fab-menu-item {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+    
+    /* リンク型メニューアイテム */
+    a.fab-menu-item,
+    a.fab-menu-item.fab-link {
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+    /* ステガー（遅延）アニメーション */
+    .fab-container.open .fab-menu-item:nth-child(1) { transition-delay: 0.03s; }
+    .fab-container.open .fab-menu-item:nth-child(2) { transition-delay: 0.06s; }
+    .fab-container.open .fab-menu-item:nth-child(3) { transition-delay: 0.09s; }
+    .fab-container.open .fab-menu-item:nth-child(4) { transition-delay: 0.12s; }
+    .fab-container.open .fab-menu-item:nth-child(5) { transition-delay: 0.15s; }
+    .fab-container.open .fab-menu-item:nth-child(6) { transition-delay: 0.18s; }
+    .fab-container.open .fab-menu-item:nth-child(7) { transition-delay: 0.21s; }
+    .fab-container.open .fab-menu-item:nth-child(8) { transition-delay: 0.24s; }
+
+    /* メニューラベル（チェリー等 .top-panel * のテーマ色より優先して白で表示） */
+    .fab-label,
+    .top-panel .fab-container .fab-menu .fab-label {
+        background: transparent !important;
+        color: #ffffff !important;
+        padding: 4px 0 !important;
+        border-radius: 0 !important;
+        font-size: 15px !important;
+        font-weight: 500 !important;
+        white-space: nowrap !important;
+        box-shadow: none !important;
+        pointer-events: none !important;
+        flex: 1 !important;
+        text-align: left !important;
+    }
+
+    /* 左パネル開時は白背景のためFABラベルを濃い色に */
+    aside.left-panel.mobile-open .fab-label {
+        color: #1e293b !important;
+    }
+
+    /* メニューボタン */
+    .fab-btn {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 50% !important;
+        border: none !important;
+        background: white !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 20px !important;
+        transition: all 0.2s !important;
+        flex-shrink: 0 !important;
+        pointer-events: auto !important;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+        touch-action: manipulation;
+    }
+
+    .fab-btn:active {
+        transform: scale(0.9);
+    }
+
+    /* 各ボタンの色 */
+    .fab-btn.groups { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+    .fab-btn.design { background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); }
+    .fab-btn.wish { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
+    .fab-btn.memo { background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); }
+    .fab-btn.notify { background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); }
+    .fab-btn.settings { background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%); }
+    .fab-btn.language { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
+    .fab-btn.reload { background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%); }
+
+    /* FABオーバーレイ */
+    .fab-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 99999;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: all 0.3s;
+    }
+
+    .fab-overlay.show {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+    
+    /* メニューが開いている時、メニュー自体は最前面 */
+    .fab-container.open .fab-menu {
+        z-index: 100002 !important;
+    }
+
+    /* バッジ */
+    .fab-btn .fab-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background: #ef4444;
+        color: white;
+        font-size: 10px;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    /* 共有フォルダ用グループ選択モーダル（FAB「新規」） */
+    .fab-storage-picker-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100003;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        box-sizing: border-box;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    .fab-storage-picker-overlay.show {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+    .fab-storage-picker {
+        background: var(--dt-surface, #fff);
+        border-radius: 16px;
+        padding: 16px;
+        max-width: 360px;
+        width: 100%;
+        max-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    }
+    .fab-storage-picker-title {
+        margin: 0 0 12px 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    .fab-storage-picker-list {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 120px;
+        margin-bottom: 12px;
+    }
+    .fab-storage-picker-loading,
+    .fab-storage-picker-msg {
+        margin: 0;
+        padding: 12px 0;
+        color: var(--dt-text-secondary, #666);
+        font-size: 0.9rem;
+    }
+    .fab-storage-picker-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 4px;
+        border: none;
+        border-radius: 12px;
+        background: var(--dt-bg-secondary, #f5f5f5);
+        font-size: 1rem;
+        text-align: left;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        box-sizing: border-box;
+    }
+    .fab-storage-picker-item:active,
+    .fab-storage-picker-item:hover {
+        background: var(--dt-bg-tertiary, #eee);
+    }
+    .fab-storage-picker-item-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .fab-storage-picker-item-unread {
+        flex-shrink: 0;
+        margin-left: 8px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .fab-storage-picker-close {
+        padding: 10px 16px;
+        border-radius: 12px;
+        border: none;
+        background: var(--dt-primary, #7c3aed);
+        color: #fff;
+        font-size: 0.95rem;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .fab-storage-picker-close:active,
+    .fab-storage-picker-close:hover {
+        opacity: 0.9;
+    }
+
+    /* ========================================
+       PWAインストールバナー - チャット入力と重ならない
+       ======================================== */
+    .pwa-install-banner {
+        /* 入力エリアの上に配置（入力エリアの高さ分上げる） */
+        bottom: calc(var(--mobile-input-height, 60px) + 10px);
+        border-radius: 12px;
+        margin: 0 10px;
+        left: 0;
+        right: 0;
+        width: auto;
+    }
+    
+    /* ========================================
+       タスクドロップダウン - モバイル対応
+       ======================================== */
+    .task-dropdown-menu {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        border-radius: 16px 16px 0 0 !important;
+        max-height: 70vh !important;
+    }
+    
+    .task-dropdown-list {
+        max-height: 55vh;
+    }
+    
+    .task-dropdown-item {
+        padding: 14px;
+    }
+    
+    .task-dropdown-checkbox {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+    
+    .task-dropdown-title {
+        font-size: 15px;
+    }
+    
+    .task-dropdown-complete-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+}
+
+/* ========================================
+   携帯チャット入力欄: 最大15行を確実に（他CSS・JSより優先）
+   DOCS/CHAT_LAYOUT_OVERLAP_AND_BLANK_FIX.md 方針に従い body.page-chat で最終上書き
+   ======================================== */
+@media (max-width: 768px) {
+    /* 入力欄コンテナ: 15行分のテキストエリア＋ツールバーが入るよう余裕を持たせる */
+    body.page-chat .center-panel .input-area {
+        max-height: 380px !important;
+    }
+    /* 親要素の overflow:hidden を解除（design_loader.php が !important で設定するため再上書き） */
+    body.page-chat .input-container {
+        overflow: visible !important;
+    }
+    body.page-chat .input-wrapper {
+        overflow: visible !important;
+    }
+    body.page-chat .input-area {
+        overflow: visible !important;
+    }
+    /* テキストエリア本体 */
+    body.page-chat .center-panel .input-area .input-row .input-wrapper #messageInput,
+    body.page-chat .center-panel .input-area .input-row .input-wrapper textarea.message-input,
+    body.page-chat .center-panel .input-area .input-row .input-wrapper textarea {
+        max-height: 300px !important;
+        min-height: 52px !important;
+    }
+    #messageInput {
+        max-height: 300px !important;
+        min-height: 52px !important;
+    }
+    /* 入力欄を上に広げたとき: PCと同じ（ボタン行と入力欄が一体で動き、余白は入力欄に） */
+    body.page-chat #inputArea.input-area-has-height .input-container {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden !important;
+    }
+    body.page-chat #inputArea.input-area-has-height .input-toolbar {
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
+    }
+    body.page-chat #inputArea.input-area-has-height .input-row {
+        flex: 1 !important;
+        min-height: 0 !important;
+        display: flex;
+        align-items: stretch !important;
+    }
+    body.page-chat #inputArea.input-area-has-height .input-wrapper {
+        flex: 1 !important;
+        min-height: 0 !important;
+        display: flex;
+    }
+    body.page-chat #inputArea.input-area-has-height #messageInput,
+    body.page-chat #inputArea.input-area-has-height .input-row textarea,
+    body.page-chat #inputArea.input-area-has-height .input-wrapper textarea,
+    body.page-chat #inputArea.input-area-has-height .message-input {
+        flex: 1 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+    }
+    /* チャット入力欄: 上下スクロール有効・スクロールバーは透明で見えない */
+    body.page-chat .input-area #messageInput::-webkit-scrollbar,
+    body.page-chat .input-area .input-wrapper textarea::-webkit-scrollbar,
+    body.page-chat .input-area .message-input::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+    body.page-chat .input-area #messageInput::-webkit-scrollbar-track,
+    body.page-chat .input-area .input-wrapper textarea::-webkit-scrollbar-track,
+    body.page-chat .input-area #messageInput::-webkit-scrollbar-thumb,
+    body.page-chat .input-area .input-wrapper textarea::-webkit-scrollbar-thumb {
+        background: transparent !important;
+    }
+    body.page-chat .input-area #messageInput,
+    body.page-chat .input-area .input-wrapper textarea {
+        scrollbar-color: transparent transparent;
+        scrollbar-width: none;
+    }
+
+    /* 携帯: 長文入力時に指で上下スクロール可能にする（チャット・AI秘書・編集モーダル・タスク依頼） */
+    body.page-chat .input-area #messageInput,
+    body.page-chat .input-area .input-wrapper textarea,
+    body.page-chat .input-area .message-input,
+    body.page-chat .center-panel .input-area .input-row .input-wrapper #messageInput,
+    body.page-chat .center-panel .input-area .input-row .input-wrapper textarea {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+    }
+    .edit-message-modal textarea,
+    .edit-message-content textarea,
+    #editMessageText {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+        max-height: 50vh;
+    }
+    #wishOriginalText {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+        max-height: 40vh;
+    }
+}
+
+/* ========================================
+   PC版: 携帯と同じ入力欄レイアウト（送信ボタン・幅）
+   ======================================== */
+@media (min-width: 769px) {
+    body.page-chat .center-panel .input-area {
+        max-height: 380px !important;
+    }
+    body.page-chat .input-container {
+        overflow: visible !important;
+    }
+    body.page-chat .input-wrapper {
+        overflow: visible !important;
+    }
+    body.page-chat .input-area {
+        overflow: visible !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+    body.page-chat .input-container {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    body.page-chat .input-toolbar {
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+    }
+    body.page-chat .input-toolbar-left,
+    body.page-chat .input-toolbar-right {
+        padding: 0 !important;
+        gap: 4px !important;
+    }
+    body.page-chat .input-row {
+        gap: 4px !important;
+        padding: 0 !important;
+    }
+    body.page-chat .input-wrapper {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    body.page-chat .center-panel .input-area .input-row .input-wrapper #messageInput,
+    body.page-chat .center-panel .input-area .input-row .input-wrapper textarea.message-input,
+    body.page-chat .center-panel .input-area .input-row .input-wrapper textarea {
+        max-height: 300px !important;
+        min-height: 52px !important;
+    }
+    /* チャット入力欄: 上下スクロール有効・スクロールバーは透明で見えない（PC） */
+    body.page-chat .input-area #messageInput::-webkit-scrollbar,
+    body.page-chat .input-area .input-wrapper textarea::-webkit-scrollbar,
+    body.page-chat .input-area .message-input::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+    body.page-chat .input-area #messageInput::-webkit-scrollbar-track,
+    body.page-chat .input-area .input-wrapper textarea::-webkit-scrollbar-track,
+    body.page-chat .input-area #messageInput::-webkit-scrollbar-thumb,
+    body.page-chat .input-area .input-wrapper textarea::-webkit-scrollbar-thumb {
+        background: transparent !important;
+    }
+    body.page-chat .input-area #messageInput,
+    body.page-chat .input-area .input-wrapper textarea {
+        scrollbar-color: transparent transparent;
+        scrollbar-width: none;
+    }
+
+    /* To宛先バー・選択ポップアップ（モバイル） */
+    body.page-chat .to-row-bar {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    body.page-chat .to-chip {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+    .to-selector-panel {
+        width: 200px;
+        max-width: 70vw;
+        max-height: 240px;
+        height: fit-content;
+        border-radius: 10px;
+    }
+    .to-selector-list {
+        padding: 4px;
+        max-height: 180px;
+    }
+    .to-selector-item {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+}

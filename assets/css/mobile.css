@@ -1,0 +1,559 @@
+/**
+ * Social9 モバイル対応CSS
+ * 画面幅768px以下で適用
+ */
+
+/* ============================================
+   モバイル用変数
+   ============================================ */
+:root {
+    --mobile-header-height: 56px;
+    --mobile-bottom-nav-height: 60px;
+    --mobile-touch-target: 44px;
+}
+
+/* ============================================
+   768px以下（タブレット・スマホ）
+   ============================================ */
+@media (max-width: 768px) {
+    
+    /* === 基本レイアウト === */
+    body {
+        overflow: hidden;
+    }
+    
+    .main-container {
+        flex-direction: column;
+    }
+    
+    /* === 上パネル（ヘッダー） === */
+    .top-panel {
+        height: var(--mobile-header-height);
+        padding: 0 12px;
+    }
+    
+    .top-panel .logo {
+        font-size: 18px;
+    }
+    
+    .top-panel .top-btn {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+    
+    .top-panel .top-btn span {
+        display: none; /* テキストを隠してアイコンのみ表示 */
+    }
+    
+    /* ハンバーガーメニューボタン */
+    .mobile-menu-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: var(--mobile-touch-target);
+        height: var(--mobile-touch-target);
+        background: rgba(255,255,255,0.1);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        margin-right: 8px;
+    }
+    
+    .mobile-menu-btn:hover {
+        background: rgba(255,255,255,0.2);
+    }
+    
+    /* === 左パネル === */
+    .left-panel {
+        position: fixed;
+        top: var(--mobile-header-height);
+        left: 0;
+        width: 85%;
+        max-width: 320px;
+        height: calc(100vh - var(--mobile-header-height));
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+    }
+    
+    .left-panel.mobile-open {
+        transform: translateX(0);
+    }
+    
+    .left-spacer {
+        display: none;
+    }
+    
+    /* 左パネルオーバーレイ */
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: var(--mobile-header-height);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+    
+    .mobile-overlay.active {
+        display: block;
+    }
+    
+    /* === 中央パネル === */
+    .center-panel {
+        width: 100% !important;
+        height: calc(100vh - var(--mobile-header-height));
+        border: none !important;
+    }
+    
+    /* チャットヘッダー */
+    .chat-header {
+        padding: 10px 12px;
+    }
+    
+    .chat-header h2 {
+        font-size: 16px;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .chat-header-right {
+        gap: 4px;
+    }
+    
+    .chat-header-right .top-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+    
+    /* 詳細ボタン（右パネル開閉用） */
+    .mobile-detail-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: rgba(255,255,255,0.1);
+        border: none;
+        border-radius: 8px;
+        color: inherit;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    
+    /* 通話ボタン */
+    .call-btn {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+    }
+    
+    /* === 右パネル === */
+    .right-panel {
+        position: fixed;
+        top: var(--mobile-header-height);
+        right: 0;
+        width: 85%;
+        max-width: 320px;
+        height: calc(100vh - var(--mobile-header-height));
+        z-index: 1000;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.3);
+    }
+    
+    .right-panel.mobile-open {
+        transform: translateX(0);
+    }
+    
+    .right-spacer {
+        display: none;
+    }
+    
+    /* 右パネル閉じるボタン */
+    .mobile-close-panel {
+        display: flex !important;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 32px;
+        height: 32px;
+        background: rgba(0,0,0,0.3);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+    
+    /* === メッセージエリア === */
+    .messages-container {
+        padding: 12px;
+    }
+    
+    .message-card {
+        max-width: 85%;
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+    
+    .message-card .content {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    /* === 入力エリア === */
+    .input-area {
+        padding: 8px 12px;
+    }
+    
+    .input-wrapper {
+        gap: 8px;
+    }
+    
+    #messageInput {
+        font-size: 16px; /* iOSでズームを防ぐ */
+        padding: 10px 14px;
+        min-height: 44px;
+    }
+    
+    /* 送信ボタンはツールバー右に移動済み */
+
+    /* ツールバー */
+    .input-tools {
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+    
+    .toolbar-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    /* Enterで送信チェックボックスを非表示 */
+    .enter-send-label {
+        display: none;
+    }
+    
+    /* === 会話アイテム === */
+    .conv-item {
+        padding: 12px 16px;
+    }
+    
+    .conv-item .avatar {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .conv-item .name {
+        font-size: 15px;
+    }
+    
+    .conv-item .preview {
+        font-size: 13px;
+    }
+    
+    /* === モーダル === */
+    .modal-content {
+        width: 95%;
+        max-width: none;
+        margin: 10px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .modal-header {
+        padding: 16px;
+    }
+    
+    .modal-body {
+        padding: 16px;
+    }
+    
+    /* === 検索モーダル === */
+    .search-modal .modal-content {
+        height: 90vh;
+    }
+    
+    .search-input-row input {
+        font-size: 16px;
+        padding: 12px 16px;
+    }
+    
+    /* === ホバーアクションバー（モバイル用 - 常時表示） === */
+    .message-hover-actions {
+        position: static !important;
+        display: flex !important;
+        margin-top: 8px;
+        opacity: 1 !important;
+        visibility: visible !important;
+        background: transparent;
+        box-shadow: none;
+        justify-content: flex-start;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .message-hover-actions button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    /* インラインアクションボタン（モバイル用 - 常時表示） */
+    .message-actions-inline {
+        opacity: 1 !important;
+        visibility: visible !important;
+        flex-wrap: wrap;
+    }
+    
+    /* === 長押しメニュー（コンテキストメニュー） === */
+    .context-menu {
+        position: fixed !important;
+        min-width: 180px;
+        font-size: 15px;
+    }
+    
+    .context-menu-item {
+        padding: 14px 18px;
+    }
+    
+    /* === フィルタータブ === */
+    .filter-tabs {
+        gap: 4px;
+        overflow-x: auto;
+        padding: 8px 12px;
+    }
+    
+    .filter-tab {
+        padding: 8px 12px;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+    
+    /* === 右パネル内のコンテンツ === */
+    .right-panel .setting-section {
+        padding: 12px;
+    }
+    
+    .right-panel h3 {
+        font-size: 14px;
+    }
+    
+    /* 概要メモ入力欄 */
+    .right-panel .memo-input,
+    .right-panel #conversationMemo,
+    .right-panel textarea {
+        background: var(--dt-input-bg, #ffffff) !important;
+        color: var(--dt-input-text, #1e293b) !important;
+        -webkit-text-fill-color: var(--dt-input-text, #1e293b) !important;
+        caret-color: var(--dt-input-text, #1e293b) !important;
+        font-size: 16px; /* iOSでズーム防止 */
+    }
+    
+    .right-panel .memo-input[readonly],
+    .right-panel #conversationMemo[readonly] {
+        background: var(--dt-right-panel-bg, rgba(248, 250, 252, 0.95)) !important;
+        border-color: transparent !important;
+        opacity: 0.85;
+    }
+    
+    .right-panel .memo-input::placeholder,
+    .right-panel #conversationMemo::placeholder {
+        color: var(--dt-input-placeholder, #64748b) !important;
+        -webkit-text-fill-color: var(--dt-input-placeholder, #64748b) !important;
+    }
+    
+    /* 概要リスト（モバイル対応） */
+    .overview-list {
+        gap: 8px;
+    }
+    
+    .overview-entry {
+        border-radius: 10px;
+    }
+    
+    .overview-entry textarea {
+        font-size: 16px; /* iOSでズーム防止 */
+        min-height: 50px;
+        padding: 12px;
+    }
+    
+    .overview-entry.saved {
+        background: var(--dt-right-panel-bg, rgba(248, 250, 252, 0.95)) !important;
+    }
+    
+    .overview-entry.saved textarea {
+        color: var(--dt-text-muted, #64748b) !important;
+        -webkit-text-fill-color: var(--dt-text-muted, #64748b) !important;
+    }
+    
+    .overview-entry.editing {
+        background: var(--dt-input-bg, #ffffff) !important;
+    }
+    
+    .overview-entry.editing textarea {
+        color: var(--dt-input-text, #1e293b) !important;
+        -webkit-text-fill-color: var(--dt-input-text, #1e293b) !important;
+        min-height: 160px; /* 概要を追加時の初期フレームを広めに */
+    }
+    
+    .overview-entry-actions {
+        padding: 6px 10px 10px;
+    }
+    
+    .overview-entry-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+    
+    .overview-add-btn {
+        padding: 14px;
+        font-size: 14px;
+    }
+    
+    /* メディアセクション */
+    .media-add-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .media-add-row input {
+        font-size: 16px;
+    }
+    
+    .media-add-row button {
+        width: 100%;
+        padding: 12px;
+    }
+    
+    /* === アラート・トースト === */
+    .alert,
+    .toast {
+        left: 10px;
+        right: 10px;
+        width: auto;
+        font-size: 14px;
+    }
+    
+    /* === 設定ページ === */
+    .settings-layout {
+        flex-direction: column;
+    }
+    
+    .settings-layout .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        overflow-x: auto;
+        padding: 0;
+    }
+    
+    .settings-layout .sidebar .nav-item {
+        padding: 12px 16px;
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+    }
+    
+    .settings-layout .sidebar .nav-item.active {
+        border-left: none;
+        border-bottom: 3px solid var(--primary);
+    }
+    
+    .settings-layout .content {
+        padding: 20px 16px;
+        max-height: none;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-group {
+        width: 100%;
+    }
+    
+    /* === タスク・メモページ === */
+    .tabs {
+        overflow-x: auto;
+    }
+    
+    .tabs button {
+        padding: 10px 16px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+    
+    .task-card,
+    .memo-card {
+        padding: 14px;
+    }
+    
+    .task-actions {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    /* === 通知ページ === */
+    .notification-item {
+        padding: 14px;
+    }
+    
+    .notification-item .avatar {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* ============================================
+   480px以下（小さいスマホ）
+   ============================================ */
+@media (max-width: 480px) {
+    
+    .top-panel .logo {
+        font-size: 16px;
+    }
+    
+    .chat-header h2 {
+        max-width: 120px;
+        font-size: 15px;
+    }
+    
+    .message-card {
+        max-width: 90%;
+    }
+    
+    .conv-item .name {
+        font-size: 14px;
+    }
+    
+    .modal-content {
+        margin: 5px;
+        width: calc(100% - 10px);
+    }
+}
+
+/* ============================================
+   PC表示時は非表示にする要素
+   ============================================ */
+@media (min-width: 769px) {
+    .mobile-menu-btn,
+    .mobile-detail-btn,
+    .mobile-overlay,
+    .mobile-close-panel {
+        display: none !important;
+    }
+}
+
+

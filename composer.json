@@ -1,0 +1,22 @@
+{
+    "name": "social9/social9",
+    "description": "Social9 - コミュニケーションプラットフォーム",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "minishlink/web-push": "^10.0",
+        "google/apiclient": "*",
+        "tecnickcom/tcpdf": "*",
+        "smalot/pdfparser": "^2.12",
+        "phpmailer/phpmailer": "^6.9",
+        "lbuchs/webauthn": "*",
+        "aws/aws-sdk-php": "^3.0"
+    },
+    "suggest": {
+        "phpoffice/phpspreadsheet": "Excel編集機能で利用（composer require phpoffice/phpspreadsheet --ignore-platform-reqs）",
+        "phpoffice/phpword": "Word編集機能で利用（composer require phpoffice/phpword）"
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

@@ -1,0 +1,232 @@
+/**
+ * Guild 依頼詳細CSS
+ */
+
+.request-detail-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.request-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: var(--spacing-lg);
+}
+
+/* メインコンテンツ */
+.request-main .card {
+    margin-bottom: var(--spacing-lg);
+}
+
+.request-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.request-badges {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.request-detail-title {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Earth表示 */
+.request-earth-display {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(234, 179, 8, 0.1) 100%);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.request-earth-display .earth-icon {
+    font-size: 2rem;
+}
+
+.request-earth-display .earth-amount {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--color-accent);
+}
+
+.request-earth-display .earth-unit {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+}
+
+.request-earth-display .earth-yen {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-left: var(--spacing-sm);
+}
+
+/* 情報グリッド */
+.request-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.info-item {
+    padding: var(--spacing-md);
+    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+}
+
+.info-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-xs);
+}
+
+.info-value {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 500;
+}
+
+.guild-mini-logo,
+.user-mini-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+}
+
+/* 説明 */
+.request-description,
+.request-qualifications {
+    margin-bottom: var(--spacing-lg);
+}
+
+.request-description h3,
+.request-qualifications h3 {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-sm);
+}
+
+.description-content,
+.qualifications-content {
+    padding: var(--spacing-md);
+    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+    line-height: 1.7;
+}
+
+/* 立候補者リスト */
+.applicants-list,
+.assignees-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.applicant-item,
+.assignee-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+}
+
+.applicant-avatar,
+.assignee-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background-color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.applicant-avatar img,
+.assignee-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.applicant-info,
+.assignee-info {
+    flex: 1;
+}
+
+.applicant-name,
+.assignee-name {
+    font-weight: 500;
+    margin-bottom: var(--spacing-xs);
+}
+
+.applicant-comment {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.applicant-date {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.assignee-earth {
+    font-size: var(--font-size-sm);
+    color: var(--color-accent);
+    font-weight: 500;
+}
+
+.applicant-status,
+.assignee-status {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+/* サイドバー */
+.request-sidebar .card {
+    position: sticky;
+    top: calc(60px + var(--spacing-lg));
+}
+
+.action-card .card-body {
+    text-align: center;
+}
+
+.action-message {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-md);
+}
+
+.action-message.success {
+    color: var(--color-success);
+}
+
+/* レスポンシブ */
+@media (max-width: 1024px) {
+    .request-detail-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .request-sidebar .card {
+        position: static;
+    }
+}
+
+@media (max-width: 640px) {
+    .request-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .request-earth-display {
+        flex-wrap: wrap;
+    }
+}

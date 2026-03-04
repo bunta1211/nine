@@ -1,0 +1,140 @@
+/**
+ * 絵文字ピッカー コンポーネント
+ * 遅延読み込み対象
+ */
+
+.emoji-picker {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 300px;
+    max-height: 350px;
+    background: var(--dt-card-bg, #ffffff);
+    border: 1px solid var(--dt-card-border, rgba(0,0,0,0.1));
+    border-radius: var(--dt-border-radius, 12px);
+    box-shadow: var(--dt-card-shadow, 0 4px 20px rgba(0,0,0,0.15));
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.emoji-picker.visible {
+    display: flex;
+}
+
+.emoji-picker__tabs {
+    display: flex;
+    border-bottom: 1px solid var(--dt-divider, rgba(0,0,0,0.1));
+    flex-shrink: 0;
+}
+
+.emoji-picker__tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    font-size: 18px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.emoji-picker__tab:hover {
+    background: var(--dt-left-hover, rgba(0,0,0,0.05));
+}
+
+.emoji-picker__tab.active {
+    background: var(--dt-left-active, rgba(0,0,0,0.1));
+    border-bottom: 2px solid var(--dt-accent, #3b82f6);
+}
+
+.emoji-picker__content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.emoji-picker__grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+}
+
+.emoji-picker__item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    transition: background-color 0.15s, transform 0.15s;
+}
+
+.emoji-picker__item:hover {
+    background: var(--dt-left-hover, rgba(0,0,0,0.08));
+    transform: scale(1.2);
+}
+
+.emoji-picker__search {
+    margin: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--dt-input-border, rgba(0,0,0,0.2));
+    border-radius: 20px;
+    font-size: 14px;
+    background: var(--dt-input-bg, #ffffff);
+    color: var(--dt-input-text, #333);
+    outline: none;
+}
+
+.emoji-picker__search:focus {
+    border-color: var(--dt-input-focus-border, #3b82f6);
+}
+
+.emoji-picker__category-title {
+    padding: 8px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--dt-text-muted, #666);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* よく使う絵文字 */
+.emoji-picker__recent {
+    padding: 8px;
+    border-bottom: 1px solid var(--dt-divider, rgba(0,0,0,0.1));
+}
+
+.emoji-picker__recent-title {
+    font-size: 11px;
+    color: var(--dt-text-light, #999);
+    margin-bottom: 6px;
+}
+
+.emoji-picker__recent-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* スクロールバー */
+.emoji-picker__content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.emoji-picker__content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.emoji-picker__content::-webkit-scrollbar-thumb {
+    background: var(--dt-scroll-thumb, rgba(0,0,0,0.2));
+    border-radius: 3px;
+}
+
+.emoji-picker__content::-webkit-scrollbar-thumb:hover {
+    background: var(--dt-scroll-thumb-hover, rgba(0,0,0,0.3));
+}
