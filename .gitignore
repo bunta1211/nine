@@ -15,6 +15,7 @@ backup/
 
 # 秘密鍵・証明書
 *.pem
+*.ppk
 private_key.pem
 
 # ログ・一時ファイル

@@ -16,10 +16,12 @@
 
 | 項目 | 値 |
 |------|-----|
-| **PEM キー** | `C:\Users\narak\Desktop\social9-key.pem` |
+| **PEM キー（Mac）** | `~/.ssh/social9-key.pem` |
+| **PEM キー（Windows）** | `C:\Users\narak\Desktop\social9-key.pem` |
 | **EC2** | `ec2-user@54.95.86.79` |
 | **Web ドキュメントルート** | `/var/www/html/` |
-| **ローカルプロジェクトルート** | `c:\xampp\htdocs\nine` |
+| **ローカルプロジェクトルート（Mac）** | `/Users/yusei/Documents/Project/nine` |
+| **ローカルプロジェクトルート（Windows）** | `c:\xampp\htdocs\nine` |
 
 ### パス対応（ローカル → リモート）
 
@@ -37,7 +39,23 @@
 | ルートの `*.php`（chat.php 等） | `/var/www/html/` |
 | `DOCS\*` | `/var/www/html/DOCS/` |
 
-### scp 実行例（PowerShell）
+### scp 実行例（Mac / Linux）
+
+```bash
+cd /Users/yusei/Documents/Project/nine
+./deploy.sh api/ai.php includes/today_topics_helper.php cron/ai_today_topics_evening.php
+```
+
+または手動:
+
+```bash
+KEY="$HOME/.ssh/social9-key.pem"
+EC2="ec2-user@54.95.86.79"
+scp -i "$KEY" api/ai.php "$EC2:/var/www/html/api/"
+scp -i "$KEY" includes/today_topics_helper.php "$EC2:/var/www/html/includes/"
+```
+
+### scp 実行例（Windows PowerShell）
 
 ```powershell
 cd c:\xampp\htdocs\nine
@@ -47,11 +65,9 @@ $root = "c:\xampp\htdocs\nine"
 
 scp -i $key "$root\api\ai.php" "${ec2}:/var/www/html/api/"
 scp -i $key "$root\includes\today_topics_helper.php" "${ec2}:/var/www/html/includes/"
-scp -i $key "$root\cron\ai_today_topics_evening.php" "${ec2}:/var/www/html/cron/"
-scp -i $key "$root\database\migration_xxx.sql" "${ec2}:/var/www/html/database/"
 ```
 
-複数ファイルは上記を並べるか、`deploy-bulk.ps1` の `$files` に追加して一括実行。
+複数ファイルは上記を並べるか、Mac は `deploy.sh`、Windows は `deploy-bulk.ps1` で一括実行。
 
 ---
 

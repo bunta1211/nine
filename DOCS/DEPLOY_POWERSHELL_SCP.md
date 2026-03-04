@@ -1,6 +1,6 @@
-# 本番（EC2）へのファイル反映 — PowerShell で scp
+# 本番（EC2）へのファイル反映 — scp
 
-本番サーバー（EC2）へファイルをアップロードする手順です。**PowerShell で scp を使う方法**を基本とします。
+本番サーバー（EC2）へファイルをアップロードする手順です。
 
 ---
 
@@ -8,11 +8,44 @@
 
 - EC2: `ec2-user@54.95.86.79`
 - ドキュメントルート: `/var/www/html/`
-- 秘密鍵: **実際に .pem を置いているパス**を指定する（下記「キーパスの注意」を参照）
+- 秘密鍵: **実際に .pem を置いているパス**を指定する（下記参照）
+
+| 環境 | PEM キーのパス |
+|------|---------------|
+| **Mac** | `~/.ssh/social9-key.pem` |
+| **Windows** | `C:\Users\narak\Desktop\social9-key.pem` |
 
 ---
 
-## 手順1: PowerShell で scp を使う
+## 手順A: Mac / Linux で deploy.sh を使う
+
+プロジェクトルートの `deploy.sh` を使って簡単にデプロイできます。
+
+### 特定のファイルだけ送信
+
+```bash
+cd /Users/yusei/Documents/Project/nine
+./deploy.sh api/messages.php
+./deploy.sh includes/chat/scripts.php assets/css/chat-main.css
+```
+
+### 定義済みファイルを一括送信
+
+```bash
+./deploy.sh
+```
+
+### 手動で scp を実行する場合
+
+```bash
+KEY="$HOME/.ssh/social9-key.pem"
+EC2="ec2-user@54.95.86.79"
+scp -i "$KEY" api/messages.php "$EC2:/var/www/html/api/"
+```
+
+---
+
+## 手順B: Windows — PowerShell で scp を使う
 
 ### 1. プロジェクトフォルダへ移動
 
