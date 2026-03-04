@@ -26,7 +26,7 @@ $topbar_header_id_attr = isset($topbar_header_id) && $topbar_header_id !== '' ? 
         <button class="toggle-left-btn" onclick="toggleLeftMenu()" title="左パネル表示/非表示" aria-label="左パネルを開く" id="toggleLeftBtn">⇐</button>
         <?php endif; ?>
         <div class="logo">
-            <span class="logo-pc">Social99</span>
+            <span class="logo-pc">Social9</span>
             <span class="logo-mobile">9</span>
             <?php if (!empty($topbar_mobile_title)): ?>
             <span class="logo-mobile-chat-title"><?= htmlspecialchars($topbar_mobile_title) ?></span>
