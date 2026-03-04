@@ -25,7 +25,7 @@
 2. クリップボードに Markdown 形式の提案書がコピーされる（ID・日時・概要・問題の内容・問題の場所・想定原因・望ましい対応・関連ファイル）。
 3. **Cursor** のチャットを開き、コピーした内容を貼り付ける。
 4. 「この提案書に従って該当ファイルを修正してください」などと依頼する。
-5. Cursor（AI）が差分を提示したら、**本番へは [DOCS/DEPLOY_POWERSHELL_SCP.md](./DEPLOY_POWERSHELL_SCP.md) の手順で該当ファイルをアップロード**する。
+5. Cursor（AI）が差分を提示したら、**本番へは PR を作成して main にマージすると GitHub Actions で自動デプロイ**される。[DOCS/CI_CD_SETUP.md](./CI_CD_SETUP.md) を参照。
 
 ### 3. 改善完了・ユーザーに通知
 
@@ -60,7 +60,7 @@
 |-------------|------|
 | [IMPROVEMENT_CONTEXT.md](./IMPROVEMENT_CONTEXT.md) | 画面・機能ごとの主要ファイル一覧（改善提案記録時のコンテキスト用） |
 | [IMPROVEMENT_REPORTS_TABLE_SETUP.md](./IMPROVEMENT_REPORTS_TABLE_SETUP.md) | 本番で `improvement_reports` テーブルを作る手順（phpMyAdmin / PowerShell） |
-| [DEPLOY_POWERSHELL_SCP.md](./DEPLOY_POWERSHELL_SCP.md) | 本番へファイルをアップロードする手順（PowerShell で scp） |
+| [CI_CD_SETUP.md](./CI_CD_SETUP.md) | main マージで本番に自動デプロイ |
 
 ---
 

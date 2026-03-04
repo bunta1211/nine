@@ -163,7 +163,7 @@ mysql -h database-1.cjgimse22md1.ap-northeast-1.rds.amazonaws.com -P 3306 -u adm
 
 DB の変更に合わせて PHP を更新している場合は、本番にファイルを反映する。
 
-- 手順: [本番（EC2）へのファイル反映 — PowerShell で scp](./DEPLOY_POWERSHELL_SCP.md) または WinSCP で該当ファイルを `/var/www/html/` 配下にアップロード。
+- 手順: ファイルの本番反映は **main ブランチへのマージで GitHub Actions が自動実行**します。[CI_CD_SETUP.md](./CI_CD_SETUP.md) を参照。SQL のみ手動実行の場合は [SERVER_DEPLOY_AND_SQL.md](./SERVER_DEPLOY_AND_SQL.md)。
 - アップロード後、必要に応じて EC2 上で `sudo chown apache:apache /var/www/html/...` を実行する。
 
 ---
@@ -197,4 +197,4 @@ mysql -h database-1.cjgimse22md1.ap-northeast-1.rds.amazonaws.com -P 3306 -u adm
 
 - [本番データベースへの接続方法](./PRODUCTION_DB_ACCESS.md)
 - [AWS RDS で SQL を実行する方法](./AWS_RDS_SQL_EXECUTE.md)
-- [本番（EC2）へのファイル反映 — PowerShell で scp](./DEPLOY_POWERSHELL_SCP.md)
+- [CI/CD 自動デプロイ](./CI_CD_SETUP.md) — main マージで本番に反映

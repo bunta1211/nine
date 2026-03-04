@@ -146,4 +146,4 @@ exit
 ## 関連ドキュメント
 
 - [本番データベースへの接続方法](./PRODUCTION_DB_ACCESS.md)
-- [本番（EC2）へのファイル反映 — PowerShell で scp](./DEPLOY_POWERSHELL_SCP.md)
+- [CI/CD 自動デプロイ](./CI_CD_SETUP.md) — main マージで本番に反映

@@ -1,12 +1,12 @@
 ---
-description: 本番反映は scp で案内する。実装完了時は送信まで実行する
+description: 本番反映は main マージで自動。手動で反映する場合の案内用。
 alwaysApply: true
 ---
 
 # 本番（EC2）へのファイル反映ルール
 
-- **実装完了時**: エージェントは**ファイル送信まで自ら実行**する。手順と必要情報は **`.cursor/rules/deploy-execute-on-complete.mdc`** および **`DOCS/SERVER_DEPLOY_AND_SQL.md`** を必ず参照すること。SQL がある場合も同ドキュメントに従い対応する。
-- **その他でユーザーが本番に反映したいとき**: 環境に合った手順を案内する。
+- **通常**: main にマージすると **GitHub Actions で自動デプロイ**されます。手動の scp は不要です。詳細は `DOCS/CI_CD_SETUP.md` を参照。
+- **手動で反映したい場合**（緊急時など）: EC2 に SSH して rsync で同期するか、GitHub Actions の「Run workflow」で main を指定して実行する。参照: `DOCS/CI_CD_SETUP.md`。
 
 ## Mac / Linux の場合
 
@@ -47,4 +47,5 @@ alwaysApply: true
 
 ## 参照ドキュメント
 
-詳細は `DOCS/DEPLOY_POWERSHELL_SCP.md` に記載する。
+- **自動デプロイ**: `DOCS/CI_CD_SETUP.md`
+- **手動で反映する場合**: 上記の scp 例または GitHub Actions の手動実行を案内する。

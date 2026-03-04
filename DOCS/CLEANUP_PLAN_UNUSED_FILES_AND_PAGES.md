@@ -151,7 +151,7 @@
 | `admin/DEPENDENCIES.md` | 管理画面の依存関係 |
 | `assets/js/DEPENDENCIES.md` | JS の役割・参照元 |
 | `.cursor/rules/update-dependencies-docs.mdc` | 変更時の DEPENDENCIES 更新ルール |
-| `DOCS/DEPLOY_POWERSHELL_SCP.md` | 本番反映手順（本番に含めないファイルの記載先） |
+| `DOCS/CI_CD_SETUP.md` | 本番反映（main マージで自動デプロイ） |
 | **`DOCS/OPTIMIZATION_PLAN_UNUSED_PAGES_DETAIL.md`** | **最適化計画：使用していないページの詳細一覧（未実施・いずれ練り直し用）** |
 
 ---

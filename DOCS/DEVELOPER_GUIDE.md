@@ -4,6 +4,75 @@
 
 このドキュメントは、Social9の新規機能開発・既存機能改修時に従うべきガイドラインです。
 
+---
+
+## 前提（デプロイ・ブランチ）
+
+- **main ブランチにマージすると、GitHub Actions で自動的に EC2（social9.jp）にデプロイされます。**
+- 手動デプロイ（scp / WinSCP）は不要です。
+- **main に直接 push せず、ブランチから PR 経由でマージしてください。**
+- 作業ブランチは **bunta/01** です。
+
+---
+
+## 事前準備
+
+- **Docker Desktop** をインストールし、起動した状態にしてください（未導入の場合: https://www.docker.com/products/docker-desktop/ ）
+- コマンドは **PowerShell** または **Git Bash** で実行してください。
+
+---
+
+## 開発開始時の手順（毎回）
+
+1. **main を最新に pull し、bunta/01 に切り替える**
+   - `git checkout main` → `git pull origin main`
+   - `git checkout bunta/01`（まだなければ `git checkout -b bunta/01` で作成）
+
+2. **Docker 環境を起動する**
+   - `docker compose up -d`
+   - 初回はイメージのビルドで数分かかることがあります。
+
+3. **初回のみ、コンテナ内で composer install を実行する**
+   - `docker compose exec web composer install --no-interaction`
+
+4. **ローカル DB にデータが必要な場合**
+   - **EC2 に SSH できる場合**: 本番 DB から mysqldump でエクスポートし、ローカル DB に流し込んでください。接続情報は EC2 の `config/database.aws.php` にあります。
+   - **EC2 にアクセスできない場合**: 空の DB のまま新規登録で動作確認するか、データのエクスポートを依頼してください。
+   - **初回のみ（テーブルがない場合）**: Docker の DB には `docker/init-db` で文字セットのみ設定され、テーブルは作成されません。初回は次でスキーマを流してください。
+     ```powershell
+     docker compose exec -T db mysql -u root -psocial9_dev social9 < database/schema_complete.sql
+     ```
+
+5. **動作確認**
+   - ブラウザで **http://localhost:9000/** を開いて確認してください。
+   - Web: ポート **9000**、MySQL: ポート **13306**。
+
+詳細な Docker の使い方は [DOCKER_LOCAL.md](./DOCKER_LOCAL.md) を参照してください。
+
+---
+
+## 開発フロー
+
+- ブランチ **bunta/01** で作業する。
+- ローカルで開発する。
+- コミット・push したら、**GitHub で PR を作成**する。
+- **main にマージ**すると、自動で本番に反映される。
+
+---
+
+## コードを書くときのルール（Windows / Mac 両対応）
+
+チームメンバーが Windows と Mac の両方で開発するため、**どちらの環境でも動くように**書いてください。
+
+| 項目 | ルール |
+|------|--------|
+| **パス** | PHP では `__DIR__` や `DIRECTORY_SEPARATOR` を使うか、スラッシュ（`/`）で統一する。 |
+| **シェル・コマンド** | シェルスクリプトやコマンドに OS 依存の書き方をしない。 |
+| **改行コード** | **LF** を前提とする（Git の設定で統一する）。 |
+| **ハードコード禁止** | ファイルパス・環境変数・絶対パスをハードコードしない。 |
+
+---
+
 ## 依存関係の可視化（重要）
 
 機能を変更する前に、必ず関連する `DEPENDENCIES.md` ファイルを確認してください。

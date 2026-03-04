@@ -130,13 +130,10 @@ SQL マイグレーションは CI/CD に含めていない。DB 変更が必要
 
 ### 手動でデプロイしたい場合
 
-従来の `deploy.sh`（Mac）または `deploy-bulk.ps1`（Windows）は引き続き使用可能。
-詳細: [DEPLOY_POWERSHELL_SCP.md](./DEPLOY_POWERSHELL_SCP.md)
+EC2 に SSH して `rsync` でローカルと同期するか、GitHub の Actions タブから「Run workflow」で main ブランチを指定してワークフローを手動実行できる。
 
 ---
 
 ## 関連ドキュメント
 
-- [IMPLEMENTATION_DEPLOY.md](./IMPLEMENTATION_DEPLOY.md) — デプロイ記録
-- [SERVER_DEPLOY_AND_SQL.md](./SERVER_DEPLOY_AND_SQL.md) — SQL 実行手順
-- [DEPLOY_POWERSHELL_SCP.md](./DEPLOY_POWERSHELL_SCP.md) — 手動デプロイ手順
+- [SERVER_DEPLOY_AND_SQL.md](./SERVER_DEPLOY_AND_SQL.md) — SQL マイグレーションの実行手順
