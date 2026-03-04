@@ -1,0 +1,63 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy via rsync
+        run: |
+          rsync -azv --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.cursor/' \
+            --exclude='DOCS/' \
+            --exclude='deploy.sh' \
+            --exclude='deploy-bulk.ps1' \
+            --exclude='deploy-bulk.cmd' \
+            --exclude='*.pem' \
+            --exclude='*.ppk' \
+            --exclude='config/database.aws.php' \
+            --exclude='config/app.local.php' \
+            --exclude='config/ai_config.local.php' \
+            --exclude='config/google_calendar.local.php' \
+            --exclude='config/google_login.local.php' \
+            --exclude='config/push.local.php' \
+            --exclude='config/mail.local.php' \
+            --exclude='config/vault.local.php' \
+            --exclude='config/sms.local.php' \
+            --exclude='config/google.php' \
+            --exclude='config/google_sheets.local.php' \
+            --exclude='config/app.local.production.php' \
+            --exclude='config/ai_config.local.server.php' \
+            --exclude='storage/cache/*.json' \
+            --exclude='logs/' \
+            --exclude='tmp/sessions/' \
+            --exclude='backup/' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/html/
+
+      - name: Fix permissions and reload
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          sudo chown -R apache:apache /var/www/html
+          sudo systemctl reload httpd
+          echo "Deploy complete: $(date)"
+          EOF
