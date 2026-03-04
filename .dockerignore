@@ -1,0 +1,8 @@
+.git
+.github
+.cursor
+DOCS
+*.pem
+*.ppk
+docker/init-db
+db_data

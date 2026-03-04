@@ -57,6 +57,10 @@ jobs:
             --exclude='tmp/sessions/' \
             --exclude='backup/' \
             --exclude='private_key.pem' \
+            --exclude='Dockerfile' \
+            --exclude='docker-compose.yml' \
+            --exclude='.dockerignore' \
+            --exclude='docker/' \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/html/
 
