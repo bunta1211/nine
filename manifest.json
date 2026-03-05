@@ -1,7 +1,7 @@
 {
-    "name": "Social100",
-    "short_name": "Social100",
-    "description": "Social100 - コミュニケーションプラットフォーム",
+    "name": "Social9",
+    "short_name": "Social9",
+    "description": "Social9 - コミュニケーションプラットフォーム",
     "start_url": "./chat.php",
     "scope": "./",
     "display": "standalone",

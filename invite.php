@@ -366,7 +366,7 @@ $lang = getCurrentLanguage();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>友達追加 - <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?></title>
+    <title>友達追加 - <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></title>
     <style>
         * {
             margin: 0;
@@ -611,7 +611,7 @@ $lang = getCurrentLanguage();
                 <div class="invite-title">「<?= htmlspecialchars($inviteGroupName) ?>」への招待</div>
                 <div class="invite-subtitle"><?= htmlspecialchars($inviter['display_name']) ?>さんからのグループ招待</div>
             <?php else: ?>
-                <div class="invite-title"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>への招待</div>
+                <div class="invite-title"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>への招待</div>
                 <div class="invite-subtitle"><?= htmlspecialchars($inviter['display_name']) ?>さんからの招待</div>
             <?php endif; ?>
             
@@ -628,7 +628,7 @@ $lang = getCurrentLanguage();
                 <div class="inviter-message">「<?= htmlspecialchars($inviteGroupName) ?>」へあなたを招待しています</div>
             <?php else: ?>
                 <div class="inviter-name"><?= htmlspecialchars($inviter['display_name']) ?>さんが</div>
-                <div class="inviter-message">あなたを<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>へ招待しています</div>
+                <div class="inviter-message">あなたを<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>へ招待しています</div>
             <?php endif; ?>
             
             <?php if ($error): ?>
@@ -649,7 +649,7 @@ $lang = getCurrentLanguage();
                     <div class="form-hint">他のユーザーに表示される名前です</div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary">登録して<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>を始める</button>
+                <button type="submit" class="btn btn-primary">登録して<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>を始める</button>
             </form>
             
             <div class="divider"><span>既にアカウントをお持ちの方</span></div>
@@ -660,7 +660,7 @@ $lang = getCurrentLanguage();
             <!-- 通常の招待リンク -->
             <div class="invite-logo">👥</div>
             <div class="invite-title">友達追加リクエスト</div>
-            <div class="invite-subtitle"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>で友達になりましょう</div>
+            <div class="invite-subtitle"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>で友達になりましょう</div>
             
             <div class="inviter-avatar">
                 <?php if (!empty($inviter['avatar'])): ?>
@@ -680,7 +680,7 @@ $lang = getCurrentLanguage();
             <a href="register.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="btn btn-secondary">新規登録</a>
             
             <div class="login-prompt">
-                <p><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>アカウントをお持ちの方はログインしてください。<br>アカウントをお持ちでない方は新規登録してください。</p>
+                <p><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>アカウントをお持ちの方はログインしてください。<br>アカウントをお持ちでない方は新規登録してください。</p>
             </div>
             
         <?php elseif ($inviter && isset($_SESSION['user_id'])): ?>

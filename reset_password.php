@@ -77,7 +77,7 @@ if ($token) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>パスワードリセット | <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?></title>
+    <title>パスワードリセット | <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></title>
     <link rel="stylesheet" href="assets/css/common.css">
     <link rel="stylesheet" href="assets/css/mobile.css?v=<?= file_exists(__DIR__.'/assets/css/mobile.css') ? filemtime(__DIR__.'/assets/css/mobile.css') : '1' ?>">
     <style>
@@ -180,7 +180,7 @@ if ($token) {
 <body>
     <div class="card">
         <div class="logo">
-            <h1>☆ <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?></h1>
+            <h1>☆ <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></h1>
         </div>
         
         <?php if ($success): ?>

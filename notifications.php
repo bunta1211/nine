@@ -103,7 +103,7 @@ $show_notification_tabs = (preg_match('/Mobile|Android|iPhone|iPad|iPod|webOS|Bl
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= __('notifications') ?> | <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?></title>
+    <title><?= __('notifications') ?> | <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <?= generateFontLinks() ?>
     <link rel="stylesheet" href="assets/css/common.css?v=<?= assetVersion('assets/css/common.css', __DIR__) ?>">

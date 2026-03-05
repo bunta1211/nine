@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新規登録 - <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?></title>
+    <title>新規登録 - <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -317,7 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php else: ?>
             <h2>新規登録</h2>
-            <p class="subtitle"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>へようこそ！アカウントを作成しましょう。</p>
+            <p class="subtitle"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>へようこそ！アカウントを作成しましょう。</p>
             
             <?php if ($error): ?>
                 <div class="alert alert-error"><?= h($error) ?></div>
@@ -455,7 +455,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     
     <div class="footer">
-        © <?= date('Y') ?> 株式会社<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>. All rights reserved.
+        © <?= date('Y') ?> 株式会社<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>. All rights reserved.
     </div>
     <script src="assets/js/register-phone.js"></script>
 </body>

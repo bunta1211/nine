@@ -95,18 +95,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?> - <?= __('login') ?></title>
+    <title><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?> - <?= __('login') ?></title>
     
     <?php $pwa_icon_v = file_exists(__DIR__.'/assets/icons/icon-192x192.png') ? filemtime(__DIR__.'/assets/icons/icon-192x192.png') : '1'; ?>
     <!-- PWA対応: マニフェストとアイコン（?v= でキャッシュ無効化し、ロゴ差し替え後に反映） -->
     <link rel="manifest" href="manifest.php">
     <meta name="theme-color" content="#4a6741">
-    <meta name="application-name" content="<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>">
+    <meta name="application-name" content="<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>">
     
     <!-- iOS Safari対応: ホーム画面追加 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>">
+    <meta name="apple-mobile-web-app-title" content="<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>">
     <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png?v=<?= $pwa_icon_v ?>">
     
     <!-- ファビコン（SVGフォールバック付き） -->
@@ -427,7 +427,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
             <?php if (file_exists(__DIR__ . '/assets/images/logo-socialnine.png')): ?>
                 <img src="assets/images/logo-socialnine.png" alt="Social Nine">
             <?php else: ?>
-                <span class="logo-text" aria-hidden="true"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?></span>
+                <span class="logo-text" aria-hidden="true"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></span>
             <?php endif; ?>
         </div>
         
@@ -438,7 +438,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
         
         <div class="section-header">
             <span>Our Philosophy</span>
-            <span class="brand"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?></span>
+            <span class="brand"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></span>
         </div>
         
         <div id="alertArea">

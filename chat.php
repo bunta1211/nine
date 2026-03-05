@@ -134,18 +134,18 @@ if ($is_secretary_mode) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?> - チャット</title>
+    <title><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?> - チャット</title>
     
     <?php $pwa_icon_v = file_exists(__DIR__.'/assets/icons/icon-192x192.png') ? filemtime(__DIR__.'/assets/icons/icon-192x192.png') : '1'; ?>
     <!-- PWA対応: マニフェストとアイコン（?v= でキャッシュ無効化し、ロゴ差し替え後に反映） -->
     <link rel="manifest" href="manifest.php">
     <meta name="theme-color" content="#4a6741">
-    <meta name="application-name" content="<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>">
+    <meta name="application-name" content="<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>">
     
     <!-- PWA対応: ホーム画面追加 -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?>">
+    <meta name="apple-mobile-web-app-title" content="<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>">
     <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png?v=<?= $pwa_icon_v ?>">
     
     <!-- ファビコン（SVGフォールバック付き） -->
@@ -301,7 +301,7 @@ if ($is_secretary_mode) {
 <script>(function(){if(window.innerWidth<=768){if(typeof history!=='undefined'){try{history.scrollRestoration='manual';}catch(e){}}if(document.body.getAttribute('data-has-conversation')==='0'){document.body.setAttribute('data-mobile-list-first','1');}}})();</script>
     
     <!-- スクリーンリーダー用h1 -->
-    <h1 class="sr-only"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?> チャット</h1>
+    <h1 class="sr-only"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?> チャット</h1>
     
     <?php include __DIR__ . '/includes/chat/topbar.php'; ?>
     
@@ -1248,7 +1248,7 @@ if ($is_secretary_mode) {
     <div id="displayNamePromptModal" class="modal" style="display:none;">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
-                <h3>🎉 ようこそ <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?> へ！</h3>
+                <h3>🎉 ようこそ <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?> へ！</h3>
             </div>
             <div class="modal-body">
                 <p style="margin-bottom: 16px; color: #666;">

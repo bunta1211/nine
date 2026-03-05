@@ -178,7 +178,7 @@ $active_tab = $_GET['tab'] ?? 'tasks';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>タスク管理 | <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social100' ?></title>
+    <title>タスク管理 | <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <?= generateFontLinks() ?>
     <link rel="stylesheet" href="assets/css/common.css?v=<?= assetVersion('assets/css/common.css', __DIR__) ?>">

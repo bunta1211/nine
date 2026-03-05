@@ -37,7 +37,7 @@ if (!defined('APP_DEBUG')) {
 }
 
 // アプリケーション情報
-define('APP_NAME', 'Social100');
+define('APP_NAME', 'Social9');
 define('APP_VERSION', '1.0.0');
 if (!defined('APP_URL')) {
     define('APP_URL', getenv('APP_URL') ?: 'http://localhost/nine');
