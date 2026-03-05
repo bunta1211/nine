@@ -2097,7 +2097,7 @@ switch ($action) {
         }
         $systemPrompt = 'あなたは議事録の整文担当です。ユーザーから渡される発言の文字起こしを、誤字・言い淀み・重複を除き、読みやすい議事録形式（箇条書きまたは段落）に整えてください。話し言葉は書き言葉に直し、内容を変えずに簡潔にまとめてください。出力は整文したテキストのみを返し、説明や前置きは不要です。';
         if (!function_exists('geminiChat')) {
-            errorResponse('AI機能が利用できません');
+            errorResponse(function_exists('getGeminiUnavailableMessage') ? getGeminiUnavailableMessage() : 'AI機能が利用できません', 200);
         }
         $result = geminiChat($transcript, [], $systemPrompt, null);
         if (!$result['success']) {
@@ -2121,7 +2121,7 @@ switch ($action) {
             errorResponse('内容が長すぎます');
         }
         if (!function_exists('geminiChat')) {
-            errorResponse('AI機能が利用できません');
+            errorResponse(function_exists('getGeminiUnavailableMessage') ? getGeminiUnavailableMessage() : 'AI機能が利用できません', 200);
         }
         $projectContext = '';
         if (function_exists('getImprovementContextForGemini')) {
@@ -2194,7 +2194,7 @@ switch ($action) {
             errorResponse('conversation_id と message_id を指定してください');
         }
         if (!function_exists('geminiChat') || !isGeminiAvailable()) {
-            errorResponse('AI機能が利用できません');
+            errorResponse(function_exists('getGeminiUnavailableMessage') ? getGeminiUnavailableMessage() : 'AI機能が利用できません', 200);
         }
 
         $uid = (int)$user_id;
@@ -2285,7 +2285,7 @@ switch ($action) {
 
         $result = geminiChat($userPrompt, [], $sysPrompt, null);
         if (!$result['success']) {
-            errorResponse($result['error'] ?? '返信提案の生成に失敗しました');
+            errorResponse($result['error'] ?? '返信提案の生成に失敗しました', 200);
         }
         $suggested = trim($result['response']);
 
@@ -2356,7 +2356,7 @@ switch ($action) {
 
     case 'analyze_conversation_memory': {
         if (!function_exists('geminiChat') || !isGeminiAvailable()) {
-            errorResponse('AI機能が利用できません');
+            errorResponse(function_exists('getGeminiUnavailableMessage') ? getGeminiUnavailableMessage() : 'AI機能が利用できません', 200);
         }
         $uid = (int)$user_id;
 

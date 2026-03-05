@@ -39,7 +39,21 @@ rsync では **tmp/sessions/** ・ **logs/** ・ **uploads/** は除外される
 | 9 | **Web Push** | config/push.local.php に本番用 VAPID キーを設定済みか（必要なら config/generate_vapid_keys.php で再生成） |
 | 10 | **リマインダー（cron）** | EC2 で process_reminders.php を定期実行する cron を設定したか | [CRON_REMINDERS.md](./CRON_REMINDERS.md) |
 | 11 | **AI秘書（会話・記憶・キャラ）** | DB に `ai_conversations`, `user_ai_settings`, `ai_user_memories` が存在するか（`schema.sql` に含まれる） | [database/SCHEMA_README.md](../database/SCHEMA_README.md) |
-| 12 | **AI（自動返信提案・秘書チャット）** | `config/ai_config.local.php` に **GEMINI_API_KEY** が正しく設定されているか。未設定・無効なキーだと「API key not valid」となり自動返信提案が使えません。本番では rsync 除外のため **EC2 に手動で config/ai_config.local.php を配置**し、`define('GEMINI_API_KEY', 'あなたのキー');` を記述する。**確認方法**: 管理者でログインした状態で `GET https://social9.jp/api/health.php?action=ai_config` を開くと、キーが読み込まれているか・テスト呼び出しの成否が表示される。 | [config/ai_config.local.example.php](../config/ai_config.local.example.php)、[Gemini API キー取得](https://aistudio.google.com/app/apikey) |
+| 12 | **AI（自動返信提案・秘書チャット）** | `config/ai_config.local.php` に **GEMINI_API_KEY** が正しく設定されているか。未設定・無効なキーだと自動返信提案が使えません。本番では **EC2 に手動で config/ai_config.local.php を配置**する。**確認**: 管理者で `GET https://social9.jp/api/health.php?action=ai_config` を開く。**作成例**: 下記「EC2で ai_config.local.php を作成」参照。 | [config/ai_config.local.example.php](../config/ai_config.local.example.php)、[Gemini API キー取得](https://aistudio.google.com/app/apikey) |
+
+---
+
+### EC2で ai_config.local.php を作成（AI・自動返信提案用）
+
+1. EC2 に SSH で入り、`sudo nano /var/www/html/config/ai_config.local.php` を実行する。
+2. 以下を貼り付け、`YOUR_GEMINI_API_KEY` を [Google AI Studio](https://aistudio.google.com/app/apikey) で取得したキーに置き換えて保存する。
+
+```php
+<?php
+define('GEMINI_API_KEY', 'YOUR_GEMINI_API_KEY');
+```
+
+3. 保存後、`https://social9.jp/api/health.php?action=ai_config` でキーが読み込まれているか確認する。
 
 ---
 

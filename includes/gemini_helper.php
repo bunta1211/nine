@@ -14,6 +14,14 @@ function isGeminiAvailable() {
 }
 
 /**
+ * AI機能が使えないときのユーザー向けメッセージ（APIキー未設定・無効時）
+ * フロント・APIで共通利用
+ */
+function getGeminiUnavailableMessage() {
+    return 'AI機能を使うには、管理者がサーバーで API キー（GEMINI_API_KEY）を設定する必要があります。設定は config/ai_config.local.php で行います。';
+}
+
+/**
  * Gemini APIでチャット応答を生成
  * 
  * @param string $userMessage ユーザーのメッセージ
@@ -27,7 +35,7 @@ function geminiChat($userMessage, $conversationHistory = [], $systemPrompt = nul
         return [
             'success' => false,
             'response' => null,
-            'error' => 'Gemini APIキーが設定されていません'
+            'error' => getGeminiUnavailableMessage()
         ];
     }
     
@@ -194,7 +202,7 @@ function geminiChat($userMessage, $conversationHistory = [], $systemPrompt = nul
         if ($httpCode === 400 || $httpCode === 401 || $httpCode === 403) {
             $userMessage = 'APIキーエラー: ' . $errorMessage;
             if (strpos($errorMessage, 'API key') !== false || strpos($errorMessage, 'key not valid') !== false || strpos($errorMessage, 'invalid') !== false) {
-                $userMessage = 'AI機能を使うには、管理者がサーバーで API キー（GEMINI_API_KEY）を設定する必要があります。設定は config/ai_config.local.php で行います。';
+                $userMessage = getGeminiUnavailableMessage();
             }
             return [
                 'success' => false,

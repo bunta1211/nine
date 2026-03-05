@@ -18,7 +18,7 @@
 | `roles.php` | ロール定義。組織メンバー系は `organization_members.left_at` の有無でクエリを分岐（本番スキーマ互換） | 権限システム, admin/api/members.php |
 | `friend_request_mail.php` | 友達申請通知メール送信（sendFriendRequestNotification）。相手メールに「承諾する」リンク付き案内 | api/friends.php |
 | `logger.php` | ログ出力 | デバッグ |
-| `gemini_helper.php` | Gemini AI API連携（テキスト・画像・PDF対応）。`geminiChat`は`$imagePath`で画像またはPDFを`inlineData`形式で送信。PDFは application/pdf で送りスキャンPDFも解釈可能。パス解決は相対/絶対/UPLOAD_DIR/DOCUMENT_ROOT を試行 | AI相談室, 翻訳, 画像分析 |
+| `gemini_helper.php` | Gemini AI API連携（テキスト・画像・PDF対応）。`geminiChat`は`$imagePath`で画像またはPDFを`inlineData`形式で送信。PDFは application/pdf で送りスキャンPDFも解釈可能。パス解決は相対/絶対/UPLOAD_DIR/DOCUMENT_ROOT を試行。**APIキー未設定・無効時**: `getGeminiUnavailableMessage()` でユーザー向け共通メッセージを返却（api/ai.php で利用）。 | AI相談室, 翻訳, 画像分析, 自動返信提案 |
 | `task_memo_search_helper.php` | タスク・メモ・メッセージ検索（tableHasColumn, extractTaskMemoSearchParams, searchTasksAndMemos, formatTaskMemoSearchResultsForAI, extractTopicKeyword, searchMessagesForContext）。メモ検索は tasks テーブル（type='memo'）を参照（type カラムが無い場合は memos テーブルにフォールバック）。PDFのextracted_textも検索対象 | api/ai.php（秘書のまとめ報告＋コンテキスト検索） |
 | `google_calendar_helper.php` | Googleカレンダー連携（OAuth, イベント作成・更新・削除）。`getCalendarAccountByTarget`は名前変更に強く、完全一致→コア一致→部分一致→単一/デフォルトの順で照合 | api/google-calendar.php, api/ai.php |
 | `pdf_helper.php` | テキストをPDFに変換（textToPdf）＋PDFからテキスト抽出（extractPdfText, **extractPdfTextFromPath**：絶対パス用・AI秘書から利用, extractPdfTextFallback）。TCPDF使用。smalot/pdfparser対応 | api/messages.php, admin/extract_pdf_text.php, **includes/ai_file_reader.php** |
