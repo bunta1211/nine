@@ -15,7 +15,12 @@ Options -Indexes
 # configディレクトリへのアクセスを禁止
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    
+    RewriteBase /
+
+    # .php の末尾スラッシュを除去（/chat.php/ → /chat.php）
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+\.php)/$ /$1 [R=301,L]
+
     # configディレクトリ
     RewriteRule ^config/ - [F,L]
     

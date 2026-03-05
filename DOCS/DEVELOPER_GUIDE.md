@@ -36,7 +36,7 @@
    - `docker compose exec web composer install --no-interaction`
 
 4. **ローカル DB にデータが必要な場合**
-   - **EC2 に SSH できる場合**: 本番 DB から mysqldump でエクスポートし、ローカル DB に流し込んでください。接続情報は EC2 の `config/database.aws.php` にあります。
+   - **EC2 に SSH できる場合**: 本番 DB からダンプを取得し、ローカルに取り込む。手順は [PRODUCTION_TO_LOCAL_DB.md](./PRODUCTION_TO_LOCAL_DB.md) を参照。
    - **EC2 にアクセスできない場合**: 空の DB のまま新規登録で動作確認するか、データのエクスポートを依頼してください。
    - **初回のみ（テーブルがない場合）**: Docker の DB には `docker/init-db` で文字セットのみ設定され、テーブルは作成されません。初回は次でスキーマを流してください。
      ```powershell

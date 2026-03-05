@@ -6732,7 +6732,7 @@ window.submitChatTask = async function() {
                 sendBtn.style.opacity = '0.5';
             }
             
-            // ========== 楽観的UI更新: メッセージを即座に表示 ==========
+            // ========== 楽観的UI更新: メッセージを即座に表示（messagesArea がある場合のみ） ==========
             const tempId = 'temp-' + Date.now();
             const displayName = document.body.dataset.displayName || 'あなた';
             const messagesArea = document.getElementById('messagesArea');
@@ -6766,7 +6766,8 @@ window.submitChatTask = async function() {
                 };
             }
             
-            // 一時的なメッセージカードを作成（Toチップも表示）
+            // 一時的なメッセージカードを作成（Toチップも表示）- messagesArea がある場合のみ表示更新
+            if (messagesArea) {
             var tempContentHtml;
             if (/\[To:(?:\d+|all)\]/i.test(content)) {
                 var tempMemberMap = {};
@@ -6794,6 +6795,7 @@ window.submitChatTask = async function() {
             `;
             messagesArea.insertAdjacentHTML('beforeend', tempMessageHtml);
             messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
             
             // 入力欄をすぐにクリア（体感速度向上）
             input.value = '';
@@ -6936,6 +6938,27 @@ window.submitChatTask = async function() {
                 }
             }
         }
+        window.sendMessage = sendMessage; // PC版などで確実に送信できるようグローバルを明示
+        
+        // messageForm の submit を送信に紐付け（PC版・フォールバック）
+        (function() {
+            function bindMessageForm() {
+                var form = document.getElementById('messageForm');
+                if (form && !form.dataset.sendBound) {
+                    form.dataset.sendBound = '1';
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        if (typeof sendMessage === 'function') sendMessage();
+                        return false;
+                    });
+                }
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', bindMessageForm);
+            } else {
+                bindMessageForm();
+            }
+        })();
         
         // メッセージメニューの表示/非表示
         function toggleMessageMenu(btn) {
