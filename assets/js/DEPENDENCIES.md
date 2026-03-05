@@ -24,7 +24,7 @@
 | `secretary-rightpanel.js` | AI秘書（AIクローン）専用右パネルロジック（SecRP）。判断材料フォルダ/アイテムCRUD、会話記憶表示、訓練言語保存、自動返信トグル。api/ai-judgment.php と api/ai.php を使用 | chat.php |
 | `ai-reply-suggest.js` | AIクローン返信提案ロジック（AIReplySuggest）。メンション付きメッセージへの返信提案生成→編集→送信→修正記録。api/ai.php suggest_reply / record_reply_correction と api/messages.php send を使用。モバイル(768px以下): カードを body 直下のオーバーレイに表示し飛ばされ防止、body に ai-reply-suggest-open を付与して入力欄非表示、textarea は高さを伸ばさず CSS でスクロール | chat.php |
 | `storage.js` | 共有フォルダ（エクスプローラー風一覧、フォルダナビ、**複数一括アップロード**・**アルバムで追加 最大50枚**・日時題名フォルダ自動作成、S3アップロード、**表示切替** テキスト/画像グリッド localStorage `storageViewMode`、プレビュー、D&D、検索、ゴミ箱） | chat.php |
-| `error-collector.js` | エラー自動収集（onerror / unhandledrejection / fetch インターセプト / console.error）。api/error-log.php に送信。オプションAPI（未読数・翻訳予算等）の fetch 失敗は送信しない（optionalFetchUrlPatterns）。未読数・翻訳予算のコンソールメッセージは ignorePatterns で送信抑制 | チャット等（共通） |
+| `error-collector.js` | エラー自動収集（onerror / unhandledrejection / fetch インターセプト / console.error）。api/error-log.php に送信。オプションAPI（未読数・翻訳予算・**error-log.php** 等）の fetch 失敗は送信しない（optionalFetchUrlPatterns）。未読数・翻訳予算のコンソールメッセージは ignorePatterns で送信抑制 | チャット等（共通） |
 | `push-notifications.js` | Web Push バッジ更新。未読数取得失敗時は console.warn（エラー収集に送らない） | chat.php 等 |
 | `topbar-standalone.js` | 非チャットページの上パネル制御（ドロップダウン・ハンバーガー）。PC版（>768px）ではタスク/通知アイコンクリックで直接ページ遷移（tasks.php / notifications.php） | settings.php, design.php, tasks.php, notifications.php |
 

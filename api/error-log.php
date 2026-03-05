@@ -41,7 +41,8 @@ if (isset($input['action'])) {
     $role = $_SESSION['role'] ?? 'user';
     $isAdmin = in_array($role, ['developer', 'admin', 'system_admin', 'super_admin']);
     if (!$isAdmin) {
-        http_response_code(403);
+        http_response_code(200);
+        header('Content-Type: application/json');
         echo json_encode(['error' => 'Admin access required']);
         exit;
     }

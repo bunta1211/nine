@@ -1599,12 +1599,14 @@ window.submitChatTask = async function() {
                         return chips.join(' ');
                     }
                     
-                    // 画像ファイルのパスをチェック（アップロード済みパスのみ）
+                    // 画像ファイルのパスをチェック（アップロード済みパスのみ。ファイル名のみ msg_xxx.png も対応）
                     const imageMatch = content.match(/(uploads\/messages\/[^\s\n]+\.(jpg|jpeg|png|gif|webp))/i) ||
-                                       content.match(/(アップロード[\/\\]メッセージ[\/\\][^\s\n]+\.(jpg|jpeg|png|gif|webp))/i);
-                    // 動画ファイルのパスをチェック（アップロード済みパスのみ）
+                                       content.match(/(アップロード[\/\\]メッセージ[\/\\][^\s\n]+\.(jpg|jpeg|png|gif|webp))/i) ||
+                                       content.match(/((?:msg_|screenshot_|スクリーンショット_)[^\s\n]+\.(jpg|jpeg|png|gif|webp))/i);
+                    // 動画ファイルのパスをチェック（アップロード済みパスのみ。ファイル名のみ video_xxx / msg_xxx も対応）
                     const videoMatch = content.match(/(uploads\/messages\/[^\s\n]+\.(mp4|webm|ogg))/i) ||
-                                       content.match(/(アップロード[\/\\]メッセージ[\/\\][^\s\n]+\.(mp4|webm|ogg))/i);
+                                       content.match(/(アップロード[\/\\]メッセージ[\/\\][^\s\n]+\.(mp4|webm|ogg))/i) ||
+                                       content.match(/((?:msg_|video_)[^\s\n]+\.(mp4|webm|ogg))/i);
                     // PDFファイルのパスをチェック（アップロード済みパスのみ。本文中の参照はファイル扱いしない）
                     const pdfMatch = content.match(/(?:📄)?\s*(uploads\/messages\/[^\s\n]+\.pdf)/i) ||
                                      content.match(/(uploads\/messages\/[^\s\n]+\.pdf)/i) ||
@@ -7745,6 +7747,16 @@ window.submitChatTask = async function() {
         }
         window.handleKeyDown = handleKeyDown;
 
+        // メッセージ内画像でファイル名のみのURLが指定されていた場合の404対策（uploads/messages/ を付与して再試行）
+        document.addEventListener('error', function(e) {
+            if (e.target && e.target.tagName === 'IMG' && e.target.src) {
+                var src = e.target.getAttribute('src') || e.target.src;
+                if (src && !/^https?:\/\//.test(src) && !/^\//.test(src) && src.indexOf('uploads/') === -1 && /\.(jpg|jpeg|png|gif|webp)$/i.test(src)) {
+                    e.target.src = 'uploads/messages/' + src;
+                }
+            }
+        }, true);
+
         // テキストエリア自動リサイズ：文章量に応じて入力枠が広がる（52px〜300px）
         // 入力欄を手動リサイズ中（input-area-has-height）のときは高さを触らない
         function autoResizeInput(textarea) {
@@ -9941,7 +9953,7 @@ window.submitChatTask = async function() {
                     });
                     
                     // レスポンスのテキストを取得してデバッグ
-                    const responseText = await uploadResponse.text();
+                    const responseText = await response.text();
                     console.log('Upload response:', responseText);
                     
                     let uploadData;
@@ -9968,13 +9980,13 @@ window.submitChatTask = async function() {
                     
                     console.log('Updating with:', requestBody);
                     
-                    const response = await fetch(apiUrl, {
+                    const updateResponse = await fetch(apiUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(requestBody)
                     });
                     
-                    const updateText = await response.text();
+                    const updateText = await updateResponse.text();
                     console.log('Update response:', updateText);
                     
                     let data;

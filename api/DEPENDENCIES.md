@@ -42,6 +42,7 @@
 | `vault.php` | 金庫 unlock（ログインパスワード検証でトークン発行）/ list/get/create/update/delete。unlock 以外は X-Vault-Token 必須。AES-256-GCM（includes/VaultCrypto.php） | 必須（unlock 時はパスワード、それ以外は金庫トークン） |
 | `webauthn.php` | WebAuthn 用（金庫では未使用。開錠は vault.php action=unlock のパスワード方式） | 必須（金庫では不使用） |
 | `health.php` | ヘルスチェック。`?action=deploy` で管理者向けデプロイ確認（base_dir, topbar_has_test_badge 等） | 基本不要 / action=deploy は管理者のみ |
+| `error-log.php` | クライアントJSエラー収集（POSTで message/stack/url を保存）。action（resolve/resolve_batch/resolve_all）は管理者のみ。**管理者以外が action 付きで呼んだ場合は 403 ではなく 200 + JSON** で返却し、コンソールに 403 を出さない。 | エラー報告は不要 / action は管理者 |
 | `improvement_reports.php` | 改善提案API（create: 手動新規, get: 1件取得・Cursor用コピー, mark_done: 対応済み＋報告者へ通知）。管理者のみ | 必須（管理者） |
 | `deploy-check.php` | デプロイ確認（DB・bootstrap 非依存）。health.php が 500 のとき用。base_dir / topbar_has_test_badge を返す | 不要 |
 | `storage.php` | 共有フォルダAPI（フォルダ/ファイルCRUD、署名付きURLアップロード、共有管理、ゴミ箱、権限管理、検索、**フォルダパスワード設定** set_folder_password）。**get_usage** で無制限組織は `quota_display=無制限`, `unlimited=true` を返却。複数一括アップロードはクライアントで `request_upload`→S3→`confirm_upload` をループ。アルバム（日時題名フォルダ）はフロントで `create_folder` 後に同様にループアップロード。 | 必須 |

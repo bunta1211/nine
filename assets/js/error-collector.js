@@ -26,7 +26,8 @@
             /api\/notifications\.php(\?|.*&)action=count/,
             /api\/notifications\.php(\?|.*&)action=unread_count/,
             /api\/translate\.php(\?|.*&)action=budget_status/,
-            /api\/language\.php/
+            /api\/language\.php/,
+            /api\/error-log\.php/
         ]
     };
     
