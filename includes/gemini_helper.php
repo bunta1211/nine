@@ -190,12 +190,16 @@ function geminiChat($userMessage, $conversationHistory = [], $systemPrompt = nul
             ];
         }
         
-        // APIキーエラーの場合
+        // APIキー未設定・無効の場合（ユーザー向けに分かりやすい文言に）
         if ($httpCode === 400 || $httpCode === 401 || $httpCode === 403) {
+            $userMessage = 'APIキーエラー: ' . $errorMessage;
+            if (strpos($errorMessage, 'API key') !== false || strpos($errorMessage, 'key not valid') !== false || strpos($errorMessage, 'invalid') !== false) {
+                $userMessage = 'AI機能を使うには、管理者がサーバーで API キー（GEMINI_API_KEY）を設定する必要があります。設定は config/ai_config.local.php で行います。';
+            }
             return [
                 'success' => false,
                 'response' => null,
-                'error' => 'APIキーエラー: ' . $errorMessage
+                'error' => $userMessage
             ];
         }
         

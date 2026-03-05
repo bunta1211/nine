@@ -39,6 +39,7 @@ rsync では **tmp/sessions/** ・ **logs/** ・ **uploads/** は除外される
 | 9 | **Web Push** | config/push.local.php に本番用 VAPID キーを設定済みか（必要なら config/generate_vapid_keys.php で再生成） |
 | 10 | **リマインダー（cron）** | EC2 で process_reminders.php を定期実行する cron を設定したか | [CRON_REMINDERS.md](./CRON_REMINDERS.md) |
 | 11 | **AI秘書（会話・記憶・キャラ）** | DB に `ai_conversations`, `user_ai_settings`, `ai_user_memories` が存在するか（`schema.sql` に含まれる） | [database/SCHEMA_README.md](../database/SCHEMA_README.md) |
+| 12 | **AI（自動返信提案・秘書チャット）** | `config/ai_config.local.php` に **GEMINI_API_KEY** が正しく設定されているか。未設定・無効なキーだと「API key not valid」となり自動返信提案が使えません。 | [config/ai_config.php](../config/ai_config.php) のコメント、[Gemini API キー取得](https://makersuite.google.com/app/apikey) |
 
 ---
 
