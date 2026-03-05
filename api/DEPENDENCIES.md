@@ -19,7 +19,7 @@
 | `translate.php` | 翻訳API | 必須 |
 | `memos.php` | メモ機能（deprecated ラッパー: 内部で tasks.php に転送。新規コードでは api/tasks.php?type=memo を使用） | 必須 |
 | `tasks.php` | タスク・メモ統合管理（type=task/memo 対応、タイトル自動生成、担当者通知、チャット内タスクメッセージ投稿、役割明確化、pin/count type対応）。**耐障害化**: conversation_members.left_at / tasks.is_shared / tasks.status の有無を SHOW COLUMNS で判定。**count は全体を try-catch で囲み**、例外時も 500 にせず count: 0 を返す。 | 必須 |
-| `ai.php` | AI秘書（ask, get_settings, history, save_personality, save_custom_instructions, interpret_send_to_group, execute_voice_command, refine_minutes, voice_context, **extract_improvement_report**, 絵文字学習, **suggest_reply**（AIクローン返信提案生成）, **record_reply_correction**（返信修正記録・修正率算出）, **get_reply_stats**（修正率統計）, **analyze_conversation_memory**（会話記憶自動分析）, **save_clone_settings**（訓練言語・自動返信トグル保存））。性格設定7項目のJSON保存、熟慮モード、性格自動生成。get_settings で personality/deliberation_max_seconds/proactive_message_enabled/proactive_message_hour/today_topics_oshi/today_topics_paid_plan/**clone_training_language**/**clone_auto_reply_enabled**/**conversation_memory_summary**/**reply_stats** を返却。ask のシステムプロンプトに判断材料・会話記憶を自動注入。**添付ファイル**: 画像/PDF/写真対応 | 必須 |
+| `ai.php` | AI秘書（ask, get_settings, history, save_personality, save_custom_instructions, interpret_send_to_group, execute_voice_command, refine_minutes, voice_context, **extract_improvement_report**, 絵文字学習, **suggest_reply**（AIクローン返信提案生成）, **record_reply_correction**（返信修正記録・修正率算出）, **get_reply_stats**（修正率統計）, **analyze_conversation_memory**（会話記憶自動分析）, **save_clone_settings**（訓練言語・自動返信トグル保存））。性格設定7項目のJSON保存、熟慮モード、性格自動生成。get_settings で personality/deliberation_max_seconds/proactive_message_enabled/proactive_message_hour/today_topics_oshi/today_topics_paid_plan/**clone_training_language**/**clone_auto_reply_enabled**/**conversation_memory_summary**/**reply_stats** を返却。ask のシステムプロンプトに判断材料・会話記憶を自動注入。**添付ファイル**: 画像/PDF/写真対応。**例外時**: 未捕捉例外で `hint` を付与（Unknown column→DB、vendor/autoload→composer、GEMINI/ai_config→APIキー、file_exists→ファイル確認）。フロント（includes/chat/scripts.php, assets/js/ai-reply-suggest.js）で hint を表示。 | 必須 |
 | `ai-judgment.php` | AIクローン判断材料CRUD（フォルダ・アイテムの list/create/rename/delete/reorder）。user_ai_judgment_folders, user_ai_judgment_items テーブルを使用 | 必須 |
 | `ai-ping.php` | AI API診断（デバッグ用） | 不要 |
 | `ai-get-settings-only.php` | 秘書設定取得（ai.php 500対策）。name / character_type / character_selected を返し、ログアウト後再ログイン時の秘書選択復元に利用 | 必須 |
@@ -41,7 +41,7 @@
 | `google-login-callback.php` | GoogleログインOAuthコールバック（ユーザー作成/ログイン） | 不要 |
 | `vault.php` | 金庫 unlock（ログインパスワード検証でトークン発行）/ list/get/create/update/delete。unlock 以外は X-Vault-Token 必須。AES-256-GCM（includes/VaultCrypto.php） | 必須（unlock 時はパスワード、それ以外は金庫トークン） |
 | `webauthn.php` | WebAuthn 用（金庫では未使用。開錠は vault.php action=unlock のパスワード方式） | 必須（金庫では不使用） |
-| `health.php` | ヘルスチェック。`?action=deploy` で管理者向けデプロイ確認（base_dir, topbar_has_test_badge 等） | 基本不要 / action=deploy は管理者のみ |
+| `health.php` | ヘルスチェック。`?action=deploy` で管理者向けデプロイ確認（base_dir, topbar_has_test_badge 等）。`?action=ai_config` で管理者向け AI 設定確認（ai_config_local_exists, gemini_api_key_*, isGeminiAvailable, test_call）。PRODUCTION_CHECKLIST 参照。 | 基本不要 / action=deploy, action=ai_config は管理者のみ |
 | `error-log.php` | クライアントJSエラー収集（POSTで message/stack/url を保存）。action（resolve/resolve_batch/resolve_all）は管理者のみ。**管理者以外が action 付きで呼んだ場合は 403 ではなく 200 + JSON** で返却し、コンソールに 403 を出さない。 | エラー報告は不要 / action は管理者 |
 | `improvement_reports.php` | 改善提案API（create: 手動新規, get: 1件取得・Cursor用コピー, mark_done: 対応済み＋報告者へ通知）。管理者のみ | 必須（管理者） |
 | `deploy-check.php` | デプロイ確認（DB・bootstrap 非依存）。health.php が 500 のとき用。base_dir / topbar_has_test_badge を返す | 不要 |
