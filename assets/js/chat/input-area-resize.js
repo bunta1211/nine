@@ -42,9 +42,12 @@
         const handle = getHandle();
         if (!area || !handle) return;
 
-        /* 保存された高さを復元 */
-        const saved = parseInt(localStorage.getItem(STORAGE_KEY), 10);
-        if (saved && saved >= MIN_HEIGHT && saved <= MAX_HEIGHT) {
+        /* 保存された高さを復元（7行未満の保存値は168にクランプ） */
+        const savedRaw = parseInt(localStorage.getItem(STORAGE_KEY), 10);
+        const saved = (savedRaw && savedRaw >= MIN_HEIGHT && savedRaw <= MAX_HEIGHT)
+            ? Math.max(168, savedRaw)  /* 168未満は7行表示にクランプ */
+            : 0;
+        if (saved) {
             applyHeight(saved);
         }
 

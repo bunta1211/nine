@@ -4476,7 +4476,7 @@ window.submitChatTask = async function() {
                             </div>
                             <div class="input-row">
                                 <div class="input-wrapper">
-                                    <textarea id="messageInput" class="message-input" placeholder="あなたの秘書に質問..." rows="1" data-ai-mode="true" style="min-height:52px;max-height:300px;height:52px;"></textarea>
+                                    <textarea id="messageInput" class="message-input" placeholder="あなたの秘書に質問..." rows="1" data-ai-mode="true" style="min-height:168px;max-height:280px;height:168px;"></textarea>
                                 </div>
                                 <button type="button" class="input-send-btn theme-action-btn" onclick="sendMessage()" title="送信" aria-label="送信">➤</button>
                             </div>
@@ -7761,14 +7761,14 @@ window.submitChatTask = async function() {
             }
         }, true);
 
-        // テキストエリア自動リサイズ：文章量に応じて入力枠が広がる（52px〜300px）
+        // テキストエリア自動リサイズ：7行表示で入力中も読める（168px〜280px）
         // 入力欄を手動リサイズ中（input-area-has-height）のときは高さを触らない
         function autoResizeInput(textarea) {
             if (!textarea) return;
             var inputArea = document.getElementById('inputArea');
             if (inputArea && inputArea.classList.contains('input-area-has-height')) return;
-            var cap = 300;
-            var minH = 52;
+            var cap = 280;
+            var minH = 168;
             // 1. 一時的に高さを0にして scrollHeight で内容の実高さを取得（ブラウザ差を吸収）
             textarea.style.setProperty('min-height', '0', 'important');
             textarea.style.setProperty('max-height', 'none', 'important');
@@ -7787,8 +7787,8 @@ window.submitChatTask = async function() {
         document.addEventListener('DOMContentLoaded', function() {
             var el = document.getElementById('messageInput');
             if (el) {
-                el.style.setProperty('min-height', '52px', 'important');
-                el.style.setProperty('max-height', '300px', 'important');
+                el.style.setProperty('min-height', '168px', 'important');
+                el.style.setProperty('max-height', '280px', 'important');
                 el.style.setProperty('overflow-y', 'hidden', 'important');
                 autoResizeInput(el);
             }

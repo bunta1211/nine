@@ -136,7 +136,7 @@ assets/css/
 - **時計クローバー等の背景をはっきり表示**: `chat-main.css` の `.center-panel::before`（装飾オーバーレイ）は、透明テーマ時に `includes/design_loader.php` の動的CSSで `display: none` に上書きされる。本番でも反映されるよう、`design_loader.php` をデプロイ先に配置すること（静的CSSのみのアップロードでは不十分な場合がある）。
 - **時計クローバー等の左パネル**: 明るい背景画像（`data-bg-light="1"` / `.bg-light`）のとき、左パネルは右パネルと同じボディ色（`--theme-right-panel-bg`）、ボタン・文字は黒系（`#1a3d1a`）。透明ダーク用のスタイルは `:not(.bg-light):not([data-bg-light="1"])` で除外している（`chat-main.css`）。
 - **時計クローバー等の入力欄**: 同じく `data-bg-light="1"` / `.bg-light` のとき、チャット入力欄のツールバー（TO・GIF・添付等）のボタン文字は**白字**（`#ffffff`）。`chat-main.css` と `design_loader.php` の両方で指定。
-- **チャット入力テキストエリア**: `.input-row textarea`, `#messageInput` の min-height / max-height は **chat-main.css** と **chat-mobile.css** で定義（7行表示: min-height 168px, max-height 280px。下端はキーボードに接着）。**layout/center-panel.css は chat-new.css で import がコメントアウトされているためチャットでは読み込まれず**、テキストエリアの高さ変更は chat-main.css / chat-mobile.css で行う必要がある。
+- **チャット入力テキストエリア**: `.input-row textarea`, `#messageInput` の min-height / max-height は **chat-main.css** と **chat-mobile.css** で定義（7行表示: min-height 168px, max-height 280px。下端はキーボードに接着）。**JS**（`includes/chat/scripts.php` の autoResizeInput / DOMContentLoaded）と **chat.php** のインライン style も 168px/280px で統一。**input-area-resize.js** は保存高さ復元時に 168 未満を 168 にクランプ。**.input-area** は chat-main.css で max-height: 380px。**layout/center-panel.css は chat-new.css で import がコメントアウトされているためチャットでは読み込まれず**、テキストエリアの高さ変更は chat-main.css / chat-mobile.css で行う必要がある。
 
 ### デザインテーマ別メッセージ・メンション色（2026-02-12 見直し）
 
