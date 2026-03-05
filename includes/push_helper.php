@@ -218,7 +218,7 @@ function sendWebPushNotification($pdo, $subscription, $payload, $userId) {
     
     // Service Worker用のJSONペイロード（title, body, icon等）
     $payloadForSw = [
-        'title' => $payload['title'] ?? 'Social9',
+        'title' => $payload['title'] ?? (defined('APP_NAME') ? APP_NAME : 'Social100'),
         'body' => $payload['body'] ?? '新しいメッセージがあります',
         'icon' => $payload['icon'] ?? null,
         'badge' => $payload['badge'] ?? null,
