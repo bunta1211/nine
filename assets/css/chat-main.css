@@ -2553,6 +2553,28 @@
             max-height: 380px;
         }
         
+        /* グループチャットもAI秘書同様に入力欄を画面下端に接着（下余白なし） */
+        body.page-chat .main-container {
+            padding-bottom: 0 !important;
+        }
+        body.page-chat .center-panel {
+            padding-bottom: 0 !important;
+        }
+        body.page-chat .center-panel .input-area,
+        body.page-chat .input-area {
+            padding-bottom: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        body.page-chat .center-panel .input-container,
+        body.page-chat .input-container {
+            padding-bottom: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        body.page-chat .center-panel .input-area .input-row,
+        body.page-chat .input-area .input-row {
+            padding-bottom: 0 !important;
+        }
+        
         .input-container {
             background: transparent;
             border: none;
