@@ -15,6 +15,16 @@ if (!$data) {
     exit;
 }
 
+// 存在するアイコンのみ出力して404を防ぐ
+$baseDir = __DIR__ . '/';
+if (isset($data['icons']) && is_array($data['icons'])) {
+    $data['icons'] = array_values(array_filter($data['icons'], function ($icon) use ($baseDir) {
+        $src = isset($icon['src']) ? $icon['src'] : '';
+        $path = strpos($src, '?') !== false ? substr($src, 0, strpos($src, '?')) : $src;
+        return $path !== '' && file_exists($baseDir . $path);
+    }));
+}
+
 foreach ($data['icons'] ?? [] as $i => $icon) {
     if (isset($data['icons'][$i]['src']) && strpos($data['icons'][$i]['src'], '?') === false) {
         $data['icons'][$i]['src'] .= '?v=' . $iconVersion;

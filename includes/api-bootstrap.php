@@ -145,12 +145,17 @@ if (!$isPageCheck || !$isLocalhost) {
 
 // グローバルエラーハンドラー
 set_exception_handler(function($e) {
-    error_log('API Exception [' . $_SERVER['REQUEST_URI'] . ']: ' . $e->getMessage());
+    $uri = $_SERVER['REQUEST_URI'] ?? '';
+    $file = $e->getFile();
+    $line = $e->getLine();
+    $msg = $e->getMessage();
+    error_log('API Exception [' . $uri . ']: ' . $msg . ' in ' . $file . ':' . $line);
+    error_log('API Exception trace: ' . $e->getTraceAsString());
     
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => APP_DEBUG ? $e->getMessage() : 'サーバーエラーが発生しました',
+        'message' => APP_DEBUG ? $msg : 'サーバーエラーが発生しました',
         'error_type' => 'exception'
     ], JSON_UNESCAPED_UNICODE);
     exit;
