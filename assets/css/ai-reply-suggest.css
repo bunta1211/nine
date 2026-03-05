@@ -63,6 +63,34 @@
     margin-bottom: 8px;
 }
 
+/* To（宛先）行：文中にToを追加 */
+.ai-reply-suggest-to-row {
+    margin-bottom: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--dt-border, #e8e4f0);
+    font-size: 12px;
+    color: var(--dt-text-secondary, #555);
+}
+.ai-reply-suggest-to-label {
+    font-weight: 600;
+    margin-right: 6px;
+}
+.ai-reply-suggest-to-btn {
+    margin: 0 4px 4px 0;
+    padding: 4px 10px;
+    border: 1px solid var(--dt-primary, #9b8ec4);
+    border-radius: 14px;
+    background: rgba(155, 142, 196, .08);
+    color: var(--dt-primary, #9b8ec4);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+}
+.ai-reply-suggest-to-btn:hover {
+    background: rgba(155, 142, 196, .18);
+    border-color: var(--dt-primary-dark, #7b6ea8);
+}
+
 .ai-reply-suggest-textarea {
     width: 100%;
     padding: 8px 10px;

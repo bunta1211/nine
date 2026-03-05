@@ -2298,7 +2298,27 @@ switch ($action) {
             $suggestionId = 0;
         }
 
-        successResponse(['suggested_content' => $suggested, 'suggestion_id' => $suggestionId]);
+        // To機能用に会話メンバー一覧を返す（自分を除く）
+        $members = [];
+        try {
+            $leftAtClause = '';
+            $chk = $pdo->query("SHOW COLUMNS FROM conversation_members LIKE 'left_at'");
+            if ($chk && $chk->rowCount() > 0) {
+                $leftAtClause = ' AND cm.left_at IS NULL';
+            }
+            $memStmt = $pdo->prepare("SELECT u.id, u.display_name FROM conversation_members cm JOIN users u ON u.id = cm.user_id WHERE cm.conversation_id = ?" . $leftAtClause . " AND cm.user_id != ? ORDER BY u.display_name");
+            $memStmt->execute([$conversation_id, $uid]);
+            $members = $memStmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($members as &$m) {
+                $m['id'] = (int)$m['id'];
+                $m['display_name'] = $m['display_name'] ?? '';
+            }
+            unset($m);
+        } catch (Throwable $e) {
+            // メンバー取得失敗時は空配列のまま
+        }
+
+        successResponse(['suggested_content' => $suggested, 'suggestion_id' => $suggestionId, 'members' => $members]);
         break;
     }
 

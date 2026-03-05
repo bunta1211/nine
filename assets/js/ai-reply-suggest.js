@@ -19,9 +19,23 @@
         return window.innerWidth <= 768;
     }
 
-    function getCardHtml(messageId, suggested, conversationId, suggestionId) {
+    function getCardHtml(messageId, suggested, conversationId, suggestionId, members) {
+        members = members || [];
+        var toRow = '';
+        if (members.length > 0) {
+            toRow = '<div class="ai-reply-suggest-to-row">' +
+                '<span class="ai-reply-suggest-to-label">To:</span> ' +
+                '<button type="button" class="ai-reply-suggest-to-btn" data-ai-to-msg="' + messageId + '" data-ai-to-id="all" data-ai-to-label="全員">全員</button>';
+            members.forEach(function (m) {
+                var name = (m.display_name || '').trim() || ('ID' + m.id);
+                var label = name + 'さん';
+                toRow += ' <button type="button" class="ai-reply-suggest-to-btn" data-ai-to-msg="' + messageId + '" data-ai-to-id="' + m.id + '" data-ai-to-label="' + String(label).replace(/"/g, '&quot;') + '">' + escHtml(name) + '</button>';
+            });
+            toRow += '</div>';
+        }
         return '<div class="ai-reply-suggest-card">' +
             '<div class="ai-reply-suggest-header">🤖 AIクローンの返信提案</div>' +
+            toRow +
             '<textarea class="ai-reply-suggest-textarea" id="aiSuggestText_' + messageId + '">' + escHtml(suggested) + '</textarea>' +
             '<div class="ai-reply-suggest-actions">' +
             '<button class="ai-reply-suggest-cancel" onclick="AIReplySuggest.dismiss(' + messageId + ')">閉じる</button>' +
@@ -69,8 +83,9 @@
         _showSuggestion: function (bar, data, messageId, conversationId) {
             var suggestionId = data.suggestion_id || 0;
             var suggested = data.suggested_content || '';
+            var members = data.members || [];
             var mobile = isMobile();
-            var cardHtml = getCardHtml(messageId, suggested, conversationId, suggestionId);
+            var cardHtml = getCardHtml(messageId, suggested, conversationId, suggestionId, members);
 
             document.body.classList.add('ai-reply-suggest-open');
 
@@ -87,6 +102,16 @@
                 bar.innerHTML = cardHtml;
             }
 
+            var container = mobile ? overlay : bar;
+            container.querySelectorAll('.ai-reply-suggest-to-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var msgId = parseInt(btn.getAttribute('data-ai-to-msg'), 10);
+                    var toId = btn.getAttribute('data-ai-to-id');
+                    var toLabel = btn.getAttribute('data-ai-to-label') || '全員';
+                    AIReplySuggest.insertTo(msgId, toId, toLabel);
+                });
+            });
+
             var ta = document.getElementById('aiSuggestText_' + messageId);
             if (ta && !mobile) {
                 ta.style.height = 'auto';
@@ -96,6 +121,22 @@
                     this.style.height = this.scrollHeight + 'px';
                 });
             }
+        },
+
+        /**
+         * 返信提案テキストに To 行を挿入（カーソル位置または先頭）
+         */
+        insertTo: function (messageId, toId, toLabel) {
+            var ta = document.getElementById('aiSuggestText_' + messageId);
+            if (!ta) return;
+            var line = toId === 'all' ? '[To:all]全員' : '[To:' + toId + ']' + toLabel;
+            var text = line + '\n';
+            var start = ta.selectionStart;
+            var end = ta.selectionEnd;
+            var val = ta.value;
+            ta.value = val.slice(0, start) + text + val.slice(end);
+            ta.selectionStart = ta.selectionEnd = start + text.length;
+            ta.dispatchEvent(new Event('input', { bubbles: true }));
         },
 
         send: function (messageId, conversationId, suggestionId) {

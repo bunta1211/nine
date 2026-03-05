@@ -53,7 +53,7 @@ assets/css/
 | `admin-ai-specialists.css` | 専門AI管理ページ（`aisp-*` プレフィクス。カードグリッド・編集モーダル・機能フラグ行） | admin/ai_specialist_admin.php |
 | `admin-ai-safety.css` | AI安全通報管理ページ（`aisf-*` プレフィクス。統計カード・通報リスト・詳細モーダル・質問フォーム） | admin/ai_safety_reports.php |
 | `secretary-rightpanel.css` | AI秘書（AIクローン）専用右パネル（訓練言語・判断材料ツリー・会話記憶・自動返信統計・アイテム編集モーダル） | chat.php |
-| `ai-reply-suggest.css` | AIクローン返信提案カードUI（提案ボタン・ローディング・テキストエリア・送信/閉じる・送信完了）。モバイル: body.ai-reply-suggest-open で入力欄・input-show-btn 非表示、textarea は max-height+overflow-y でスクロール可能、.ai-reply-suggest-overlay で固定オーバーレイ表示 | chat.php |
+| `ai-reply-suggest.css` | AIクローン返信提案カードUI（提案ボタン・ローディング・**To行**（.ai-reply-suggest-to-row / .ai-reply-suggest-to-btn）・テキストエリア・送信/閉じる・送信完了）。モバイル: body.ai-reply-suggest-open で入力欄・input-show-btn 非表示、textarea は max-height+overflow-y でスクロール可能、.ai-reply-suggest-overlay で固定オーバーレイ表示 | chat.php |
 | `storage.css` | 共有フォルダUI（エクスプローラー風一覧、**表示切替** テキストリスト/画像サムネイルグリッド `.sv-grid-mode`・`.sv-file-card-grid`、プレビュー、共有モーダル、容量バー） | chat.php |
 
 ## 移行状況
