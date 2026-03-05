@@ -709,6 +709,7 @@ switch ($action) {
         $hasDeletedAt = true;
         $hasIsDeleted = false;
         $hasReactionsTable = true;
+        $hasReplyToId = true;
         try {
             $chk = $pdo->query("SHOW COLUMNS FROM messages LIKE 'task_id'");
             $hasTaskId = $chk && $chk->rowCount() > 0;
@@ -733,6 +734,8 @@ switch ($action) {
             $hasIsDeleted = $chk && $chk->rowCount() > 0;
             $chk = $pdo->query("SHOW TABLES LIKE 'message_reactions'");
             $hasReactionsTable = $chk && $chk->rowCount() > 0;
+            $chk = $pdo->query("SHOW COLUMNS FROM messages LIKE 'reply_to_id'");
+            $hasReplyToId = $chk && $chk->rowCount() > 0;
         } catch (Exception $e) {}
         
         $taskIdCol = $hasTaskId ? ", m.task_id" : "";
@@ -759,6 +762,12 @@ switch ($action) {
         $isPinnedCol = $hasIsPinned ? "m.is_pinned," : "0 AS is_pinned,";
         $deletedAtClause = ($hasDeletedAt ? " AND m.deleted_at IS NULL" : "") . ($hasIsDeleted ? " AND (m.is_deleted = 0 OR m.is_deleted IS NULL)" : "");
         $reactionsCol = $hasReactionsTable ? "(SELECT GROUP_CONCAT(DISTINCT reaction_type) FROM message_reactions WHERE message_id = m.id) as reactions" : "NULL as reactions";
+        $replyToIdCol = $hasReplyToId ? "m.reply_to_id," : "NULL AS reply_to_id,";
+        $replyToJoin = $hasReplyToId ? "
+            LEFT JOIN messages rm ON m.reply_to_id = rm.id
+            LEFT JOIN users ru ON rm.sender_id = ru.id" : "
+            LEFT JOIN messages rm ON 1=0
+            LEFT JOIN users ru ON 1=0";
         $sql = "
             SELECT 
                 m.id,
@@ -766,7 +775,7 @@ switch ($action) {
                 m.sender_id,
                 m.content,
                 {$msgTypeCol}
-                m.reply_to_id,
+                {$replyToIdCol}
                 {$isEditedCol}
                 {$isPinnedCol}
                 m.created_at
@@ -779,8 +788,7 @@ switch ($action) {
                 ru.display_name AS reply_to_sender_name
             FROM messages m
             INNER JOIN users u ON m.sender_id = u.id
-            LEFT JOIN messages rm ON m.reply_to_id = rm.id
-            LEFT JOIN users ru ON rm.sender_id = ru.id
+            {$replyToJoin}
             {$taskJoin}
             WHERE m.conversation_id = ?{$deletedAtClause}
         ";
