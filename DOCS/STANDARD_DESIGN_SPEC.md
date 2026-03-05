@@ -135,6 +135,45 @@
 
 ※ 上記は `includes/design_config.php` の `getThemeConfigs()['lavender']` および `getDefaultDesignTokens()` と一致させる。
 
+### チャット入力欄のレイアウト規格
+
+チャット画面のメッセージ入力欄（`#messageInput`）は **7行表示・下端接着** で統一する。
+
+| 項目 | 値 | 適用箇所 |
+|------|-----|----------|
+| textarea 最小高さ | 168px | min-height |
+| textarea 最大高さ | 280px | max-height |
+| 入力エリアラッパー（`.input-area`）最大高さ | 380px | chat-main.css |
+| 保存高さの復元下限 | 168px | input-area-resize.js で 168 未満は 168 にクランプしてから適用 |
+
+**参照ファイル**: `chat.php`（textarea のインライン style）、`includes/chat/scripts.php`（autoResizeInput の minH/cap、DOMContentLoaded、AI秘書用 textarea）、`assets/css/chat-main.css`、`assets/css/chat-mobile.css`、`assets/js/chat/input-area-resize.js`。
+
+**注意**: `layout/center-panel.css` は chat-new.css で import がコメントアウトされているためチャットでは読み込まれない。高さ変更は chat-main.css / chat-mobile.css および上記 PHP・JS で行う。変更時は **CSS・JS・PHP の整合**（インライン style / autoResizeInput・DOMContentLoaded / AI秘書 textarea / リサイズ復元ロジック）を漏れなく揃える。
+
+### 枠線・ボタン・ホバーの統一
+
+ボタン・入力・カード・会話リスト等の**枠線**と**ホバー背景**は、次の値で統一する。
+
+| 用途 | 値 | 備考 |
+|------|-----|------|
+| 枠線（セカンダリボタン・入力・カード等） | 2px solid #9ca3af | design_config の `buttons.secondary.border` / `inputs.border` / `cards.border`、design_loader の `--dt-btn-secondary-border` 等と一致 |
+| ホバー背景（セカンダリ・フィルター・会話リスト・入力エリアツールバー等） | #ffedd5（薄いオレンジ） | design_config の `buttons.secondary.hover` / `buttons.filter.hover`、design_loader の `--dt-btn-secondary-hover` と一致 |
+
+**変更が効かない主な理由**: `includes/design_loader.php` が動的 CSS を出力し、多くのルールに `!important` を付けている。そのため **枠線・ホバーを変えるときは、`includes/design_config.php` のトークンと `includes/design_loader.php` の該当出力を必ずセットで変更する**。CSS ファイルだけ変更しても上書きされて効かないことがある。
+
+**適用箇所一覧**（変更時は漏れなく揃える）:
+- 上パネル: 検索バー、`.top-btn`（タスク・通知等）
+- フィルター: `.filter-tabs button`
+- 会話リスト: `.conv-item`、`.conv-avatar`
+- 入力エリア: `.input-area__btn`、`.input-area__action-btn`、`.input-area__toggle-btn`、`.input-area__send-btn`
+- ヘッダー: `.toggle-left-btn`、`.toggle-right-btn`、`.search-box`
+- その他: グループ設定 `.group-setting-item` 等
+
+### ドロップダウン・モーダルの色固定
+
+言語選択・ユーザーメニュー・タスク・通知等の**ドロップダウン**および**モーダル**は、テーマや背景に左右されず視認性を確保するため、**白背景・黒文字を `!important` で固定**する。  
+定義: `assets/css/layout/header.css` および `includes/design_loader.php`。これらのスタイルは触らず、共通定義に任せる。
+
 ---
 
 ## 3. 枠線スタイル（ユーザーが選択可能）
@@ -173,6 +212,8 @@
 
 - **色・グラデーションを変える**  
   `includes/design_config.php` の `getThemeConfigs()['lavender']` のみ編集。他テーマは廃止済みのため触らない。
+- **枠線・ホバーを変える**  
+  `design_config.php` の該当トークン（例: `buttons.secondary.border`, `buttons.secondary.hover`）と、**`includes/design_loader.php` の該当出力を必ずセットで**変更する。CSS ファイルだけの変更では上書きされて効かないことがある。
 - **CSSで色を使う**  
   直接 hex を書かず、`var(--dt-〇〇)` を優先する。一覧は design_loader が出力する `:root` を参照。
 - **新規ページを追加する**  
@@ -263,11 +304,13 @@
 
 1. **色・テーマの変更**  
    `includes/design_config.php` の `getThemeConfigs()['lavender']` または `getDefaultDesignTokens()` を編集する。CSS に直接 hex/rgba を増やさない。
-2. **CSS 変数（--dt-*）の追加**  
+2. **枠線・ホバーの変更**  
+   上記に加え、**`includes/design_loader.php` の該当出力も同時に確認・修正する**。design_loader が `!important` で動的出力するため、config だけ変更しても反映されないことがある。
+3. **CSS 変数（--dt-*）の追加**  
    design_loader の `:root` 出力に追加し、`design_config` のトークンから渡す。命名は `--dt-〇〇`（dt = design token）を踏襲する。
-3. **新規ページ・コンポーネント**  
+4. **新規ページ・コンポーネント**  
    body に `data-theme="<?= DESIGN_DEFAULT_THEME ?>"` を付与。スタイルは `getEffectiveStyleId()` で解決した id を `style-〇〇` で付与する。
-4. **規格・DEPENDENCIES の更新**  
+5. **規格・DEPENDENCIES の更新**  
    トークンや色を増減したら `DOCS/STANDARD_DESIGN_SPEC.md` の該当セクションを更新し、必要なら `includes/DEPENDENCIES.md` も更新する。
 
 ### 10.2 キャッシュの更新

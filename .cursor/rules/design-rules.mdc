@@ -35,6 +35,20 @@ alwaysApply: true
 8. **コミット前チェック**  
    色を変えた → DESIGN_ASSET_VERSION を上げたか。トークンを増減した → STANDARD_DESIGN_SPEC に追記・修正したか。
 
+## チャット入力欄（7行表示・下端接着）
+
+- チャット入力欄の高さは **min-height: 168px、max-height: 280px** で統一する。`.input-area` は **max-height: 380px**。保存高さの復元時は **168 未満を 168 にクランプ**してから適用する。
+- 詳細は `DOCS/STANDARD_DESIGN_SPEC.md` の「チャット入力欄のレイアウト規格」を参照。
+
+## 枠線・ボタンホバー
+
+- 枠線は **2px solid #9ca3af**、ホバー背景は **#ffedd5**（薄いオレンジ）で統一する。
+- **変更時は `design_config.php` と `design_loader.php` の両方を修正する**。CSS ファイルだけでは上書きされて効かないことがある。詳細は `DOCS/STANDARD_DESIGN_SPEC.md` の「枠線・ボタン・ホバーの統一」を参照。
+
+## ドロップダウン・モーダル
+
+- 言語・ユーザー・タスク・通知等のドロップダウンおよびモーダルの色は、**白背景・黒文字で固定**（`header.css` と `design_loader.php` が管理）。触らない。
+
 ## 上パネル共有ページのルール
 
 settings.php / design.php / tasks.php / notifications.php はトップページ（chat.php）と同じ上パネルを共有する。
