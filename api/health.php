@@ -55,6 +55,57 @@ if ($action === 'deploy') {
     exit;
 }
 
+// ========================================
+// 管理者向け AI（Gemini）設定確認（?action=ai_config）
+// ========================================
+if ($action === 'ai_config') {
+    if (!$isAdmin) {
+        http_response_code(403);
+        echo json_encode(['error' => '管理者のみ利用できます。'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    $base = dirname(__DIR__);
+    $localPath = $base . '/config/ai_config.local.php';
+    $aiConfigPath = $base . '/config/ai_config.php';
+    $geminiHelperPath = $base . '/includes/gemini_helper.php';
+
+    $result = [
+        'ai_config_local_exists' => file_exists($localPath),
+        'ai_config_local_path' => $localPath,
+        'gemini_api_key_defined' => false,
+        'gemini_api_key_set' => false,
+        'gemini_api_key_length' => 0,
+        'gemini_api_key_prefix' => '',
+        'isGeminiAvailable' => false,
+        'test_call' => null,
+    ];
+
+    if (file_exists($aiConfigPath)) {
+        require_once $aiConfigPath;
+        $result['gemini_api_key_defined'] = defined('GEMINI_API_KEY');
+        $result['gemini_api_key_set'] = defined('GEMINI_API_KEY') && GEMINI_API_KEY !== '' && trim(GEMINI_API_KEY) !== '';
+        $result['gemini_api_key_length'] = $result['gemini_api_key_defined'] ? strlen(GEMINI_API_KEY) : 0;
+        $result['gemini_api_key_prefix'] = $result['gemini_api_key_defined'] && GEMINI_API_KEY !== '' ? substr(GEMINI_API_KEY, 0, 8) . '...' : '';
+
+        if (file_exists($geminiHelperPath)) {
+            require_once $geminiHelperPath;
+            $result['isGeminiAvailable'] = function_exists('isGeminiAvailable') && isGeminiAvailable();
+            if (function_exists('geminiChat')) {
+                $test = geminiChat('こんにちは', [], null);
+                $result['test_call'] = [
+                    'success' => $test['success'],
+                    'error' => $test['error'] ?? null,
+                    'message' => $test['success'] ? '接続OK' : ($test['error'] ?? '不明なエラー'),
+                ];
+            }
+        }
+    }
+
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $checks = [];
 $overallStatus = 'ok';
 
