@@ -308,7 +308,7 @@ switch ($action) {
                     $message_ids[] = (int)$pdo->lastInsertId();
                 } catch (PDOException $e) {
                     $msg = $e->getMessage();
-                    if (strpos($msg, 'extracted_text') !== false || ($sendTypeCol && strpos($msg, $sendTypeCol) !== false)) {
+                    if (strpos($msg, 'extracted_text') !== false || ($sendTypeCol && strpos($msg, $sendTypeCol) !== false) || strpos($msg, 'reply_to_id') !== false) {
                         $stmt = $pdo->prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (?, ?, ?)");
                         $stmt->execute([$conversation_id, $user_id, $partContent]);
                         $message_ids[] = (int)$pdo->lastInsertId();
@@ -348,7 +348,7 @@ switch ($action) {
                 $message_id = $pdo->lastInsertId();
             } catch (PDOException $e) {
                 $msg = $e->getMessage();
-                if (strpos($msg, 'extracted_text') !== false || ($sendTypeCol && strpos($msg, $sendTypeCol) !== false)) {
+                if (strpos($msg, 'extracted_text') !== false || ($sendTypeCol && strpos($msg, $sendTypeCol) !== false) || strpos($msg, 'reply_to_id') !== false) {
                     $stmt = $pdo->prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (?, ?, ?)");
                     $stmt->execute([$conversation_id, $user_id, $insertContent]);
                     $message_id = $pdo->lastInsertId();
@@ -704,12 +704,12 @@ switch ($action) {
         $hasNotifMsgCol = false;
         $hasMessageType = false;
         $messageTypeColName = null;
-        $hasIsEdited = true;
-        $hasIsPinned = true;
-        $hasDeletedAt = true;
+        $hasIsEdited = false;
+        $hasIsPinned = false;
+        $hasDeletedAt = false;
         $hasIsDeleted = false;
-        $hasReactionsTable = true;
-        $hasReplyToId = true;
+        $hasReactionsTable = false;
+        $hasReplyToId = false;
         try {
             $chk = $pdo->query("SHOW COLUMNS FROM messages LIKE 'task_id'");
             $hasTaskId = $chk && $chk->rowCount() > 0;
@@ -736,6 +736,11 @@ switch ($action) {
             $hasReactionsTable = $chk && $chk->rowCount() > 0;
             $chk = $pdo->query("SHOW COLUMNS FROM messages LIKE 'reply_to_id'");
             $hasReplyToId = $chk && $chk->rowCount() > 0;
+        } catch (Exception $e) {}
+        $hasUsersAvatarPath = false;
+        try {
+            $chk = $pdo->query("SHOW COLUMNS FROM users LIKE 'avatar_path'");
+            $hasUsersAvatarPath = $chk && $chk->rowCount() > 0;
         } catch (Exception $e) {}
         
         $taskIdCol = $hasTaskId ? ", m.task_id" : "";
@@ -768,6 +773,7 @@ switch ($action) {
             LEFT JOIN users ru ON rm.sender_id = ru.id" : "
             LEFT JOIN messages rm ON 1=0
             LEFT JOIN users ru ON 1=0";
+        $senderAvatarCol = $hasUsersAvatarPath ? "u.avatar_path as sender_avatar" : "NULL as sender_avatar";
         $sql = "
             SELECT 
                 m.id,
@@ -782,7 +788,7 @@ switch ($action) {
                 {$taskIdCol}
                 {$taskCols},
                 u.display_name as sender_name,
-                u.avatar_path as sender_avatar,
+                {$senderAvatarCol},
                 {$reactionsCol},
                 rm.content AS reply_to_content,
                 ru.display_name AS reply_to_sender_name
