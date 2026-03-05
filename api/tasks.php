@@ -879,48 +879,48 @@ switch ($action) {
         break;
     
     case 'count':
-        $my_tasks_only_count = !empty($_GET['my_tasks_only']) || ($_GET['my_tasks_only'] ?? '') === '1';
-        $count_type = $_GET['type'] ?? '';
-        
-        $countSql = "SELECT COUNT(*) as count FROM tasks WHERE 1=1";
-        $countParams = [];
-        
-        if ($count_type === 'memo') {
-            $countSql .= " AND created_by = ?";
-            $countParams[] = $user_id;
-        } elseif ($my_tasks_only_count) {
-            $countSql .= " AND (assigned_to = ? OR (created_by = ? AND (assigned_to IS NULL OR assigned_to = ?)))";
-            $countParams = [$user_id, $user_id, $user_id];
-        } else {
-            $countSql .= " AND (created_by = ? OR assigned_to = ?)";
-            $countParams = [$user_id, $user_id];
-        }
-        
-        if (tasksHasTypeColumn($pdo)) {
+        try {
+            $my_tasks_only_count = !empty($_GET['my_tasks_only']) || ($_GET['my_tasks_only'] ?? '') === '1';
+            $count_type = $_GET['type'] ?? '';
+            
+            $countSql = "SELECT COUNT(*) as count FROM tasks WHERE 1=1";
+            $countParams = [];
+            
             if ($count_type === 'memo') {
-                $countSql .= " AND type = 'memo'";
-            } elseif ($count_type === 'task' || $count_type === '') {
-                $countSql .= " AND (type = 'task' OR type IS NULL)";
+                $countSql .= " AND created_by = ?";
+                $countParams[] = $user_id;
+            } elseif ($my_tasks_only_count) {
+                $countSql .= " AND (assigned_to = ? OR (created_by = ? AND (assigned_to IS NULL OR assigned_to = ?)))";
+                $countParams = [$user_id, $user_id, $user_id];
+            } else {
+                $countSql .= " AND (created_by = ? OR assigned_to = ?)";
+                $countParams = [$user_id, $user_id];
+            }
+            
+            if (tasksHasTypeColumn($pdo)) {
+                if ($count_type === 'memo') {
+                    $countSql .= " AND type = 'memo'";
+                } elseif ($count_type === 'task' || $count_type === '') {
+                    $countSql .= " AND (type = 'task' OR type IS NULL)";
+                    if (tasksHasStatusColumn($pdo)) {
+                        $countSql .= " AND status IN ('pending', 'in_progress')";
+                    }
+                }
+            } else {
                 if (tasksHasStatusColumn($pdo)) {
                     $countSql .= " AND status IN ('pending', 'in_progress')";
                 }
             }
-        } else {
-            if (tasksHasStatusColumn($pdo)) {
-                $countSql .= " AND status IN ('pending', 'in_progress')";
+            
+            if (tasksHasDeletedAtColumn($pdo)) {
+                $countSql .= " AND deleted_at IS NULL";
             }
-        }
-        
-        if (tasksHasDeletedAtColumn($pdo)) {
-            $countSql .= " AND deleted_at IS NULL";
-        }
-        
-        try {
+            
             $stmt = $pdo->prepare($countSql);
             $stmt->execute($countParams);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             successResponse(['count' => (int)($result['count'] ?? 0)]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             error_log('[tasks.php count] ' . $e->getMessage());
             successResponse(['count' => 0]);
         }

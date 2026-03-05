@@ -366,7 +366,7 @@ window.processFilePathsInContent = function(text) {
                 normalized = 'uploads/messages/' + normalized;
             }
             foundPaths.push(normalized);
-            return `<img src="${normalized}" loading="lazy" style="max-width:100%;max-height:300px;border-radius:8px;cursor:pointer;" onclick="openMediaViewer('image', '${normalized}', '画像')" onerror="this.onerror=null;this.style.display='none';">`;
+            return `<img src="${normalized}" loading="lazy" style="max-width:100%;max-height:300px;border-radius:8px;cursor:pointer;" onclick="openMediaViewer('image', '${normalized}', '画像')" onerror="this.onerror=null;this.style.background='#f0f0f0';this.style.padding='20px';this.style.minHeight='80px';this.alt='画像を読み込めません';this.style.display='block';">`;
         });
     }
     

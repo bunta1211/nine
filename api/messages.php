@@ -539,109 +539,133 @@ switch ($action) {
         }
         
         // 送信したメッセージの完全な情報を取得して返す（返信情報も含む）
-        // reply_to_id カラムが無い環境では JOIN しない SELECT を使う（カラム追加前に送信が失敗しないように）
-        if ($hasReplyToIdCol) {
-            $msgStmt = $pdo->prepare("
-                SELECT 
-                    m.id,
-                    m.conversation_id,
-                    m.sender_id,
-                    m.content,
-                    m.message_type,
-                    m.reply_to_id,
-                    m.created_at,
-                    m.is_edited,
-                    u.display_name AS sender_name,
-                    u.avatar_path AS sender_avatar,
-                    rm.content AS reply_to_content,
-                    ru.display_name AS reply_to_sender_name
-                FROM messages m
-                LEFT JOIN users u ON m.sender_id = u.id
-                LEFT JOIN messages rm ON m.reply_to_id = rm.id
-                LEFT JOIN users ru ON rm.sender_id = ru.id
-                WHERE m.id = ?
-            ");
-        } else {
-            $msgStmt = $pdo->prepare("
-                SELECT 
-                    m.id,
-                    m.conversation_id,
-                    m.sender_id,
-                    m.content,
-                    m.message_type,
-                    m.created_at,
-                    m.is_edited,
-                    u.display_name AS sender_name,
-                    u.avatar_path AS sender_avatar
-                FROM messages m
-                LEFT JOIN users u ON m.sender_id = u.id
-                WHERE m.id = ?
-            ");
-        }
+        // reply_to_id / message_type / is_edited / avatar_path が無い環境でも 500 にしない
         $messagesForResponse = !empty($message_ids) ? $message_ids : [$message_id];
         $message = null;
         $allMessages = [];
-        foreach ($messagesForResponse as $mid) {
-            $msgStmt->execute([$mid]);
-            $row = $msgStmt->fetch(PDO::FETCH_ASSOC);
-            if ($row) {
-                $row['id'] = (int)$row['id'];
-                $row['conversation_id'] = (int)$row['conversation_id'];
-                $row['sender_id'] = (int)$row['sender_id'];
-                $row['is_edited'] = (int)$row['is_edited'];
-                $row['message_type'] = $row['message_type'] ?? 'text';
-                // 返信情報は常にクライアント用に整える（カラム無し時は未設定なので null に揃える）
-                $row['reply_to_id'] = isset($row['reply_to_id']) && $row['reply_to_id'] !== '' && (int)$row['reply_to_id'] > 0 ? (int)$row['reply_to_id'] : null;
-                $row['reply_to_content'] = isset($row['reply_to_content']) ? $row['reply_to_content'] : null;
-                $row['reply_to_sender_name'] = isset($row['reply_to_sender_name']) ? $row['reply_to_sender_name'] : null;
-                if (!empty($row['created_at']) && function_exists('formatDatetimeForClient')) {
-                    $row['created_at'] = formatDatetimeForClient($row['created_at']);
-                }
-                $row['is_mentioned_me'] = false;
-                $row['mention_type'] = null;
-                $row['to_member_ids'] = [];
-                $row['to_member_ids_list'] = [];
-                // To 情報は先頭メッセージのみ
-                if ($mid === $mentionMessageId) {
-                    if ($toMentionAll) {
-                        $row['has_to_all'] = true;
-                        $row['show_to_all_badge'] = true;
-                    }
-                    if (!empty($toMentionIds)) {
-                        $row['to_member_ids'] = array_map('intval', $toMentionIds);
-                        $row['show_to_badge'] = true;
-                        $row['to_member_ids_list'] = array_values(array_unique(array_map('intval', $toMentionIds)));
-                    }
-                }
-                $allMessages[] = $row;
-                $message = $row;
-            }
-        }
-        // 本番で INSERT に reply_to_id が含まれていない古いコードでもレスポンスで引用を返すため、
-        // DB の reply_to_id が null のときはリクエストの reply_to_id で返信元を取得して補完する。
-        // あわせて DB を UPDATE しておけばリロード後も引用が表示される。
-        if ($message && (empty($message['reply_to_id']) || $message['reply_to_id'] === null) && !empty($reply_to_id) && (int)$reply_to_id > 0) {
-            $reply_to_id_int = (int)$reply_to_id;
+        try {
+            $sendHasReplyToId = $hasReplyToIdCol;
+            $sendHasMsgType = false;
+            $sendHasIsEdited = false;
+            $sendHasAvatarPath = false;
             try {
-                $refStmt = $pdo->prepare("SELECT m.content, u.display_name FROM messages m LEFT JOIN users u ON m.sender_id = u.id WHERE m.id = ?");
-                $refStmt->execute([$reply_to_id_int]);
-                $ref = $refStmt->fetch(PDO::FETCH_ASSOC);
-                if ($ref) {
-                    $message['reply_to_id'] = $reply_to_id_int;
-                    $message['reply_to_content'] = $ref['content'] ?? null;
-                    $message['reply_to_sender_name'] = $ref['display_name'] ?? null;
-                } else {
-                    $message['reply_to_id'] = $reply_to_id_int;
-                    $message['reply_to_content'] = null;
-                    $message['reply_to_sender_name'] = null;
-                }
-                // リロード後も引用を表示するため、DB に reply_to_id を必ず保存する（参照元が削除されていてもIDだけ残す）
-                $upd = $pdo->prepare("UPDATE messages SET reply_to_id = ? WHERE id = ?");
-                $upd->execute([$reply_to_id_int, $message_id]);
-            } catch (Exception $e) {
-                error_log("[reply_quote] fallback or UPDATE failed: message_id=" . ($message_id ?? '') . " reply_to_id=" . ($reply_to_id_int ?? '') . " err=" . $e->getMessage());
+                $sendHasMsgType = (bool)$pdo->query("SHOW COLUMNS FROM messages LIKE 'message_type'")->rowCount() || (bool)$pdo->query("SHOW COLUMNS FROM messages LIKE 'content_type'")->rowCount();
+                $sendHasIsEdited = (bool)$pdo->query("SHOW COLUMNS FROM messages LIKE 'is_edited'")->rowCount();
+                $sendHasAvatarPath = (bool)$pdo->query("SHOW COLUMNS FROM users LIKE 'avatar_path'")->rowCount();
+            } catch (Exception $e) {}
+            $mCols = "m.id, m.conversation_id, m.sender_id, m.content, m.created_at";
+            if ($sendHasReplyToId) $mCols .= ", m.reply_to_id";
+            if ($sendHasMsgType) $mCols .= ", m.message_type";
+            if ($sendHasIsEdited) $mCols .= ", m.is_edited";
+            $uCols = "u.display_name AS sender_name";
+            if ($sendHasAvatarPath) $uCols .= ", u.avatar_path AS sender_avatar";
+            else $uCols .= ", NULL AS sender_avatar";
+            if ($sendHasReplyToId) {
+                $msgStmt = $pdo->prepare("
+                    SELECT {$mCols}, {$uCols}, rm.content AS reply_to_content, ru.display_name AS reply_to_sender_name
+                    FROM messages m
+                    LEFT JOIN users u ON m.sender_id = u.id
+                    LEFT JOIN messages rm ON m.reply_to_id = rm.id
+                    LEFT JOIN users ru ON rm.sender_id = ru.id
+                    WHERE m.id = ?
+                ");
+            } else {
+                $msgStmt = $pdo->prepare("
+                    SELECT {$mCols}, {$uCols}
+                    FROM messages m
+                    LEFT JOIN users u ON m.sender_id = u.id
+                    WHERE m.id = ?
+                ");
             }
+            foreach ($messagesForResponse as $mid) {
+                $msgStmt->execute([$mid]);
+                $row = $msgStmt->fetch(PDO::FETCH_ASSOC);
+                if ($row) {
+                    $row['id'] = (int)$row['id'];
+                    $row['conversation_id'] = (int)$row['conversation_id'];
+                    $row['sender_id'] = (int)$row['sender_id'];
+                    $row['is_edited'] = isset($row['is_edited']) ? (int)$row['is_edited'] : 0;
+                    $row['message_type'] = $row['message_type'] ?? $row['content_type'] ?? 'text';
+                    $row['reply_to_id'] = isset($row['reply_to_id']) && $row['reply_to_id'] !== '' && (int)$row['reply_to_id'] > 0 ? (int)$row['reply_to_id'] : null;
+                    $row['reply_to_content'] = isset($row['reply_to_content']) ? $row['reply_to_content'] : null;
+                    $row['reply_to_sender_name'] = isset($row['reply_to_sender_name']) ? $row['reply_to_sender_name'] : null;
+                    if (!empty($row['created_at']) && function_exists('formatDatetimeForClient')) {
+                        $row['created_at'] = formatDatetimeForClient($row['created_at']);
+                    }
+                    $row['is_mentioned_me'] = false;
+                    $row['mention_type'] = null;
+                    $row['to_member_ids'] = [];
+                    $row['to_member_ids_list'] = [];
+                    if ($mid === $mentionMessageId) {
+                        if ($toMentionAll) {
+                            $row['has_to_all'] = true;
+                            $row['show_to_all_badge'] = true;
+                        }
+                        if (!empty($toMentionIds)) {
+                            $row['to_member_ids'] = array_map('intval', $toMentionIds);
+                            $row['show_to_badge'] = true;
+                            $row['to_member_ids_list'] = array_values(array_unique(array_map('intval', $toMentionIds)));
+                        }
+                    }
+                    $allMessages[] = $row;
+                    $message = $row;
+                }
+            }
+            if ($message && (empty($message['reply_to_id']) || $message['reply_to_id'] === null) && !empty($reply_to_id) && (int)$reply_to_id > 0) {
+                $reply_to_id_int = (int)$reply_to_id;
+                try {
+                    $refStmt = $pdo->prepare("SELECT m.content, u.display_name FROM messages m LEFT JOIN users u ON m.sender_id = u.id WHERE m.id = ?");
+                    $refStmt->execute([$reply_to_id_int]);
+                    $ref = $refStmt->fetch(PDO::FETCH_ASSOC);
+                    if ($ref) {
+                        $message['reply_to_id'] = $reply_to_id_int;
+                        $message['reply_to_content'] = $ref['content'] ?? null;
+                        $message['reply_to_sender_name'] = $ref['display_name'] ?? null;
+                    } else {
+                        $message['reply_to_id'] = $reply_to_id_int;
+                        $message['reply_to_content'] = null;
+                        $message['reply_to_sender_name'] = null;
+                    }
+                    try {
+                        $pdo->prepare("UPDATE messages SET reply_to_id = ? WHERE id = ?")->execute([$reply_to_id_int, $message_id]);
+                    } catch (Exception $e) {}
+                } catch (Exception $e) {
+                    error_log("[reply_quote] fallback or UPDATE failed: " . $e->getMessage());
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('[messages.php send] response fetch failed: ' . $e->getMessage());
+            $minCreatedAt = function_exists('formatDatetimeForClient') ? formatDatetimeForClient(date('Y-m-d H:i:s')) : date('c');
+            $message = [
+                'id' => (int)$message_id,
+                'conversation_id' => $conversation_id,
+                'sender_id' => (int)$user_id,
+                'content' => $contentParts !== null ? $contentParts[0] : $insertContent,
+                'message_type' => $message_type,
+                'reply_to_id' => $reply_to_id ? (int)$reply_to_id : null,
+                'created_at' => $minCreatedAt,
+                'is_edited' => 0,
+                'sender_name' => $sender['display_name'] ?? '',
+                'sender_avatar' => null,
+                'reply_to_content' => null,
+                'reply_to_sender_name' => null,
+                'is_mentioned_me' => false,
+                'mention_type' => null,
+                'to_member_ids' => [],
+                'to_member_ids_list' => [],
+            ];
+            if ($toMentionAll) {
+                $message['has_to_all'] = true;
+                $message['show_to_all_badge'] = true;
+            }
+            if (!empty($toMentionIds)) {
+                $message['to_member_ids'] = array_map('intval', $toMentionIds);
+                $message['show_to_badge'] = true;
+                $message['to_member_ids_list'] = array_values(array_unique(array_map('intval', $toMentionIds)));
+            }
+            $allMessages = [$message];
         }
+        // 既存の if (count($allMessages) > 1) の前の重複した reply_to 補完・UPDATE を削除済み（上に統合）
         if (count($allMessages) > 1) {
             $response = [
                 'message_id' => (int)$message_id,
@@ -2118,6 +2142,12 @@ switch ($action) {
             $c = $pdo->query("SHOW COLUMNS FROM messages LIKE 'deleted_at'");
             $listMentionsHasDeletedAt = $c && $c->rowCount() > 0;
         } catch (Exception $e) {}
+        $listMentionsHasAvatarPath = false;
+        try {
+            $c = $pdo->query("SHOW COLUMNS FROM users LIKE 'avatar_path'");
+            $listMentionsHasAvatarPath = $c && $c->rowCount() > 0;
+        } catch (Exception $e) {}
+        $mentionsAvatarCol = $listMentionsHasAvatarPath ? "u.avatar_path as sender_avatar" : "NULL as sender_avatar";
         $stmt = $pdo->prepare("
             SELECT 
                 m.id,
@@ -2127,7 +2157,7 @@ switch ($action) {
                 c.name as conversation_name,
                 c.type as conversation_type,
                 u.display_name as sender_name,
-                u.avatar_path as sender_avatar
+                {$mentionsAvatarCol}
             FROM message_mentions mm
             INNER JOIN messages m ON m.id = mm.message_id
             INNER JOIN conversations c ON c.id = m.conversation_id
@@ -2445,32 +2475,30 @@ switch ($action) {
         // クライアントで即時表示するため、送信メッセージと同形式の message オブジェクトを返す（失敗時は最小限のオブジェクトで成功を返す）
         $message = null;
         try {
-            $msgStmt = $pdo->prepare("
-                SELECT 
-                    m.id,
-                    m.conversation_id,
-                    m.sender_id,
-                    m.content,
-                    m.reply_to_id,
-                    m.created_at,
-                    u.display_name AS sender_name,
-                    u.avatar_path AS sender_avatar,
-                    rm.content AS reply_to_content,
-                    ru.display_name AS reply_to_sender_name
-                FROM messages m
-                LEFT JOIN users u ON m.sender_id = u.id
-                LEFT JOIN messages rm ON m.reply_to_id = rm.id
-                LEFT JOIN users ru ON rm.sender_id = ru.id
-                WHERE m.id = ?
-            ");
+            $upHasReplyToId = (bool)$pdo->query("SHOW COLUMNS FROM messages LIKE 'reply_to_id'")->rowCount();
+            $upHasAvatarPath = (bool)$pdo->query("SHOW COLUMNS FROM users LIKE 'avatar_path'")->rowCount();
+            $upHasMessageType = (bool)$pdo->query("SHOW COLUMNS FROM messages LIKE 'message_type'")->rowCount() || (bool)$pdo->query("SHOW COLUMNS FROM messages LIKE 'content_type'")->rowCount();
+            $upHasIsEdited = (bool)$pdo->query("SHOW COLUMNS FROM messages LIKE 'is_edited'")->rowCount();
+            $mCols = "m.id, m.conversation_id, m.sender_id, m.content, m.created_at";
+            if ($upHasReplyToId) $mCols .= ", m.reply_to_id";
+            if ($upHasMessageType) $mCols .= ", m.message_type";
+            if ($upHasIsEdited) $mCols .= ", m.is_edited";
+            $uCols = "u.display_name AS sender_name";
+            if ($upHasAvatarPath) $uCols .= ", u.avatar_path AS sender_avatar";
+            else $uCols .= ", NULL AS sender_avatar";
+            if ($upHasReplyToId) {
+                $msgStmt = $pdo->prepare("SELECT {$mCols}, {$uCols}, rm.content AS reply_to_content, ru.display_name AS reply_to_sender_name FROM messages m LEFT JOIN users u ON m.sender_id = u.id LEFT JOIN messages rm ON m.reply_to_id = rm.id LEFT JOIN users ru ON rm.sender_id = ru.id WHERE m.id = ?");
+            } else {
+                $msgStmt = $pdo->prepare("SELECT {$mCols}, {$uCols} FROM messages m LEFT JOIN users u ON m.sender_id = u.id WHERE m.id = ?");
+            }
             $msgStmt->execute([$message_id]);
             $message = $msgStmt->fetch(PDO::FETCH_ASSOC);
             if ($message) {
                 $message['id'] = (int)$message['id'];
                 $message['conversation_id'] = (int)$message['conversation_id'];
                 $message['sender_id'] = (int)$message['sender_id'];
-                $message['is_edited'] = (int)($message['is_edited'] ?? 0);
-                $message['message_type'] = $message['message_type'] ?? 'text';
+                $message['is_edited'] = isset($message['is_edited']) ? (int)$message['is_edited'] : 0;
+                $message['message_type'] = $message['message_type'] ?? $message['content_type'] ?? 'text';
                 $message['reply_to_id'] = isset($message['reply_to_id']) && $message['reply_to_id'] !== '' && (int)$message['reply_to_id'] > 0 ? (int)$message['reply_to_id'] : null;
                 $message['reply_to_content'] = isset($message['reply_to_content']) ? $message['reply_to_content'] : null;
                 $message['reply_to_sender_name'] = isset($message['reply_to_sender_name']) ? $message['reply_to_sender_name'] : null;
