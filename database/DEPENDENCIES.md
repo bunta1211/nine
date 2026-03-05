@@ -318,6 +318,7 @@ sms_verification_codes (migration_phone_registration.sql)
 | `migration_storage_folder_password.sql` | `storage_folders.password_hash`（フォルダ閲覧用パスワード） | `api/storage.php`, `assets/js/storage.js`, `chat.php` |
 | `migration_merge_memos_into_tasks.sql` | tasks に type/content/color/message_id/is_pinned 追加、memos→tasks データ移行。memos テーブルは削除せずバックアップとして残す | `api/tasks.php`, `api/memos.php`(deprecated wrapper), `tasks.php`, `includes/task_memo_search_helper.php` |
 | `migration_messages_extracted_text_longtext.sql` | `messages.extracted_text` を MEDIUMTEXT→LONGTEXT に変更（貼り付け上限200M文字対応）。ft_extracted_text がある場合は DROP 後に MODIFY | `api/messages.php`, `api/ai.php`（suggest_reply で extracted_text 優先参照） |
+| `migration_production_missing_columns.sql` | 本番で不足しがちなカラムを一括追加（messages.reply_to_id/message_type/is_edited/deleted_at/extracted_text, users.avatar_path, conversation_members.left_at/last_read_message_id, tasks.type/status/deleted_at/is_shared）。既存カラムはエラーになるがスキップして実行可。 | `api/messages.php`, `api/tasks.php` の耐障害化の根本対応用 |
 
 ---
 
