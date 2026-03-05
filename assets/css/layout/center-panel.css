@@ -108,10 +108,12 @@
    入力エリア（レイアウトのみ）
    ======================================== */
 .center-panel__input,
-.input-area {
+.center-panel .input-area {
     position: relative;
     z-index: 1;
     flex-shrink: 0;
+    /* チャット入力欄の下辺を画面底から少し上に（PC・モバイル共通） */
+    padding-bottom: 12px;
 }
 
 /* ========================================
