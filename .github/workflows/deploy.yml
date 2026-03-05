@@ -64,6 +64,18 @@ jobs:
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/html/
 
+      - name: Ensure required directories exist
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "mkdir -p /var/www/html/tmp/sessions /var/www/html/logs /var/www/html/uploads /var/www/html/uploads/backgrounds /var/www/html/uploads/messages"
+
+      - name: Composer install if vendor missing
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "cd /var/www/html && (test -f vendor/autoload.php) || (COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --no-interaction 2>/dev/null || true)"
+
       - name: Post-deploy permissions and reload
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \

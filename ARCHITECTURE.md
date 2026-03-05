@@ -54,6 +54,8 @@ nine/
 │   └── DEPENDENCIES.md      ← 管理画面依存関係
 │
 ├── scripts/                 ← 運用スクリプト
+│   ├── ensure_dirs.sh       ← 本番で tmp/sessions・logs・uploads を一括作成（WEB_USER=apache で apache 所有に。CI デプロイ時も mkdir で同等処理を実行）
+│   ├── ensure_tmp_sessions.sh
 │   ├── README.md            ← 使い方
 │   ├── setup-hosts-ec2-enable.bat   ← social9.jp を EC2 に強制向け
 │   └── setup-hosts-ec2-disable.bat  ← 上記を元に戻す

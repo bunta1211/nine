@@ -72,6 +72,20 @@ deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload httpd
    - `--delete` で不要ファイルも削除（EC2 のみのファイルは除外設定で保護）
    - 設定ファイル（`config/*.local.php` 等）は除外し、EC2 上のものを保持
 4. **権限修正 & reload**: Apache が読めるよう所有権を修正し、httpd を reload
+5. **Post-deploy（任意）**: 必要に応じて EC2 上で `scripts/ensure_dirs.sh`（ディレクトリ作成）と `composer install`（vendor 不足時）を実行。手順は [PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md) の「デプロイ直後に必要な作業」を参照。CI に post-deploy ステップを追加している場合は、デプロイのたびに自動実行される。
+
+### デプロイ後の手順（本番の基盤を揃える）
+
+main マージ後、**初回または必要に応じて** EC2 で次を実行すると、500 やログイン不可を防げます。
+
+| 目的 | コマンド（EC2 に SSH したうえで実行） |
+|------|--------------------------------------|
+| tmp/sessions・logs・uploads の作成 | `cd /var/www/html && sudo WEB_USER=apache bash scripts/ensure_dirs.sh` |
+| vendor 不足で 500 になる場合 | `cd /var/www/html && sudo COMPOSER_ALLOW_SUPERUSER=1 /usr/local/bin/composer install --no-dev --prefer-dist && sudo chown -R apache:apache vendor` |
+
+詳細: [PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md)、[PRODUCTION_500_ROOT_CAUSE.md](./PRODUCTION_500_ROOT_CAUSE.md)
+
+**CI で自動実行されること**: デプロイのたびに「必要なディレクトリの作成」と「vendor が無い場合の composer install」を EC2 上で実行します。EC2 の deploy ユーザーに `composer` が PATH で利用可能である必要があります（未導入の場合は [PRODUCTION_500_ROOT_CAUSE.md](./PRODUCTION_500_ROOT_CAUSE.md) の手順で本番に composer を入れてください）。
 
 ### rsync で除外されるファイル
 
