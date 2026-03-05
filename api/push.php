@@ -216,7 +216,7 @@ switch ($action) {
         
         try {
             $sentCount = sendPushToUser($pdo, $user_id, [
-                'title' => 'Social9',
+                'title' => defined('APP_NAME') ? APP_NAME : 'Social100',
                 'body' => 'プッシュ通知が正常に動作しています！🎉',
                 'icon' => $baseUrl . '/assets/icons/icon-192x192.png',
                 'badge' => $baseUrl . '/assets/icons/icon-72x72.png',
