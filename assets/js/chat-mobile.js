@@ -930,14 +930,15 @@
         document.documentElement.style.setProperty('--visual-viewport-height', h + 'px');
     }
 
-    /** キーボード表示時に入力欄をキーボード直上に密着させる（bottom と --visual-viewport-height を同期） */
+    /** キーボード表示時に入力欄をキーボード直上に密着させる（visualViewport の下端に合わせる） */
     function applyInputAreaAboveKeyboard(inputArea) {
         if (!inputArea || !window.visualViewport) return;
         const vp = window.visualViewport;
-        const keyboardHeight = window.innerHeight - vp.height;
+        /* ビジュアルビューポート下端からの距離 = レイアウトビューポート下端から入力欄下端までの px */
+        const bottomGap = window.innerHeight - (vp.offsetTop + vp.height);
         updateVisualViewportHeight();
-        if (keyboardHeight > 80) {
-            inputArea.style.bottom = keyboardHeight + 'px';
+        if (bottomGap > 60) {
+            inputArea.style.bottom = bottomGap + 'px';
             document.body.classList.add('mobile-input-focused');
         } else {
             inputArea.style.bottom = '0';

@@ -2394,9 +2394,12 @@
         padding-bottom: calc(var(--mobile-input-height) + 16px + env(safe-area-inset-bottom, 0px));
     }
 
-    /* 入力エリアを少しコンパクトに */
+    /* 入力エリアを少しコンパクトに（下余白はキーボード接着のため 0） */
     .input-area {
         padding: 6px 8px;
+    }
+    body.page-chat .input-area {
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
     }
 
     .message-input {
@@ -3813,6 +3816,10 @@
     body.page-chat .center-panel .input-area {
         max-height: 380px !important;
     }
+    /* 中央パネル下余白なし（入力欄を画面下端に接着） */
+    body.page-chat .center-panel {
+        padding-bottom: 0 !important;
+    }
     body.page-chat .input-container {
         overflow: visible !important;
     }
@@ -3824,6 +3831,7 @@
         padding-left: 4px !important;
         padding-right: 4px !important;
         padding-bottom: 0 !important; /* 下辺を画面下端に接着 */
+        margin-bottom: 0 !important;
     }
     body.page-chat .input-container {
         padding: 0 !important;
