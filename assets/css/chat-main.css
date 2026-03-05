@@ -3383,11 +3383,11 @@
             display: flex;
         }
         
-        /* メッセージ入力エリア */
+        /* メッセージ入力エリア（下余白なしで画面下端に接着） */
         .input-row {
             display: flex;
             align-items: stretch;
-            padding: 8px 16px 16px;
+            padding: 8px 16px 0 16px;
             gap: 8px;
         }
         
