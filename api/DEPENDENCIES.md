@@ -18,7 +18,7 @@
 | `notifications.php` | 通知管理。action=count/unread_count は例外時も 500 にせず 200 で安全な値（unread_count/total: 0）を返す | 必須 |
 | `translate.php` | 翻訳API | 必須 |
 | `memos.php` | メモ機能（deprecated ラッパー: 内部で tasks.php に転送。新規コードでは api/tasks.php?type=memo を使用） | 必須 |
-| `tasks.php` | タスク・メモ統合管理（type=task/memo 対応、タイトル自動生成、担当者通知、チャット内タスクメッセージ投稿、役割明確化、pin/count type対応） | 必須 |
+| `tasks.php` | タスク・メモ統合管理（type=task/memo 対応、タイトル自動生成、担当者通知、チャット内タスクメッセージ投稿、役割明確化、pin/count type対応）。**耐障害化**: conversation_members.left_at / tasks.is_shared / tasks.status の有無を SHOW COLUMNS で判定。count は例外時も 500 にせず count: 0 を返す。 | 必須 |
 | `ai.php` | AI秘書（ask, get_settings, history, save_personality, save_custom_instructions, interpret_send_to_group, execute_voice_command, refine_minutes, voice_context, **extract_improvement_report**, 絵文字学習, **suggest_reply**（AIクローン返信提案生成）, **record_reply_correction**（返信修正記録・修正率算出）, **get_reply_stats**（修正率統計）, **analyze_conversation_memory**（会話記憶自動分析）, **save_clone_settings**（訓練言語・自動返信トグル保存））。性格設定7項目のJSON保存、熟慮モード、性格自動生成。get_settings で personality/deliberation_max_seconds/proactive_message_enabled/proactive_message_hour/today_topics_oshi/today_topics_paid_plan/**clone_training_language**/**clone_auto_reply_enabled**/**conversation_memory_summary**/**reply_stats** を返却。ask のシステムプロンプトに判断材料・会話記憶を自動注入。**添付ファイル**: 画像/PDF/写真対応 | 必須 |
 | `ai-judgment.php` | AIクローン判断材料CRUD（フォルダ・アイテムの list/create/rename/delete/reorder）。user_ai_judgment_folders, user_ai_judgment_items テーブルを使用 | 必須 |
 | `ai-ping.php` | AI API診断（デバッグ用） | 不要 |

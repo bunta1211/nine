@@ -51,6 +51,45 @@ function tasksHasTypeColumn(PDO $pdo): bool {
     return $cached;
 }
 
+function tasksCmHasLeftAt(PDO $pdo): bool {
+    static $cached = null;
+    if ($cached === null) {
+        try {
+            $chk = $pdo->query("SHOW COLUMNS FROM conversation_members LIKE 'left_at'");
+            $cached = $chk && $chk->rowCount() > 0;
+        } catch (Exception $e) {
+            $cached = false;
+        }
+    }
+    return $cached;
+}
+
+function tasksHasIsSharedColumn(PDO $pdo): bool {
+    static $cached = null;
+    if ($cached === null) {
+        try {
+            $chk = $pdo->query("SHOW COLUMNS FROM tasks LIKE 'is_shared'");
+            $cached = $chk && $chk->rowCount() > 0;
+        } catch (Exception $e) {
+            $cached = false;
+        }
+    }
+    return $cached;
+}
+
+function tasksHasStatusColumn(PDO $pdo): bool {
+    static $cached = null;
+    if ($cached === null) {
+        try {
+            $chk = $pdo->query("SHOW COLUMNS FROM tasks LIKE 'status'");
+            $cached = $chk && $chk->rowCount() > 0;
+        } catch (Exception $e) {
+            $cached = false;
+        }
+    }
+    return $cached;
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 $input = getJsonInput() ?: $_POST;
 $action = $input['action'] ?? $_GET['action'] ?? '';
@@ -68,7 +107,8 @@ switch ($action) {
         // 会話指定時: その会話のメンバーなら全タスクを表示（グループ内の他メンバー作成タスクも含む）
         $isConvMember = false;
         if ($conversation_id) {
-            $chk = $pdo->prepare("SELECT 1 FROM conversation_members WHERE conversation_id = ? AND user_id = ? AND left_at IS NULL");
+            $cmLeftCond = tasksCmHasLeftAt($pdo) ? " AND left_at IS NULL" : "";
+            $chk = $pdo->prepare("SELECT 1 FROM conversation_members WHERE conversation_id = ? AND user_id = ?" . $cmLeftCond);
             $chk->execute([$conversation_id, $user_id]);
             $isConvMember = (bool)$chk->fetch();
         }
@@ -102,7 +142,11 @@ switch ($action) {
             $params[] = $user_id;
         } else {
             // 会話指定なし: 自分のタスク＋依頼したタスク（作成者・担当者・共有）
-            $sql .= " AND (t.created_by = ? OR t.assigned_to = ? OR t.is_shared = 1)";
+            if (tasksHasIsSharedColumn($pdo)) {
+                $sql .= " AND (t.created_by = ? OR t.assigned_to = ? OR t.is_shared = 1)";
+            } else {
+                $sql .= " AND (t.created_by = ? OR t.assigned_to = ?)";
+            }
             $params[] = $user_id;
             $params[] = $user_id;
         }
@@ -119,11 +163,13 @@ switch ($action) {
             }
         }
         
-        if ($type_filter !== 'memo') {
-            $sql .= " AND t.status != 'completed'";
-            if ($status && in_array($status, ['pending', 'in_progress', 'cancelled'])) {
-                $sql .= " AND t.status = ?";
-                $params[] = $status;
+        if (tasksHasStatusColumn($pdo)) {
+            if ($type_filter !== 'memo') {
+                $sql .= " AND t.status != 'completed'";
+                if ($status && in_array($status, ['pending', 'in_progress', 'cancelled'])) {
+                    $sql .= " AND t.status = ?";
+                    $params[] = $status;
+                }
             }
         }
         
@@ -855,21 +901,29 @@ switch ($action) {
                 $countSql .= " AND type = 'memo'";
             } elseif ($count_type === 'task' || $count_type === '') {
                 $countSql .= " AND (type = 'task' OR type IS NULL)";
-                $countSql .= " AND status IN ('pending', 'in_progress')";
+                if (tasksHasStatusColumn($pdo)) {
+                    $countSql .= " AND status IN ('pending', 'in_progress')";
+                }
             }
         } else {
-            $countSql .= " AND status IN ('pending', 'in_progress')";
+            if (tasksHasStatusColumn($pdo)) {
+                $countSql .= " AND status IN ('pending', 'in_progress')";
+            }
         }
         
         if (tasksHasDeletedAtColumn($pdo)) {
             $countSql .= " AND deleted_at IS NULL";
         }
         
-        $stmt = $pdo->prepare($countSql);
-        $stmt->execute($countParams);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        successResponse(['count' => (int)$result['count']]);
+        try {
+            $stmt = $pdo->prepare($countSql);
+            $stmt->execute($countParams);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            successResponse(['count' => (int)($result['count'] ?? 0)]);
+        } catch (Exception $e) {
+            error_log('[tasks.php count] ' . $e->getMessage());
+            successResponse(['count' => 0]);
+        }
         break;
         
     default:
