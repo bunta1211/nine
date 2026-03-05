@@ -126,7 +126,7 @@
             
             try {
                 const lastId = Chat.messages ? Chat.messages.getLastMessageId() : (window.lastMessageId || 0);
-                const response = await fetch(`api/messages.php?action=poll&conversation_id=${conversationId}&last_id=${lastId}`);
+                const response = await fetch(`${(window.__CHAT_API_BASE||'')}api/messages.php?action=poll&conversation_id=${conversationId}&last_id=${lastId}`);
                 const data = await response.json();
                 
                 if (data.success && data.messages && data.messages.length > 0) {
@@ -160,7 +160,7 @@
             if (isPaused) return;
             
             try {
-                const response = await fetch('api/conversations.php?action=list');
+                const response = await fetch((window.__CHAT_API_BASE||'')+'api/conversations.php?action=list');
                 const data = await response.json();
                 
                 if (data.success && data.conversations) {
@@ -189,7 +189,7 @@
             if (isPaused) return;
             
             try {
-                await fetch('api/status.php', {
+                await fetch((window.__CHAT_API_BASE||'')+'api/status.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: 'action=heartbeat'
@@ -215,7 +215,7 @@
             if (isPaused) return;
             
             try {
-                const response = await fetch('api/notifications.php?action=count');
+                const response = await fetch((window.__CHAT_API_BASE||'')+'api/notifications.php?action=count');
                 const data = await response.json();
                 
                 if (data.success) {

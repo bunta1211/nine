@@ -204,6 +204,11 @@ if ($is_secretary_mode) {
     
     <!-- エラー自動収集（最初に読み込む） -->
     <script src="assets/js/error-collector.js?v=<?= assetVersion('assets/js/error-collector.js') ?>"></script>
+    <!-- APIは常に表示中のドメインへ送る（baseタグ・キャッシュで別ドメインに行くのを防ぐ） -->
+    <script>
+    window.__CHAT_API_BASE = window.location.origin + (window.location.pathname.replace(/\/[^/]*$/, '') || '/');
+    if (!window.__CHAT_API_BASE.endsWith('/')) window.__CHAT_API_BASE += '/';
+    </script>
     <?php if ($ai_prefill !== null): ?>
     <!-- 秘書モード: 強制リロードでも選択を維持（DBの値をJSの初期値として渡す） -->
     <script>
