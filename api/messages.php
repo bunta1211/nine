@@ -1273,15 +1273,21 @@ switch ($action) {
         if (!$task_id || !$conv_id) {
             errorResponse('task_id と conversation_id が必要です', 400);
         }
-        $stmt = $pdo->prepare("
-            SELECT 1 FROM conversation_members
-            WHERE conversation_id = ? AND user_id = ? AND left_at IS NULL
-        ");
+        $getTaskDetailCmLeftAt = false;
+        $getTaskDetailMsgDeletedAt = false;
+        try {
+            $c = $pdo->query("SHOW COLUMNS FROM conversation_members LIKE 'left_at'");
+            $getTaskDetailCmLeftAt = $c && $c->rowCount() > 0;
+            $c2 = $pdo->query("SHOW COLUMNS FROM messages LIKE 'deleted_at'");
+            $getTaskDetailMsgDeletedAt = $c2 && $c2->rowCount() > 0;
+        } catch (Exception $e) {}
+        $memberSql = "SELECT 1 FROM conversation_members WHERE conversation_id = ? AND user_id = ?" . ($getTaskDetailCmLeftAt ? " AND left_at IS NULL" : "");
+        $stmt = $pdo->prepare($memberSql);
         $stmt->execute([$conv_id, $user_id]);
         if (!$stmt->fetch()) {
             errorResponse('この会話にアクセスする権限がありません', 403);
         }
-        // タスク取得: この会話のメッセージに紐づくタスクのみ（m.task_id または notification_message_id）
+        $msgDelClause = $getTaskDetailMsgDeletedAt ? " AND m.deleted_at IS NULL" : "";
         $stmt = $pdo->prepare("
             SELECT t.id, t.title, t.due_date, t.status,
                 creator.display_name as requester_name,
@@ -1290,7 +1296,7 @@ switch ($action) {
             LEFT JOIN users creator ON t.created_by = creator.id
             LEFT JOIN users worker ON t.assigned_to = worker.id
             INNER JOIN messages m ON (m.task_id = t.id OR t.notification_message_id = m.id)
-            WHERE t.id = ? AND m.conversation_id = ? AND m.deleted_at IS NULL
+            WHERE t.id = ? AND m.conversation_id = ? {$msgDelClause}
         ");
         $stmt->execute([$task_id, $conv_id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1324,7 +1330,19 @@ switch ($action) {
             
             $display_name = mb_substr($display_name, 0, 200);
             
-            $stmt = $pdo->prepare("SELECT sender_id, content FROM messages WHERE id = ? AND deleted_at IS NULL");
+            $editDnHasDeletedAt = false;
+            $editDnHasIsEdited = false;
+            $editDnHasEditedAt = false;
+            try {
+                $c = $pdo->query("SHOW COLUMNS FROM messages LIKE 'deleted_at'");
+                $editDnHasDeletedAt = $c && $c->rowCount() > 0;
+                $c2 = $pdo->query("SHOW COLUMNS FROM messages LIKE 'is_edited'");
+                $editDnHasIsEdited = $c2 && $c2->rowCount() > 0;
+                $c3 = $pdo->query("SHOW COLUMNS FROM messages LIKE 'edited_at'");
+                $editDnHasEditedAt = $c3 && $c3->rowCount() > 0;
+            } catch (Exception $e) {}
+            $selSql = "SELECT sender_id, content FROM messages WHERE id = ?" . ($editDnHasDeletedAt ? " AND deleted_at IS NULL" : "");
+            $stmt = $pdo->prepare($selSql);
             $stmt->execute([$message_id]);
             $message = $stmt->fetch();
             
@@ -1358,7 +1376,11 @@ switch ($action) {
                 $newContent = $emoji . $display_name . "\n" . $path;
             }
             if ($path) {
-                $pdo->prepare("UPDATE messages SET content = ?, is_edited = 1, edited_at = NOW() WHERE id = ?")->execute([$newContent, $message_id]);
+                $updSets = "content = ?";
+                $updParams = [$newContent, $message_id];
+                if ($editDnHasIsEdited) { $updSets .= ", is_edited = 1"; }
+                if ($editDnHasEditedAt) { $updSets .= ", edited_at = NOW()"; }
+                $pdo->prepare("UPDATE messages SET {$updSets} WHERE id = ?")->execute($updParams);
                 successResponse(['content' => $newContent], '表示名を更新しました');
             } else {
                 errorResponse('このメッセージはファイル添付ではありません');
@@ -1385,8 +1407,19 @@ switch ($action) {
                 errorResponse('メッセージを入力してください');
             }
             
-            // 送信者か確認
-            $stmt = $pdo->prepare("SELECT sender_id, conversation_id FROM messages WHERE id = ? AND deleted_at IS NULL");
+            $editHasDeletedAt = false;
+            $editHasIsEdited = false;
+            $editHasEditedAt = false;
+            try {
+                $c = $pdo->query("SHOW COLUMNS FROM messages LIKE 'deleted_at'");
+                $editHasDeletedAt = $c && $c->rowCount() > 0;
+                $c2 = $pdo->query("SHOW COLUMNS FROM messages LIKE 'is_edited'");
+                $editHasIsEdited = $c2 && $c2->rowCount() > 0;
+                $c3 = $pdo->query("SHOW COLUMNS FROM messages LIKE 'edited_at'");
+                $editHasEditedAt = $c3 && $c3->rowCount() > 0;
+            } catch (Exception $e) {}
+            $selSql = "SELECT sender_id, conversation_id FROM messages WHERE id = ?" . ($editHasDeletedAt ? " AND deleted_at IS NULL" : "");
+            $stmt = $pdo->prepare($selSql);
             $stmt->execute([$message_id]);
             $message = $stmt->fetch();
             
@@ -1394,8 +1427,11 @@ switch ($action) {
                 errorResponse('このメッセージを編集する権限がありません', 403);
             }
             
-            // メッセージを更新
-            $pdo->prepare("UPDATE messages SET content = ?, is_edited = 1, edited_at = NOW() WHERE id = ?")->execute([$content, $message_id]);
+            $updSets = "content = ?";
+            $updParams = [$content, $message_id];
+            if ($editHasIsEdited) { $updSets .= ", is_edited = 1"; }
+            if ($editHasEditedAt) { $updSets .= ", edited_at = NOW()"; }
+            $pdo->prepare("UPDATE messages SET {$updSets} WHERE id = ?")->execute($updParams);
             
             ensureMessageMentionsMentionType($pdo);
             $hasMtCol = false;
@@ -1533,11 +1569,17 @@ switch ($action) {
         }
         
         // メッセージの会話を取得し、管理者か確認
+        $pinCmLeftAt = false;
+        try {
+            $c = $pdo->query("SHOW COLUMNS FROM conversation_members LIKE 'left_at'");
+            $pinCmLeftAt = $c && $c->rowCount() > 0;
+        } catch (Exception $e) {}
+        $pinMemberCond = $pinCmLeftAt ? " AND cm.left_at IS NULL" : "";
         $stmt = $pdo->prepare("
             SELECT m.conversation_id, cm.role
             FROM messages m
             INNER JOIN conversation_members cm ON m.conversation_id = cm.conversation_id
-            WHERE m.id = ? AND cm.user_id = ? AND cm.left_at IS NULL
+            WHERE m.id = ? AND cm.user_id = ? {$pinMemberCond}
         ");
         $stmt->execute([$message_id, $user_id]);
         $result = $stmt->fetch();
@@ -1546,8 +1588,14 @@ switch ($action) {
             errorResponse('ピン留めには管理者権限が必要です', 403);
         }
         
-        $pdo->prepare("UPDATE messages SET is_pinned = ? WHERE id = ?")->execute([$is_pinned ? 1 : 0, $message_id]);
-        
+        $pinHasIsPinned = false;
+        try {
+            $c = $pdo->query("SHOW COLUMNS FROM messages LIKE 'is_pinned'");
+            $pinHasIsPinned = $c && $c->rowCount() > 0;
+        } catch (Exception $e) {}
+        if ($pinHasIsPinned) {
+            $pdo->prepare("UPDATE messages SET is_pinned = ? WHERE id = ?")->execute([$is_pinned ? 1 : 0, $message_id]);
+        }
         successResponse([], $is_pinned ? 'ピン留めしました' : 'ピン留めを解除しました');
         break;
         
@@ -2059,6 +2107,11 @@ switch ($action) {
         $limit = min((int)($_GET['limit'] ?? 50), 100);
         $offset = (int)($_GET['offset'] ?? 0);
         
+        $listMentionsHasDeletedAt = false;
+        try {
+            $c = $pdo->query("SHOW COLUMNS FROM messages LIKE 'deleted_at'");
+            $listMentionsHasDeletedAt = $c && $c->rowCount() > 0;
+        } catch (Exception $e) {}
         $stmt = $pdo->prepare("
             SELECT 
                 m.id,
@@ -2074,7 +2127,7 @@ switch ($action) {
             INNER JOIN conversations c ON c.id = m.conversation_id
             INNER JOIN users u ON u.id = m.sender_id
             WHERE mm.mentioned_user_id = ?
-            AND m.deleted_at IS NULL
+            " . ($listMentionsHasDeletedAt ? " AND m.deleted_at IS NULL" : "") . "
             ORDER BY mm.created_at DESC
             LIMIT ? OFFSET ?
         ");
