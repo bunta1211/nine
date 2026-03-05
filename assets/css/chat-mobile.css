@@ -1273,7 +1273,7 @@
         border-radius: 22px;
     }
 
-    /* 携帯: 文字入力欄を広く（初期〜最大で入力しやすい高さに統一） */
+    /* 携帯: 7行表示で入力中も読めるように（下端はキーボードに接着） */
     body.page-chat #messageInput,
     body.page-chat .input-row textarea,
     body.page-chat .input-wrapper textarea,
@@ -1284,8 +1284,8 @@
         padding-bottom: 8px !important;
         font-size: 13px !important;
         line-height: 1.4 !important;
-        min-height: 96px !important;  /* チャット入力欄を広く（従来52px→96px） */
-        max-height: 200px !important; /* 最大表示（従来300px→200pxで統一） */
+        min-height: 168px !important;  /* 7行表示 */
+        max-height: 280px !important;  /* 7行超はスクロール */
         width: 100% !important;
         max-width: none !important;
         box-sizing: border-box !important;
@@ -3718,16 +3718,16 @@
     body.page-chat .input-area {
         overflow: visible !important;
     }
-    /* テキストエリア本体（チャット中央パネル：入力欄を広く） */
+    /* テキストエリア本体（チャット中央パネル：7行表示） */
     body.page-chat .center-panel .input-area .input-row .input-wrapper #messageInput,
     body.page-chat .center-panel .input-area .input-row .input-wrapper textarea.message-input,
     body.page-chat .center-panel .input-area .input-row .input-wrapper textarea {
-        max-height: 200px !important;
-        min-height: 96px !important;
+        max-height: 280px !important;
+        min-height: 168px !important;
     }
     #messageInput {
-        max-height: 200px !important;
-        min-height: 96px !important;
+        max-height: 280px !important;
+        min-height: 168px !important;
     }
     /* 入力欄を上に広げたとき: PCと同じ（ボタン行と入力欄が一体で動き、余白は入力欄に） */
     body.page-chat #inputArea.input-area-has-height .input-container {
@@ -3857,8 +3857,8 @@
     body.page-chat .center-panel .input-area .input-row .input-wrapper #messageInput,
     body.page-chat .center-panel .input-area .input-row .input-wrapper textarea.message-input,
     body.page-chat .center-panel .input-area .input-row .input-wrapper textarea {
-        max-height: 200px !important;
-        min-height: 96px !important;
+        max-height: 280px !important;
+        min-height: 168px !important;
     }
     /* チャット入力欄: 上下スクロール有効・スクロールバーは透明で見えない（PC） */
     body.page-chat .input-area #messageInput::-webkit-scrollbar,

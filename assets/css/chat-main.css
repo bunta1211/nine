@@ -3408,8 +3408,8 @@
             resize: none;
             font-size: var(--font-message, 14px);
             line-height: 1.5;
-            min-height: 96px; /* チャット入力欄を広く（従来56px→96px） */
-            max-height: 200px; /* 最大表示行数（従来300px→200pxで入力欄を優先） */
+            min-height: 168px; /* 7行表示で入力中も読めるように */
+            max-height: 280px; /* 7行超はスクロール */
             outline: none;
             padding: 10px 16px !important;
             font-family: var(--user-font, inherit);
@@ -6713,11 +6713,11 @@
             .center-panel { width: 100%; }
             .search-box { display: none; }
             .top-btn span { display: none; }
-            /* 携帯チャット入力欄: チャット入力欄を広く（chat-mobile.css と統一） */
+            /* チャット入力欄: 7行表示（携帯も chat-mobile.css と統一） */
             body.page-chat .input-row textarea,
             body.page-chat #messageInput {
-                min-height: 96px !important;
-                max-height: 200px !important;
+                min-height: 168px !important;
+                max-height: 280px !important;
             }
         }
         
