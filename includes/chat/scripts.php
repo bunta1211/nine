@@ -1681,7 +1681,10 @@ window.submitChatTask = async function() {
                             imagePath = 'uploads/messages/' + imagePath;
                         }
                         const textBefore = getTextBeforeFile(content, imageMatch);
-                        const imageHtml = `<img src="${escapeHtml(imagePath)}" loading="lazy" style="max-width:100%;max-height:300px;border-radius:8px;cursor:pointer;" onclick="openMediaViewer('image', '${escapeHtml(imagePath)}', '画像')" onerror="this.onerror=null;this.style.display='block';this.style.background='#f0f0f0';this.style.padding='20px';this.alt='画像を読み込めません';">`;
+                        const isMissing = Array.isArray(msg.missing_attachments) && msg.missing_attachments.indexOf(imagePath) >= 0;
+                        const imageHtml = isMissing
+                            ? `<div class="msg-attachment-placeholder" style="max-width:100%;min-height:80px;border-radius:8px;background:#f0f0f0;padding:20px;display:flex;align-items:center;justify-content:center;color:#666;">画像を読み込めません</div>`
+                            : `<img src="${escapeHtml(imagePath)}" loading="lazy" style="max-width:100%;max-height:300px;border-radius:8px;cursor:pointer;" onclick="openMediaViewer('image', '${escapeHtml(imagePath)}', '画像')" onerror="this.onerror=null;this.style.display='block';this.style.background='#f0f0f0';this.style.padding='20px';this.alt='画像を読み込めません';">`;
                         contentHtml = textBefore ? (formatTextContentWithToChips(textBefore) + '<br>' + imageHtml) : imageHtml;
                         var toChipsImg = buildToChipsFromMentionIds(msg, memberMapForContent);
                         if (toChipsImg && !hasToInContent(content)) contentHtml = toChipsImg + '<br>' + contentHtml;

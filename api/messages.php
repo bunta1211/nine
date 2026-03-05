@@ -968,12 +968,26 @@ switch ($action) {
         }
         
         // 数値型を明示的にキャスト
+        $uploadBasePath = defined('UPLOAD_DIR') ? rtrim(UPLOAD_DIR, '/\\') . '/' : (__DIR__ . '/../uploads/');
         foreach ($messages as &$msg) {
             $msg['id'] = (int)$msg['id'];
             $msg['conversation_id'] = (int)$msg['conversation_id'];
             $msg['sender_id'] = (int)$msg['sender_id'];
             $msg['is_edited'] = (int)$msg['is_edited'];
             $msg['is_pinned'] = (int)$msg['is_pinned'];
+            // 存在しない添付ファイルのパスを収集（フロントで404リクエストを出さないため）
+            $msg['missing_attachments'] = [];
+            $content = $msg['content'] ?? '';
+            if (preg_match_all('!uploads/messages/[^\s\n"\']+!', $content, $m)) {
+                foreach (array_unique($m[0]) as $path) {
+                    $pathNorm = str_replace('\\', '/', trim($path));
+                    if ($pathNorm === '' || strpos($pathNorm, 'uploads/messages/') !== 0) continue;
+                    $fullPath = $uploadBasePath . 'messages/' . substr($pathNorm, strlen('uploads/messages/'));
+                    if (!@file_exists($fullPath)) {
+                        $msg['missing_attachments'][] = $pathNorm;
+                    }
+                }
+            }
             // 返信情報: 数値でない環境でもクライアント用に統一
             $msg['reply_to_id'] = isset($msg['reply_to_id']) && $msg['reply_to_id'] !== '' && (int)$msg['reply_to_id'] > 0 ? (int)$msg['reply_to_id'] : null;
             // タスク詳細: task_id別取得 または JOIN結果から構築
@@ -1278,6 +1292,7 @@ switch ($action) {
                     $r['reaction_details'] = $fbReactionDetails[$r['id']] ?? [];
                     $r['is_mentioned_me'] = false;
                     $r['mention_type'] = null;
+                    $r['missing_attachments'] = [];
                     $r['reply_to_id'] = (isset($r['reply_to_id']) && $r['reply_to_id'] !== '' && (int)$r['reply_to_id'] > 0) ? (int)$r['reply_to_id'] : null;
                     $r['reply_to_content'] = isset($r['reply_to_content']) ? $r['reply_to_content'] : null;
                     $r['reply_to_sender_name'] = isset($r['reply_to_sender_name']) ? $r['reply_to_sender_name'] : null;
