@@ -106,14 +106,24 @@
 
 /* ========================================
    入力エリア（レイアウトのみ）
+   下枠を画面の一番下付近に固定し、入力欄を広くする
    ======================================== */
 .center-panel__input,
 .center-panel .input-area {
-    position: relative;
+    position: sticky;
+    bottom: 0;
     z-index: 1;
     flex-shrink: 0;
-    /* チャット入力欄の下辺を画面底から十分上に（入力できる部分の下に余白） */
-    padding-bottom: 24px;
+    /* 下枠を画面下端に合わせる（スマホのノッチ等は safe-area のみ） */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* チャット画面のみ: 入力テキスト欄を広げる（文章が表示される部分の高さを確保） */
+.center-panel .input-area .input-area__textarea,
+.center-panel .input-area .input-row .input-wrapper textarea,
+.center-panel .input-area #messageInput {
+    min-height: 96px;
+    max-height: 200px;
 }
 
 /* ========================================

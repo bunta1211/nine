@@ -32,7 +32,7 @@ assets/css/
 | `layout/main-container.css` | メインコンテナレイアウト | chat-new.css |
 | `layout/header.css` | ヘッダー（上パネル）構造・ドロップダウン共通定義（`.user-dropdown`, `.language-dropdown`, `.task-dropdown-menu`, `.notification-dropdown`）。立体ニューモーフィズム・メタリック。`--dt-header-*` トークン使用。`.top-panel a.top-btn` でタスク/メモ・通知リンクの見た目統一（text-decoration: none; color: #555）。上パネル共有4ページで共通利用 | chat-new.css, settings.php, design.php, tasks.php, notifications.php |
 | `layout/sidebar.css` | 左パネル（サイドバー） | chat-new.css |
-| `layout/center-panel.css` | 中央パネルレイアウト。入力エリア（.center-panel__input / .center-panel .input-area）に padding-bottom: 12px で画面底から少し上に配置 | chat-new.css |
+| `layout/center-panel.css` | 中央パネルレイアウト。入力エリアは position:sticky; bottom:0 で下枠を固定。padding-bottom は safe-area のみ。チャット用テキストエリアは min-height:96px, max-height:200px で入力欄を拡大。 | chat-new.css |
 | `layout/right-panel.css` | 右パネル（詳細） | chat-new.css |
 | `components/input-area.css` | 入力エリア（BEM命名） | chat-new.css |
 | `components/message-card.css` | メッセージカード（BEM命名） | chat-new.css |
