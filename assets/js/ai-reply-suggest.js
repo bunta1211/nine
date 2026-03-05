@@ -56,7 +56,9 @@
                     var payload = res.data || { suggested_content: res.suggested_content, suggestion_id: res.suggestion_id };
                     AIReplySuggest._showSuggestion(bar, payload, messageId, conversationId);
                 } else {
-                    bar.innerHTML = '<div class="ai-reply-suggest-error">' + escHtml(res.message || '提案の生成に失敗しました') + ' <button class="ai-reply-suggest-btn" onclick="AIReplySuggest.generate(' + messageId + ', ' + conversationId + ', this)">再試行</button></div>';
+                    var errText = res.message || '提案の生成に失敗しました';
+                    if (res.hint) errText += '\n\n' + res.hint;
+                    bar.innerHTML = '<div class="ai-reply-suggest-error">' + escHtml(errText) + ' <button class="ai-reply-suggest-btn" onclick="AIReplySuggest.generate(' + messageId + ', ' + conversationId + ', this)">再試行</button></div>';
                 }
             })
             .catch(function () {

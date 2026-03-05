@@ -5041,7 +5041,8 @@ window.submitChatTask = async function() {
                     }
                 } else {
                     const errorMsg = data.message || 'エラーが発生しました';
-                    addAIChatMessage(`申し訳ございません、${errorMsg}。もう一度お試しください。`, 'ai');
+                    const fullMsg = data.hint ? `${errorMsg}\n\n${data.hint}` : errorMsg;
+                    addAIChatMessage(`申し訳ございません、${fullMsg}。もう一度お試しください。`, 'ai');
                 }
             } catch (error) {
                 console.error('[AI Secretary] Error:', error);

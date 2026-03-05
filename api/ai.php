@@ -67,12 +67,29 @@ try {
 
 // 未捕捉例外・致命的エラー時にJSONで返す（200で返しサーバーの500エラーページ上書きを回避）
 set_exception_handler(function ($e) use ($sendJsonError) {
-    error_log('AI API Exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
-    $sendJsonError([
+    $msg = $e->getMessage();
+    error_log('AI API Exception: ' . $msg . ' in ' . $e->getFile() . ':' . $e->getLine());
+    $hint = null;
+    if (!(defined('APP_DEBUG') && APP_DEBUG)) {
+        if (stripos($msg, 'Unknown column') !== false || stripos($msg, 'SQLSTATE') !== false) {
+            $hint = 'データベースのカラム不足の可能性があります。マイグレーションの実行を確認してください。';
+        } elseif (stripos($msg, 'vendor') !== false || stripos($msg, 'autoload') !== false || stripos($msg, 'getallheaders') !== false) {
+            $hint = 'サーバーで composer install を実行してください。';
+        } elseif (stripos($msg, 'GEMINI') !== false || stripos($msg, 'ai_config') !== false) {
+            $hint = 'config/ai_config.local.php で GEMINI_API_KEY が設定されているか確認してください。';
+        } elseif (stripos($msg, 'file_exists') !== false || stripos($msg, 'failed to open') !== false) {
+            $hint = '必要なファイル・ディレクトリがサーバーに存在するか確認してください。';
+        }
+    }
+    $payload = [
         'success' => false,
-        'message' => (defined('APP_DEBUG') && APP_DEBUG) ? $e->getMessage() : 'サーバーエラーが発生しました',
+        'message' => (defined('APP_DEBUG') && APP_DEBUG) ? $msg : 'サーバーエラーが発生しました',
         'error_type' => 'exception'
-    ]);
+    ];
+    if ($hint !== null) {
+        $payload['hint'] = $hint;
+    }
+    $sendJsonError($payload);
 });
 register_shutdown_function(function () use ($sendJsonError) {
     $err = error_get_last();
