@@ -1071,6 +1071,7 @@ if ($is_secretary_mode) {
             
             <div class="input-area" id="inputArea">
                 <div class="input-area-resize-handle" id="inputAreaResizeHandle" title="ドラッグで入力欄の高さを変更" aria-label="入力欄の高さを変更"></div>
+                <form id="messageForm" method="post" action="#" onsubmit="if(typeof sendMessage==='function'){sendMessage();} return false;" aria-label="メッセージ送信">
                 <div class="input-container">
                     <div class="edit-mode-bar" id="editModeBar" style="display:none;">
                         <span class="edit-mode-icon">✏️</span>
@@ -1117,6 +1118,7 @@ if ($is_secretary_mode) {
                         </div>
                     </div>
                 </div>
+                </form>
                 <input type="file" id="fileInput" style="display:none;" aria-label="ファイルを添付">
                 <input type="file" id="galleryInput" style="display:none;" accept="image/png,image/jpeg,image/heic,image/webp,image/gif" onchange="handleFileSelect(this)" aria-label="写真を選ぶ（LINE同様にギャラリーが開きます）">
                 <input type="file" id="imageInput" style="display:none;" accept="application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar,.7z,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,image/png,image/jpeg,image/heic,image/webp,image/gif,video/*,application/*" onchange="handleFileSelect(this)" aria-label="ファイル・画像を添付">

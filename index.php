@@ -143,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
         
         .logo { margin-bottom: 24px; }
         .logo img { width: 140px; height: 140px; object-fit: contain; }
+        .logo .logo-text { display: inline-block; font-size: 2.5rem; font-weight: 700; color: var(--dt-header-logo-text, #345678); letter-spacing: 0.05em; }
         
         .philosophy {
             font-size: 15px;
@@ -423,7 +424,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
 <body>
     <div class="login-container">
         <div class="logo">
-            <img src="assets/images/logo-socialnine.png" alt="Social Nine">
+            <?php if (file_exists(__DIR__ . '/assets/images/logo-socialnine.png')): ?>
+                <img src="assets/images/logo-socialnine.png" alt="Social Nine">
+            <?php else: ?>
+                <span class="logo-text" aria-hidden="true">Social9</span>
+            <?php endif; ?>
         </div>
         
         <p class="philosophy">

@@ -32,11 +32,14 @@ docker compose exec web composer install --no-interaction
 
 ## 4. ローカル DB にデータが必要な場合
 
-- **EC2 に SSH できる場合**: 本番 DB から mysqldump でエクスポートし、ローカル DB に流し込む。接続情報は EC2 の `config/database.aws.php` を参照。
-- **EC2 にアクセスできない場合**: 空の DB のまま新規登録で動作確認するか、データのエクスポートを依頼する。
+- **EC2 に SSH できる場合**: 本番 DB をダンプしてローカルに取り込む。詳細は [PRODUCTION_TO_LOCAL_DB.md](./PRODUCTION_TO_LOCAL_DB.md)。
 - **初回のみ（テーブルがない場合）**: `docker/init-db` では文字セットのみ設定され、テーブルは作成されない。スキーマを流す:
   ```powershell
   docker compose exec -T db mysql -u root -psocial9_dev social9 < database/schema_complete.sql
+  ```
+- **ログイン時に「列 status が見つかりません」と出る場合**: `schema_complete.sql` の `users` には `status` 列がないため、以下を実行する。
+  ```powershell
+  Get-Content -Raw -Encoding UTF8 database\migration_users_status_for_login.sql | docker compose exec -T db mysql -u root -psocial9_dev social9
   ```
 
 ## 5. よく使うコマンド

@@ -15,7 +15,7 @@
 | `call-ui.php` | 通話関連UI HTML | ~70行 |
 | `member-popup.php` | メンバーポップアップ HTML | ~70行 |
 | `modals.php` | モーダルウィンドウHTML。手動タスク追加（manualWishModal）では「元のメッセージ」を textarea（wishOriginalText）で編集可能 | 既存 |
-| `scripts.php` | JavaScript（メッセージ表示・送信・返信引用等）。1000文字以上送信時はコンソールで「長文はテキストのまま保存され、検索・AI学習に利用されます」と案内。**朝のニュース動画**: answer に「（朝のニュース動画）」が含まれる場合は JSON 動画リストを解析し、一覧＋小窓埋め込み（YouTube IFrame API）で表示。再生終了で次を自動再生。一覧クリックでその動画を再生。**AI秘書入力欄**: グループチャット同様にドラッグで高さ変更可能。パネル描画時に `input-area-resize-handle` を差し込み、`initInputAreaResize()` でリサイズを有効化。 | 既存 |
+| `scripts.php` | JavaScript（メッセージ表示・送信・返信引用等）。1000文字以上送信時はコンソールで「長文はテキストのまま保存され、検索・AI学習に利用されます」と案内。**PC版送信**: `messagesArea` が無い場合でもAPI送信は実行（楽観的UIは任意）。`window.sendMessage` を明示代入し、`#messageForm` の submit を送信に紐付け。**朝のニュース動画**: answer に「（朝のニュース動画）」が含まれる場合は JSON 動画リストを解析し、一覧＋小窓埋め込み（YouTube IFrame API）で表示。再生終了で次を自動再生。一覧クリックでその動画を再生。**AI秘書入力欄**: グループチャット同様にドラッグで高さ変更可能。パネル描画時に `input-area-resize-handle` を差し込み、`initInputAreaResize()` でリサイズを有効化。 | 既存 |
 
 ---
 
