@@ -136,7 +136,7 @@ assets/css/
 - **時計クローバー等の背景をはっきり表示**: `chat-main.css` の `.center-panel::before`（装飾オーバーレイ）は、透明テーマ時に `includes/design_loader.php` の動的CSSで `display: none` に上書きされる。本番でも反映されるよう、`design_loader.php` をデプロイ先に配置すること（静的CSSのみのアップロードでは不十分な場合がある）。
 - **時計クローバー等の左パネル**: 明るい背景画像（`data-bg-light="1"` / `.bg-light`）のとき、左パネルは右パネルと同じボディ色（`--theme-right-panel-bg`）、ボタン・文字は黒系（`#1a3d1a`）。透明ダーク用のスタイルは `:not(.bg-light):not([data-bg-light="1"])` で除外している（`chat-main.css`）。
 - **時計クローバー等の入力欄**: 同じく `data-bg-light="1"` / `.bg-light` のとき、チャット入力欄のツールバー（TO・GIF・添付等）のボタン文字は**白字**（`#ffffff`）。`chat-main.css` と `design_loader.php` の両方で指定。
-- **時計クローバー等のメッセージ表示**: メッセージカードの「From ～～」「To ～～」の名前部分は**黒字**（`#1a3d1a`）で表示（`.from-label` / `.from-prefix` / `.from-name` / `.to-label` / `.to-badge`）。`chat-main.css` と `design_loader.php` で指定。
+- **チャット入力テキストエリア**: `.input-row textarea`, `#messageInput` の min-height / max-height は **chat-main.css**（56px→96px、300px→200px）と **chat-mobile.css**（body.page-chat .center-panel .input-area … で 96px/200px !important）で定義。**layout/center-panel.css は chat-new.css で import がコメントアウトされているためチャットでは読み込まれず**、テキストエリアの高さ変更は chat-main.css / chat-mobile.css で行う必要がある。
 
 ### デザインテーマ別メッセージ・メンション色（2026-02-12 見直し）
 
