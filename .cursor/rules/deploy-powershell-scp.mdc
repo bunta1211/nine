@@ -1,51 +1,13 @@
 ---
-description: 本番反映は main マージで自動。手動で反映する場合の案内用。
+description: 本番反映は main マージで自動。手動時は CI_CD_SETUP を参照。
 alwaysApply: true
 ---
 
 # 本番（EC2）へのファイル反映ルール
 
-- **通常**: main にマージすると **GitHub Actions で自動デプロイ**されます。手動の scp は不要です。詳細は `DOCS/CI_CD_SETUP.md` を参照。
-- **手動で反映したい場合**（緊急時など）: EC2 に SSH して rsync で同期するか、GitHub Actions の「Run workflow」で main を指定して実行する。参照: `DOCS/CI_CD_SETUP.md`。
-
-## Mac / Linux の場合
-
-1. **プロジェクトへ移動**
-   ```bash
-   cd /Users/yusei/Documents/Project/nine
-   ```
-
-2. **deploy.sh で送信**
-   ```bash
-   ./deploy.sh api/messages.php includes/foo.php
-   ```
-
-3. **手動 scp の場合**
-   ```bash
-   scp -i ~/.ssh/social9-key.pem <ローカルファイル> ec2-user@54.95.86.79:<リモートパス>
-   ```
-
-- **キー**: `~/.ssh/social9-key.pem`
-- **EC2**: `ec2-user@54.95.86.79`
-- **Web のドキュメントルート**: `/var/www/html/`
-
-## Windows の場合
-
-1. **PowerShell でプロジェクトへ移動**
-   ```powershell
-   cd c:\xampp\htdocs\nine
-   ```
-
-2. **scp で対象ファイルを EC2 にアップロード**
-   ```powershell
-   scp -i "C:\Users\narak\Desktop\social9-key.pem" <ローカルファイルのパス> ec2-user@54.95.86.79:<リモートパス>
-   ```
-
-- **キー**: `C:\Users\narak\Desktop\social9-key.pem`
-- **EC2**: `ec2-user@54.95.86.79`
-- **Web のドキュメントルート**: `/var/www/html/`
+- **通常**: main にマージすると **GitHub Actions で自動デプロイ**されます。手動のファイル送信は不要です。
+- **手動で反映したい場合**（緊急時など）: 手順は `DOCS/CI_CD_SETUP.md` を参照する。
 
 ## 参照ドキュメント
 
-- **自動デプロイ**: `DOCS/CI_CD_SETUP.md`
-- **手動で反映する場合**: 上記の scp 例または GitHub Actions の手動実行を案内する。
+- **自動デプロイ・手動反映**: `DOCS/CI_CD_SETUP.md`
