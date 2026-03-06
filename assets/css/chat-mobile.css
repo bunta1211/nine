@@ -37,8 +37,7 @@
     /* ========== CSS変数（モバイル用） ========== */
     :root {
         --mobile-header-height: 56px;
-        /* 入力エリア実高（ツールバー行+入力行+パディング）。被り防止で十分な余白を確保 */
-        --mobile-input-height: 130px;
+        --mobile-input-height: 80px;
         --mobile-panel-width: 85vw;
         --mobile-panel-max-width: 320px;
     }
@@ -92,14 +91,14 @@
 
     /* 携帯: 左右パネルを開いているときは上パネルを白・ロゴ・左右収納ボタンを表示 */
     body.mobile-panel-open .top-panel {
-        background: #ffffff !important;
-        color: #1e293b !important;
+        background: var(--dt-header-bg, #ffffff) !important;
+        color: var(--dt-header-text, #1e293b) !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-        z-index: 100002 !important; /* 右パネル(99999)より前面で⇒で閉じられるように */
+        z-index: 110 !important;
     }
     body.mobile-panel-open .top-panel .logo,
     body.mobile-panel-open .top-panel .logo * {
-        color: #1e293b !important;
+        color: var(--dt-text-primary, #1e293b) !important;
         visibility: visible !important;
         opacity: 1 !important;
     }
@@ -132,8 +131,8 @@
     
     /* 左パネルが開いているとき（携帯版は常に視認性を確保） */
     aside.left-panel.mobile-open {
-        background: rgba(255, 255, 255, 0.98) !important;
-        color: #1e293b !important;
+        background: var(--dt-left-bg, rgba(255, 255, 255, 0.98)) !important;
+        color: var(--dt-text-primary, #1e293b) !important;
         -webkit-backdrop-filter: blur(12px) !important;
         backdrop-filter: blur(12px) !important;
     }
@@ -147,8 +146,8 @@
     
     /* 右パネルが開いているとき（携帯版は常に視認性を確保） */
     aside.right-panel.mobile-open {
-        background: rgba(255, 255, 255, 0.98) !important;
-        color: #1e293b !important;
+        background: var(--dt-right-bg, rgba(255, 255, 255, 0.98)) !important;
+        color: var(--dt-text-primary, #1e293b) !important;
         -webkit-backdrop-filter: blur(12px) !important;
         backdrop-filter: blur(12px) !important;
     }
@@ -179,7 +178,7 @@
     aside.left-panel.mobile-open .left-header-btns button,
     aside.left-panel.mobile-open .filter-tabs button,
     aside.left-panel.mobile-open .chat-title-area h2 {
-        color: #1e293b !important;
+        color: var(--dt-text-primary, #1e293b) !important;
     }
     aside.left-panel.mobile-open .conv-item:not(.active) .time,
     aside.left-panel.mobile-open .conv-item:not(.active) .conv-time,
@@ -384,63 +383,31 @@
         gap: 0;
     }
 
-    /* ========== Phase 3: 携帯用3ページ横並びストリップ（左｜中央｜右） ========== */
-    /* Phase 3.3: 横のみスクロール・1ページ分でスナップ。縦スクロールは各パネル内で処理。スワイプしやすく overscroll-behavior-x: contain */
+    /* ========== モバイル: ストリップを無効化し、各パネルを独立管理 ========== */
     .main-container {
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior-x: contain;
-        overscroll-behavior-y: none;
+        overflow: hidden !important;
     }
     .mobile-pages-strip {
-        display: flex;
-        flex-direction: row;
-        width: 300vw;
-        min-height: 100%;
-        flex-shrink: 0;
+        display: contents !important;
     }
     .mobile-pages-strip .panel-resize-handle {
-        flex: 0 0 0;
-        width: 0;
-        min-width: 0;
-        overflow: hidden;
-        pointer-events: none;
+        display: none !important;
     }
-    .mobile-pages-strip .left-panel,
-    .mobile-pages-strip .center-panel,
-    .mobile-pages-strip .right-panel {
-        flex: 0 0 100vw;
-        width: 100vw;
-        min-width: 100vw;
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
-    /* 携帯・チャット表示時: 中央パネルは高さを確定し overflow は子の .messages-area に任せる（ログが読めなくなるのを防ぐ） */
+    /* 携帯・チャット表示時: 中央パネルのレイアウト */
     body.page-chat .main-container {
         display: flex !important;
         flex-direction: column !important;
         min-height: 0 !important;
     }
-    body.page-chat .mobile-pages-strip {
+    body.page-chat .center-panel {
         flex: 1 1 0% !important;
-        min-height: calc(100vh - var(--mobile-header-height, 50px)) !important; /* 親高さ未確定時のフォールバック */
-        height: 100% !important;
-        align-self: stretch !important;
-    }
-    body.page-chat .mobile-pages-strip .center-panel {
         height: 100% !important;
         min-height: 0 !important;
         overflow: hidden !important;
         display: flex !important;
         flex-direction: column !important;
     }
-    /* グループ名行削除後: 非表示の chat-header が flex で幅を取らないよう高さ0で確定 */
-    body.page-chat .mobile-pages-strip .center-panel .chat-header {
+    body.page-chat .center-panel .chat-header {
         display: none !important;
         flex: 0 0 0 !important;
         height: 0 !important;
@@ -450,7 +417,7 @@
         margin: 0 !important;
         border: none !important;
     }
-    body.page-chat .mobile-pages-strip .center-panel .messages-area,
+    body.page-chat .center-panel .messages-area,
     body.page-chat .center-panel #messagesArea {
         flex: 1 1 0% !important;
         min-height: 50vh !important;
@@ -463,41 +430,13 @@
         position: relative !important;
         z-index: 1 !important;
     }
-    /* 入力欄が潰れないように固定（メッセージエリアが確実に残る） */
-    body.page-chat .mobile-pages-strip .center-panel .input-area,
     body.page-chat .center-panel .input-area {
         flex-shrink: 0 !important;
     }
-    body.page-chat .mobile-pages-strip .center-panel .messages-area .message-card,
+    body.page-chat .center-panel .messages-area .message-card,
     body.page-chat .center-panel #messagesArea .message-card {
         visibility: visible !important;
         opacity: 1 !important;
-    }
-    /* ストリップ内では固定スライドではなくフロー内に配置 */
-    .mobile-pages-strip .left-panel {
-        position: relative !important;
-        left: auto !important;
-        top: auto !important;
-        z-index: 1 !important;
-    }
-    .mobile-pages-strip .right-panel {
-        position: relative !important;
-        right: auto !important;
-        top: auto !important;
-        z-index: 1 !important;
-    }
-    /* ストリップ非適用時のみ: ボタンで開いたときは fixed でオーバーレイ表示（3.4 でストリップ時はスクロールに統一済み） */
-    .mobile-pages-strip .left-panel.mobile-open {
-        position: fixed !important;
-        left: 0 !important;
-        top: var(--mobile-header-height) !important;
-        z-index: 2000 !important;
-    }
-    .mobile-pages-strip .right-panel.mobile-open {
-        position: fixed !important;
-        right: 0 !important;
-        top: var(--mobile-header-height) !important;
-        z-index: 2000 !important;
     }
 
     /* ========== 左パネル（グループ一覧） ========== */
@@ -508,7 +447,7 @@
         width: 100vw !important;
         max-width: 100vw !important;
         height: calc(100vh - var(--mobile-header-height)) !important;
-        z-index: 2000 !important; /* モーダル(5000)より低く設定 */
+        z-index: 100 !important;
         transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         border-radius: 0 !important;
         box-shadow: none !important;
@@ -522,72 +461,76 @@
         left: 0 !important;
     }
 
-    /* 携帯でグループ一覧をトップ表示するとき: 会話未選択時は左パネルを常に表示（スクロール復元・遅延に依存しない） */
-    body.page-chat[data-mobile-list-first="1"] aside.left-panel {
-        position: fixed !important;
+    /* 携帯で会話未選択時: 左パネル（会話一覧）を全面表示し、中央パネルは完全に隠す */
+    body.page-chat[data-mobile-list-first="1"][data-has-conversation="0"] aside.left-panel {
         left: 0 !important;
-        z-index: 2000 !important;
+        z-index: 50 !important;
     }
-
-    /* 携帯で会話未選択時は「会話を選択してください」を非表示にし、白い画面にメニュー（.center-panel-start-menu）を表示する */
+    body.page-chat[data-mobile-list-first="1"][data-has-conversation="0"] .center-panel {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
     body.page-chat[data-has-conversation="0"] .center-panel-empty-state-prompt {
         display: none !important;
     }
+    /* スタートメニューは廃止（FABに統一）。モバイルでは常に非表示 */
     body.page-chat[data-has-conversation="0"] .center-panel-start-menu {
-        display: flex !important;
+        display: none !important;
     }
-    /* 携帯・初回画面のメニュー（白い画面に表示・画面中央・クリエイティブデザイン） */
+    /* 携帯・初回画面のメニュー */
     .center-panel-start-menu {
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
         align-self: center;
         width: 100%;
-        max-width: 320px;
-        padding: 20px 16px;
-        gap: 12px;
+        max-width: 300px;
+        padding: 16px;
+        gap: 6px;
         box-sizing: border-box;
     }
     .center-panel-start-menu-item {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
+        gap: 12px;
         width: 100%;
-        padding: 16px 20px;
-        border-radius: 16px;
-        background: var(--dt-bg-secondary, #f8fafc);
-        color: var(--dt-text, #1e293b);
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: #f0f0f0;
+        color: #333;
         text-decoration: none;
-        font-size: 1.05rem;
+        font-size: 14px;
         font-weight: 600;
-        letter-spacing: 0.02em;
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        border: 1px solid var(--dt-border-subtle, rgba(0, 0, 0, 0.06));
-        position: relative;
-        overflow: hidden;
+        transition: background 0.15s ease, transform 0.1s ease;
     }
     .center-panel-start-menu-item::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background: var(--dt-primary, #7c3aed);
-        border-radius: 4px 0 0 4px;
-        opacity: 0.85;
+        display: none;
     }
-    .center-panel-start-menu-item:hover,
-    .center-panel-start-menu-item:active {
-        background: var(--dt-bg-tertiary, #f1f5f9);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    .center-panel-start-menu-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #e4e4e4;
+    }
+    .center-panel-start-menu-icon img.icon-line {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+    }
+    .center-panel-start-menu-label {
+        flex: 1;
+        text-align: left;
     }
     .center-panel-start-menu-item:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        background: #e4e4e4;
+        transform: scale(0.98);
     }
 
     /* 左パネルヘッダー */
@@ -626,31 +569,43 @@
     .left-header-tabs {
         display: flex !important;
         gap: 8px !important;
-        flex-wrap: wrap !important;
+        flex-wrap: nowrap !important;
     }
 
     .left-header-tabs button {
-        padding: 10px 16px !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
-        border-radius: 8px !important;
-        border: 1px solid var(--theme-divider, rgba(0, 0, 0, 0.1)) !important;
-        background: var(--theme-card-bg, rgba(255, 255, 255, 0.9)) !important;
-        color: var(--theme-text, #1e293b) !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+        padding: 10px 14px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        border-radius: 20px !important;
+        border: none !important;
+        background: #f0f0f0 !important;
+        color: #333 !important;
         cursor: pointer !important;
         -webkit-tap-highlight-color: transparent !important;
         touch-action: manipulation !important;
+        transition: background 0.15s ease, transform 0.1s ease !important;
+    }
+
+    .left-header-tabs button::before {
+        display: none !important;
     }
 
     .left-header-tabs button:active {
-        background: var(--theme-hover-bg, rgba(0, 0, 0, 0.1)) !important;
-        transform: scale(0.98);
+        transform: scale(0.96) !important;
+        background: #e4e4e4 !important;
     }
 
     .left-header-tabs button.secondary {
-        background: var(--theme-accent, #22c55e) !important;
-        color: #ffffff !important;
-        border-color: transparent !important;
+        background: #f0f0f0 !important;
+        color: #333 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .left-header-tabs button.secondary:active {
+        background: #e4e4e4 !important;
     }
 
     /* ========== モバイル用インラインフォーム ========== */
@@ -1056,20 +1011,67 @@
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
-    /* 左パネル フィルター（1タブ＋ドロップダウン）モバイル */
+    /* 左パネル フィルター（すべて ▼）モバイル */
     aside.left-panel .left-panel-filter {
         padding: 8px 12px !important;
     }
     aside.left-panel .left-panel-filter-trigger {
-        padding: 10px 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        padding: 10px 14px !important;
         font-size: 13px !important;
+        font-weight: 600 !important;
+        border-radius: 20px !important;
+        background: #f0f0f0 !important;
+        color: #333 !important;
+        border: none !important;
+        box-shadow: none !important;
         -webkit-tap-highlight-color: transparent !important;
         touch-action: manipulation !important;
+        transition: background 0.15s ease !important;
+    }
+    aside.left-panel .left-panel-filter-trigger::before {
+        display: none !important;
+    }
+    aside.left-panel .left-panel-filter-trigger:hover,
+    aside.left-panel .left-panel-filter-trigger:active,
+    aside.left-panel #leftPanelFilterTrigger[aria-expanded="true"] {
+        background: #e4e4e4 !important;
+        box-shadow: none !important;
+    }
+    aside.left-panel .left-panel-filter .left-panel-filter-chevron {
+        transition: transform 0.2s ease !important;
+        font-size: 10px !important;
+        opacity: 0.5 !important;
     }
     aside.left-panel .left-panel-filter-dropdown {
         left: 12px !important;
         right: 12px !important;
         max-height: 60vh !important;
+        margin-top: 6px !important;
+        padding: 6px !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        background: #fff !important;
+    }
+    aside.left-panel .left-panel-filter-option {
+        padding: 11px 14px !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        border-radius: 10px !important;
+        transition: background 0.12s ease !important;
+    }
+    aside.left-panel .left-panel-filter-option:hover {
+        background: #f5f5f5 !important;
+    }
+    aside.left-panel .left-panel-filter-option.active,
+    aside.left-panel .left-panel-filter-option[aria-selected="true"] {
+        background: #f0f0f0 !important;
+        color: #333 !important;
+        font-weight: 600 !important;
     }
 
     /* グループ追加フォーム表示中はフィルターと会話リストを非表示 */
@@ -1110,8 +1112,9 @@
     .conv-item .name {
         font-size: 14px;
         color: var(--theme-text, #1e293b);
-        white-space: normal !important;
-        word-break: break-word;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
         line-height: 1.35;
     }
 
@@ -1274,19 +1277,19 @@
         border-radius: 22px;
     }
 
-    /* 携帯: 7行表示で入力中も読めるように（下端はキーボードに接着） */
+    /* 携帯: 1行デフォルト・入力に応じて自動拡大（最大8行） */
     body.page-chat #messageInput,
     body.page-chat .input-row textarea,
     body.page-chat .input-wrapper textarea,
     body.page-chat .message-input {
-        padding-left: 6px !important;
-        padding-right: 6px !important;
-        padding-top: 8px !important;
-        padding-bottom: 8px !important;
-        font-size: 13px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+        font-size: 16px !important;
         line-height: 1.4 !important;
-        min-height: 168px !important;  /* 7行表示 */
-        max-height: 280px !important;  /* 7行超はスクロール */
+        min-height: 44px !important;
+        max-height: 200px !important;
         width: 100% !important;
         max-width: none !important;
         box-sizing: border-box !important;
@@ -1375,7 +1378,7 @@
         width: 100vw !important;
         max-width: 100vw !important;
         height: calc(100vh - var(--mobile-header-height)) !important;
-        z-index: 2000 !important; /* モーダル(5000)より低く設定 */
+        z-index: 100 !important;
         transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         border-radius: 0 !important;
         box-shadow: none !important;
@@ -1472,12 +1475,6 @@
         background: rgba(255, 255, 255, 0.25);
     }
 
-    /* 右パネル内のセクション */
-    .right-panel .section-title {
-        font-size: 13px;
-        padding: 12px;
-    }
-
     .right-panel .group-setting-item {
         padding: 12px;
         font-size: 14px;
@@ -1492,7 +1489,7 @@
         right: 0 !important;
         bottom: 0 !important;
         background: #000 !important; /* 完全な黒 */
-        z-index: 1999 !important; /* パネル(2000)より少し低いz-index */
+        z-index: 90 !important;
         opacity: 0;
         transition: opacity 0.3s;
     }
@@ -1517,6 +1514,29 @@
         cursor: pointer;
         align-items: center;
         justify-content: center;
+    }
+
+    /* パネル閉じるボタン */
+    .mobile-panel-close-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 10;
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: var(--dt-bg-secondary, rgba(0,0,0,0.06));
+        color: var(--dt-text-secondary, #64748b);
+        font-size: 20px;
+        line-height: 1;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .mobile-panel-close-btn:active {
+        background: var(--dt-bg-tertiary, rgba(0,0,0,0.12));
     }
 
     /* ========== タブレット向け非表示ボタンを表示 ========== */
@@ -1990,7 +2010,7 @@
     .modal-overlay {
         padding: 0;
         align-items: flex-end; /* ボトムシート形式 */
-        z-index: 5000 !important; /* パネルより上に表示 */
+        z-index: 1000 !important;
     }
     
     .modal-overlay.active {
@@ -2490,22 +2510,17 @@
         font-weight: 500;
         color: var(--theme-text, #1e293b);
         text-align: left;
-        /* 長い名前を折り返して全文表示 */
-        white-space: normal !important;
-        overflow: visible !important;
-        text-overflow: unset !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
         line-height: 1.4;
-        word-break: break-word;
         display: block !important;
-        flex-wrap: wrap !important;
     }
 
-    /* モバイルでは全文表示 */
     .conv-item .conv-name-text {
-        white-space: normal !important;
-        overflow: visible !important;
-        text-overflow: unset !important;
-        word-break: break-word !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
         display: inline !important;
     }
 
@@ -2631,10 +2646,10 @@
 
     .reaction-badge {
         font-size: 14px;
-        min-height: 44px;
-        min-width: 44px;
-        padding: 10px 12px;
-        border-radius: 10px;
+        min-height: 28px;
+        min-width: 28px;
+        padding: 4px 8px;
+        border-radius: 14px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -2853,7 +2868,8 @@
     .mobile-overlay,
     .mobile-close-panel,
     .mobile-close-left,
-    .mobile-only {
+    .mobile-only,
+    .mobile-panel-close-btn {
         display: none !important;
     }
 
@@ -2893,7 +2909,7 @@
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 99990;
+        z-index: 1000;
         opacity: 0;
         transition: opacity 0.2s;
     }
@@ -2912,7 +2928,7 @@
         right: 0;
         background: #fff;
         border-radius: 16px 16px 0 0;
-        z-index: 99991;
+        z-index: 1001;
         transform: translateY(100%);
         transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         padding-bottom: env(safe-area-inset-bottom, 0);
@@ -3066,7 +3082,7 @@
         padding: 12px 24px;
         border-radius: 24px;
         font-size: 14px;
-        z-index: 99999;
+        z-index: 10000;
         opacity: 0;
         transition: opacity 0.3s, transform 0.3s;
         pointer-events: none;
@@ -3139,27 +3155,52 @@
         gap: 8px;
     }
 
-    /* ========== 上パネル: 携帯は左右収納ボタンなし（スワイプでページ移動）。タップでアイコン表示 ========== */
-    .top-panel .mobile-menu-btn,
-    .top-panel .fab-container,
-    .top-panel .fab-container .fab-main,
-    .top-panel .mobile-group-mgmt-btn,
-    .top-panel .user-info,
-    .top-panel .user-menu-container {
+    /* ========== 上パネル: 携帯は左右収納ボタンなし（スワイプでページ移動）。設定・FAB等は常時表示 ========== */
+    .top-panel .mobile-menu-btn {
         opacity: 0 !important;
         visibility: hidden !important;
         pointer-events: none !important;
         transition: opacity 0.2s ease, visibility 0.2s ease;
     }
-    .top-panel.top-panel-icons-visible .fab-container,
-    .top-panel.top-panel-icons-visible .fab-container .fab-main,
-    .top-panel.top-panel-icons-visible .mobile-group-mgmt-btn,
-    .top-panel.top-panel-icons-visible .user-info,
-    .top-panel.top-panel-icons-visible .user-menu-container {
+    /* チャット画面用戻るボタン（会話選択時のみ表示） */
+    .mobile-chat-back-btn {
+        display: none !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        border-radius: 12px !important;
+        border: none !important;
+        background: transparent !important;
+        color: var(--dt-text-primary, #1e293b) !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-chat-back-btn:hover,
+    .mobile-chat-back-btn:active {
+        background: var(--dt-btn-secondary-hover, rgba(0, 0, 0, 0.05)) !important;
+    }
+    .mobile-chat-back-btn svg {
+        stroke: currentColor;
+    }
+    body.page-chat[data-has-conversation="1"] .mobile-chat-back-btn {
+        display: flex !important;
         opacity: 1 !important;
         visibility: visible !important;
         pointer-events: auto !important;
     }
+
+    /* プラスボタン（FAB）は常時表示 */
+    .top-panel .fab-container,
+    .top-panel .fab-container .fab-main {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    /* top-panel-icons-visible は廃止（設定等は常時表示） */
     /* 携帯: 左右収納ボタンは常に非表示（スワイプでページ移動するため） */
     .top-panel .toggle-left-btn,
     .top-panel .toggle-right-btn,
@@ -3188,23 +3229,9 @@
         flex-shrink: 0;
         opacity: 1 !important;
     }
-    /* 携帯: 三本線(≡)を確実に非表示（他CSS・詳細度に負けないよう複数指定） */
-    body.page-chat .top-panel .top-panel-toggle-btn#toggleTaskMemoBtn,
-    body .top-panel .top-panel-toggle-btn#toggleTaskMemoBtn,
-    .top-panel .top-panel-toggle-btn#toggleTaskMemoBtn {
+    /* 携帯: 三本線(≡)を非表示 */
+    .top-panel #toggleTaskMemoBtn {
         display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        min-width: 0 !important;
-        min-height: 0 !important;
-        overflow: hidden !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        position: absolute !important;
-        left: -9999px !important;
     }
     .top-panel {
         cursor: pointer;
@@ -3221,7 +3248,6 @@
     }
 
     /* ========== 統一デザイン: トップパネルアイコン ========== */
-    /* 共通スタイル: 4つのアイコンボタン */
     .mobile-menu-btn,
     .fab-main,
     .top-panel .user-info .user-icon,
@@ -3235,27 +3261,9 @@
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition: background 0.15s ease, transform 0.1s ease !important;
         flex-shrink: 0 !important;
-        font-weight: 600 !important;
         border: none !important;
-        color: #ffffff !important;
-    }
-
-    /* 左矢印ボタン (⇒) - グループ一覧を開く - テーマアクセントカラー */
-    .mobile-menu-btn {
-        background: var(--theme-accent, #22c55e) !important;
-        font-size: 18px !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    .mobile-menu-btn:active {
-        transform: scale(0.92) !important;
-        filter: brightness(0.9) !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
     }
 
     /* FABコンテナ（左側に配置） */
@@ -3271,50 +3279,58 @@
         height: 44px !important;
     }
 
-    /* FABメインボタン (+) - メニューを開く - 明るいコントラストカラー */
+    /* FABメインボタン（グリッドアイコン） */
     .fab-main {
-        background: var(--theme-self-msg-bg, var(--theme-accent, #22c55e)) !important;
+        background: #f0f0f0 !important;
+        color: #333 !important;
         font-size: 20px !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+        box-shadow: none !important;
         position: relative !important;
-        z-index: 99999 !important;
+        z-index: 1000 !important;
         visibility: visible !important;
         opacity: 1 !important;
-        filter: brightness(1.1) saturate(1.2) !important;
     }
 
-    .fab-main:active {
-        transform: scale(0.92) !important;
-        filter: brightness(0.95) !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+    .fab-main .fab-main-icon {
+        display: block !important;
+    }
+
+    .fab-main .fab-main-icon,
+    .fab-main .fab-main-icon img {
+        filter: none;
+    }
+
+    .fab-main .fab-main-close {
+        display: none !important;
+        color: #333;
+        font-size: 22px;
+        font-weight: 300;
+        line-height: 1;
+    }
+
+    .fab-main.open .fab-main-icon {
+        display: none !important;
+    }
+
+    .fab-main.open .fab-main-close {
+        display: block !important;
     }
 
     .fab-main.open {
-        transform: rotate(45deg) !important;
-        filter: brightness(0.7) grayscale(0.5) !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        filter: brightness(0.95) !important;
     }
 
-    /* ユーザーアイコン - テーマアクセントカラー（やや暗め） */
+    .fab-main:active {
+        transform: scale(0.95) !important;
+    }
+
     .top-panel .user-info {
         margin: 0 !important;
         padding: 0 !important;
     }
 
-    .top-panel .user-info .user-icon {
-        background: var(--theme-accent, #22c55e) !important;
-        font-size: 16px !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-        margin: 0 !important;
-        filter: brightness(0.85) !important;
-    }
-
-    .top-panel .user-info:active .user-icon {
-        transform: scale(0.92) !important;
-        filter: brightness(0.75) !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    .top-panel .user-info:active {
+        transform: scale(0.95) !important;
     }
 
     /* 右パネル用⇐ボタンは廃止（⇒のみ残す） */
@@ -3391,7 +3407,7 @@
         order: 2 !important;
     }
 
-    /* FABメニュー（画面中央に表示）※チェリー等テーマの .top-panel * 色指定に負けないよう固定 */
+    /* FABメニュー（画面中央に表示） */
     .fab-menu,
     .top-panel .fab-container .fab-menu {
         position: fixed !important;
@@ -3401,28 +3417,29 @@
         bottom: auto !important;
         display: flex !important;
         flex-direction: column !important;
-        align-items: center !important;
-        gap: 10px !important;
+        align-items: stretch !important;
+        gap: 4px !important;
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
-        transform: translate(-50%, -50%) translateY(-10px);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translate(-50%, -50%) scale(0.95);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         padding: 12px !important;
-        background: rgba(0, 0, 0, 0.9) !important;
+        background: #fff !important;
+        border: none !important;
         border-radius: 16px !important;
         max-height: calc(100vh - 80px);
         overflow-y: auto;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
-        z-index: 100001 !important;
-        min-width: 200px;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15) !important;
+        z-index: 1001 !important;
+        min-width: 240px;
     }
 
     .fab-container.open .fab-menu {
         opacity: 1;
         visibility: visible;
         pointer-events: auto;
-        transform: translate(-50%, -50%) translateY(0);
+        transform: translate(-50%, -50%) scale(1);
     }
 
     .fab-menu-item {
@@ -3432,56 +3449,58 @@
         flex-direction: row !important;
         gap: 12px !important;
         opacity: 0;
-        transform: translateX(-20px);
-        transition: all 0.2s ease-out;
+        transform: translateY(8px);
+        transition: all 0.15s ease-out;
         cursor: pointer !important;
-        padding: 8px 12px !important;
+        padding: 12px 16px !important;
         border-radius: 12px !important;
         width: 100% !important;
         pointer-events: auto !important;
-        -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+        -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
         box-sizing: border-box;
+        background: transparent;
+        border: none;
     }
 
-    .fab-menu-item:active,
-    .fab-menu-item:hover {
-        background: rgba(255, 255, 255, 0.15) !important;
+    .fab-menu-item::before {
+        display: none;
+    }
+
+    .fab-menu-item:active {
+        background: #f0f0f0 !important;
     }
 
     .fab-container.open .fab-menu-item {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(0);
         pointer-events: auto !important;
         cursor: pointer !important;
     }
-    
-    /* リンク型メニューアイテム */
+
     a.fab-menu-item,
     a.fab-menu-item.fab-link {
         text-decoration: none !important;
         color: inherit !important;
     }
 
-    /* ステガー（遅延）アニメーション */
-    .fab-container.open .fab-menu-item:nth-child(1) { transition-delay: 0.03s; }
-    .fab-container.open .fab-menu-item:nth-child(2) { transition-delay: 0.06s; }
-    .fab-container.open .fab-menu-item:nth-child(3) { transition-delay: 0.09s; }
-    .fab-container.open .fab-menu-item:nth-child(4) { transition-delay: 0.12s; }
-    .fab-container.open .fab-menu-item:nth-child(5) { transition-delay: 0.15s; }
-    .fab-container.open .fab-menu-item:nth-child(6) { transition-delay: 0.18s; }
-    .fab-container.open .fab-menu-item:nth-child(7) { transition-delay: 0.21s; }
-    .fab-container.open .fab-menu-item:nth-child(8) { transition-delay: 0.24s; }
+    .fab-container.open .fab-menu-item:nth-child(1) { transition-delay: 0.02s; }
+    .fab-container.open .fab-menu-item:nth-child(2) { transition-delay: 0.04s; }
+    .fab-container.open .fab-menu-item:nth-child(3) { transition-delay: 0.06s; }
+    .fab-container.open .fab-menu-item:nth-child(4) { transition-delay: 0.08s; }
+    .fab-container.open .fab-menu-item:nth-child(5) { transition-delay: 0.1s; }
+    .fab-container.open .fab-menu-item:nth-child(6) { transition-delay: 0.12s; }
+    .fab-container.open .fab-menu-item:nth-child(7) { transition-delay: 0.14s; }
+    .fab-container.open .fab-menu-item:nth-child(8) { transition-delay: 0.16s; }
 
-    /* メニューラベル（チェリー等 .top-panel * のテーマ色より優先して白で表示） */
     .fab-label,
     .top-panel .fab-container .fab-menu .fab-label {
         background: transparent !important;
-        color: #ffffff !important;
-        padding: 4px 0 !important;
+        color: #333 !important;
+        padding: 0 !important;
         border-radius: 0 !important;
-        font-size: 15px !important;
-        font-weight: 500 !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
         white-space: nowrap !important;
         box-shadow: none !important;
         pointer-events: none !important;
@@ -3489,44 +3508,36 @@
         text-align: left !important;
     }
 
-    /* 左パネル開時は白背景のためFABラベルを濃い色に */
-    aside.left-panel.mobile-open .fab-label {
-        color: #1e293b !important;
-    }
-
-    /* メニューボタン */
     .fab-btn {
-        width: 44px !important;
-        height: 44px !important;
-        border-radius: 50% !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        border-radius: 10px !important;
         border: none !important;
-        background: white !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+        background: #e4e4e4 !important;
+        box-shadow: none !important;
         cursor: pointer !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 20px !important;
-        transition: all 0.2s !important;
+        font-size: 18px !important;
+        transition: background 0.15s !important;
         flex-shrink: 0 !important;
         pointer-events: auto !important;
-        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+        -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
     }
 
     .fab-btn:active {
-        transform: scale(0.9);
+        transform: scale(0.95);
     }
 
-    /* 各ボタンの色 */
-    .fab-btn.groups { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
-    .fab-btn.design { background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); }
-    .fab-btn.wish { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
-    .fab-btn.memo { background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); }
-    .fab-btn.notify { background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); }
-    .fab-btn.settings { background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%); }
-    .fab-btn.language { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
-    .fab-btn.reload { background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%); }
+    /* アイコンは白で統一（グレー背景上） */
+    .fab-btn .icon-line,
+    .fab-btn img {
+        filter: none;
+    }
 
     /* FABオーバーレイ */
     .fab-overlay {
@@ -3536,7 +3547,7 @@
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.3);
-        z-index: 99999;
+        z-index: 1000;
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
@@ -3551,7 +3562,7 @@
     
     /* メニューが開いている時、メニュー自体は最前面 */
     .fab-container.open .fab-menu {
-        z-index: 100002 !important;
+        z-index: 1002 !important;
     }
 
     /* バッジ */
@@ -3575,7 +3586,7 @@
     .fab-storage-picker-overlay {
         position: fixed;
         inset: 0;
-        z-index: 100003;
+        z-index: 1003;
         background: rgba(0, 0, 0, 0.5);
         display: flex;
         align-items: center;
@@ -3745,16 +3756,16 @@
     body.page-chat .input-area {
         overflow: visible !important;
     }
-    /* テキストエリア本体（チャット中央パネル：7行表示） */
+    /* テキストエリア本体（チャット中央パネル：1行デフォルト・最大8行） */
     body.page-chat .center-panel .input-area .input-row .input-wrapper #messageInput,
     body.page-chat .center-panel .input-area .input-row .input-wrapper textarea.message-input,
     body.page-chat .center-panel .input-area .input-row .input-wrapper textarea {
-        max-height: 280px !important;
-        min-height: 168px !important;
+        max-height: 200px !important;
+        min-height: 44px !important;
     }
     #messageInput {
-        max-height: 280px !important;
-        min-height: 168px !important;
+        max-height: 200px !important;
+        min-height: 44px !important;
     }
     /* 入力欄を上に広げたとき: PCと同じ（ボタン行と入力欄が一体で動き、余白は入力欄に） */
     body.page-chat #inputArea.input-area-has-height .input-container {

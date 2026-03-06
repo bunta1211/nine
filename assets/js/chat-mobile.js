@@ -37,9 +37,6 @@
         // モバイルメニューボタンを追加
         addMobileMenuButtons();
         
-        // 上パネルタップで4アイコン表示/非表示（携帯のみ・シンプル表示）
-        setupTopPanelTapToReveal();
-        
         // スワイプイベントを設定
         setupSwipeGestures();
         
@@ -49,16 +46,7 @@
         console.log('Mobile features initialized');
     }
 
-    /** 上パネルをタップしたときだけ ⇒ ＋ K ⇐ の4アイコンを表示（通常は非表示） */
-    function setupTopPanelTapToReveal() {
-        const topPanel = document.querySelector('.top-panel');
-        if (!topPanel) return;
-        topPanel.addEventListener('click', function(e) {
-            if (!isMobile()) return;
-            if (e.target.closest('button') || e.target.closest('a') || e.target.closest('.fab-menu') || e.target.closest('.user-dropdown')) return;
-            topPanel.classList.toggle('top-panel-icons-visible');
-        });
-    }
+    /* setupTopPanelTapToReveal は廃止（設定・FAB等は常時表示） */
 
     // オーバーレイ作成（既にHTMLにあれば参照だけ取得）
     function createOverlay() {
@@ -77,11 +65,9 @@
         document.body.appendChild(mobileOverlay);
     }
 
-    // モバイルメニューボタンを追加（携帯はスワイプでページ移動するため左用⇒ボタンは追加しない）
     function addMobileMenuButtons() {
         const chatHeaderActions = document.querySelector('.chat-header-actions');
         
-        // 右パネル用設定ボタン（チャットヘッダー内）
         if (chatHeaderActions && !document.querySelector('.mobile-settings-btn')) {
             const settingsBtn = document.createElement('button');
             settingsBtn.className = 'mobile-settings-btn';
@@ -93,102 +79,80 @@
             });
             chatHeaderActions.appendChild(settingsBtn);
         }
+
+        addPanelCloseButton(leftPanel || document.getElementById('leftPanel'), 'left');
+        addPanelCloseButton(rightPanel || document.getElementById('rightPanel'), 'right');
     }
 
-    // 左パネルのトグル
+    function addPanelCloseButton(panel, side) {
+        if (!panel || panel.querySelector('.mobile-panel-close-btn')) return;
+        var btn = document.createElement('button');
+        btn.className = 'mobile-panel-close-btn';
+        btn.setAttribute('aria-label', 'パネルを閉じる');
+        btn.textContent = '×';
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeAllPanels();
+        });
+        panel.insertBefore(btn, panel.firstChild);
+    }
+
+    // 左パネルのトグル（固定オーバーレイで開閉）
     function toggleLeftPanel() {
         if (!isMobile()) return;
-        const main = document.getElementById('mainContainer');
-        const vw = window.innerWidth;
-        const stripActive = main && main.scrollWidth > vw;
-        if (stripActive) {
-            if (typeof window.playPanelCollapseSound === 'function') window.playPanelCollapseSound();
-            main.scrollTo({ left: 0, behavior: 'smooth' });
-            return;
-        }
+        const lp = leftPanel || document.getElementById('leftPanel');
+        if (!lp) return;
         if (typeof window.playPanelCollapseSound === 'function') window.playPanelCollapseSound();
-        const isOpen = leftPanel.classList.contains('mobile-open');
-        closeAllPanels();
-        if (!isOpen) {
-            leftPanel.classList.add('mobile-open');
-            leftPanel.style.left = '0';
-            leftPanel.style.zIndex = '99999';
-            mobileOverlay.classList.add('show');
-            mobileOverlay.style.display = 'block';
-            mobileOverlay.style.opacity = '1';
+        if (lp.classList.contains('mobile-open')) {
+            closeAllPanels();
+        } else {
+            closeAllPanels();
+            lp.classList.add('mobile-open');
+            lp.style.setProperty('left', '0', 'important');
+            lp.style.setProperty('z-index', '100', 'important');
+            const overlay = mobileOverlay || document.querySelector('.mobile-overlay') || document.getElementById('mobileOverlay');
+            if (overlay) { overlay.classList.add('show'); overlay.style.display = 'block'; overlay.style.opacity = '1'; }
             document.body.classList.add('mobile-panel-open');
             document.body.style.overflow = 'hidden';
-            hideCenterPanel();
         }
     }
 
-    // 右パネルのトグル
     function toggleRightPanel() {
         if (!isMobile()) return;
-        const panel = rightPanel || document.getElementById('rightPanel');
-        if (!panel) return;
-        const main = document.getElementById('mainContainer');
-        const vw = window.innerWidth;
-        const stripActive = main && main.scrollWidth > vw;
-        if (stripActive) {
-            if (typeof window.playPanelCollapseSound === 'function') window.playPanelCollapseSound();
-            main.scrollTo({ left: 2 * vw, behavior: 'smooth' });
-            return;
-        }
+        const rp = rightPanel || document.getElementById('rightPanel');
+        if (!rp) return;
         if (typeof window.playPanelCollapseSound === 'function') window.playPanelCollapseSound();
-        const isOpen = panel.classList.contains('mobile-open');
-        closeAllPanels();
-        if (!isOpen) {
-            panel.classList.add('mobile-open');
-            panel.style.right = '0';
-            panel.style.zIndex = '99999';
-            panel.style.display = 'block';
+        if (rp.classList.contains('mobile-open')) {
+            closeAllPanels();
+        } else {
+            closeAllPanels();
+            rp.classList.add('mobile-open');
+            rp.style.setProperty('right', '0', 'important');
+            rp.style.setProperty('z-index', '100', 'important');
+            rp.style.display = 'block';
             const overlay = mobileOverlay || document.querySelector('.mobile-overlay') || document.getElementById('mobileOverlay');
-            if (overlay) {
-                overlay.classList.add('show', 'active');
-                overlay.style.display = 'block';
-                overlay.style.opacity = '1';
-            }
+            if (overlay) { overlay.classList.add('show', 'active'); overlay.style.display = 'block'; overlay.style.opacity = '1'; }
             document.body.classList.add('mobile-panel-open');
             document.body.style.overflow = 'hidden';
-            hideCenterPanel();
         }
     }
 
-    // すべてのパネルを閉じる（実DOMを必ず参照して閉じる）。Phase 3.4: ストリップ時は中央へスクロール
+    // すべてのパネルを閉じる
     function closeAllPanels() {
-        const main = document.getElementById('mainContainer');
-        const vw = window.innerWidth;
-        const stripActive = main && main.scrollWidth > vw;
-        if (stripActive) {
-            main.scrollTo({ left: vw, behavior: 'smooth' });
-            const left = leftPanel || document.getElementById('leftPanel');
-            const right = rightPanel || document.getElementById('rightPanel');
-            const overlay = mobileOverlay || document.querySelector('.mobile-overlay') || document.getElementById('mobileOverlay');
-            if (left) { left.classList.remove('mobile-open'); left.style.left = ''; }
-            if (right) { right.classList.remove('mobile-open'); right.style.right = ''; }
-            if (overlay) { overlay.classList.remove('show', 'active'); overlay.style.display = 'none'; overlay.style.opacity = '0'; }
-            document.body.classList.remove('mobile-panel-open');
-            document.body.style.overflow = '';
-            showCenterPanel();
-            return;
-        }
         const left = leftPanel || document.getElementById('leftPanel');
         const right = rightPanel || document.getElementById('rightPanel');
         const overlay = mobileOverlay || document.querySelector('.mobile-overlay') || document.getElementById('mobileOverlay');
         if (left) {
             left.classList.remove('mobile-open');
-            left.style.left = '-100vw';
+            left.style.setProperty('left', '-100vw', 'important');
+            left.style.zIndex = '';
         }
         if (right) {
             right.classList.remove('mobile-open');
-            right.style.right = '-100vw';
+            right.style.setProperty('right', '-100vw', 'important');
+            right.style.zIndex = '';
         }
-        if (overlay) {
-            overlay.classList.remove('show', 'active');
-            overlay.style.display = 'none';
-            overlay.style.opacity = '0';
-        }
+        if (overlay) { overlay.classList.remove('show', 'active'); overlay.style.display = 'none'; overlay.style.opacity = '0'; }
         document.body.classList.remove('mobile-panel-open');
         document.body.style.overflow = '';
         showCenterPanel();
@@ -281,18 +245,9 @@
         document.body.style.overflow = '';
     };
 
-    // 左パネルを閉じる（scripts.php 等から呼ばれる。中央へスクロール＋body.mobile-panel-open を外してログ表示を復帰）
+    // 左パネルを閉じる（scripts.php 等から呼ばれる）
     window.closeMobileLeftPanel = function() {
-        const main = document.getElementById('mainContainer');
-        const vw = window.innerWidth;
-        const stripActive = main && main.scrollWidth > vw;
-        if (stripActive) {
-            main.scrollTo({ left: vw, behavior: 'smooth' });
-        }
-        if (leftPanel) leftPanel.classList.remove('mobile-open');
-        if (mobileOverlay) mobileOverlay.classList.remove('show');
-        document.body.classList.remove('mobile-panel-open');
-        document.body.style.overflow = '';
+        closeAllPanels();
     };
 
     // スワイプジェスチャーの設定
@@ -334,33 +289,19 @@
         if (!isMobile() || !isSwiping) return;
         
         const diffX = touchMoveX - touchStartX;
-        const threshold = 80; // スワイプの閾値
-        const main = document.getElementById('mainContainer');
+        const threshold = 80;
         const vw = window.innerWidth;
-        const stripActive = main && main.scrollWidth > vw;
+        const lp = leftPanel || document.getElementById('leftPanel');
+        const rp = rightPanel || document.getElementById('rightPanel');
 
-        if (stripActive) {
-            // Phase 3.2: ストリップ時はスクロールでページ切り替え（エッジグローは scroll で同期）
-            if (diffX > threshold && touchStartX < 50) {
-                main.scrollTo({ left: 0, behavior: 'smooth' });
-            } else if (diffX < -threshold && touchStartX > vw - 50) {
-                main.scrollTo({ left: 2 * vw, behavior: 'smooth' });
-            } else if (diffX < -threshold && main.scrollLeft <= vw * 0.5) {
-                main.scrollTo({ left: vw, behavior: 'smooth' });
-            } else if (diffX > threshold && main.scrollLeft >= vw * 1.5) {
-                main.scrollTo({ left: vw, behavior: 'smooth' });
-            }
-        } else {
-            // 従来: オーバーレイ＋パネル開閉
-            if (diffX > threshold && touchStartX < 50) {
-                toggleLeftPanel();
-            } else if (diffX < -threshold && touchStartX > vw - 50) {
-                toggleRightPanel();
-            } else if (diffX < -threshold && leftPanel && leftPanel.classList.contains('mobile-open')) {
-                closeAllPanels();
-            } else if (diffX > threshold && rightPanel && rightPanel.classList.contains('mobile-open')) {
-                closeAllPanels();
-            }
+        if (diffX > threshold && touchStartX < 50) {
+            toggleLeftPanel();
+        } else if (diffX < -threshold && touchStartX > vw - 50) {
+            toggleRightPanel();
+        } else if (diffX < -threshold && lp && lp.classList.contains('mobile-open')) {
+            closeAllPanels();
+        } else if (diffX > threshold && rp && rp.classList.contains('mobile-open')) {
+            closeAllPanels();
         }
         isSwiping = false;
     }
@@ -416,35 +357,13 @@
             return;
         }
         closeAllPanels();
-        const main = document.getElementById('mainContainer');
-        const vw = window.innerWidth;
-        const stripActive = main && main.scrollWidth > vw;
-        if (stripActive) {
-            if (typeof window.playPanelCollapseSound === 'function') window.playPanelCollapseSound();
-            main.scrollTo({ left: 2 * vw, behavior: 'smooth' });
-        } else {
-            const panel = rightPanel || document.getElementById('rightPanel');
-            if (!panel) return;
-            if (typeof window.playPanelCollapseSound === 'function') window.playPanelCollapseSound();
-            panel.classList.add('mobile-open');
-            panel.style.right = '0';
-            panel.style.zIndex = '99999';
-            panel.style.display = 'block';
-            const overlay = mobileOverlay || document.querySelector('.mobile-overlay') || document.getElementById('mobileOverlay');
-            if (overlay) {
-                overlay.classList.add('show', 'active');
-                overlay.style.display = 'block';
-                overlay.style.opacity = '1';
-            }
-            document.body.classList.add('mobile-panel-open');
-            document.body.style.overflow = 'hidden';
-            hideCenterPanel();
-        }
+        toggleRightPanel();
     }
 
     // モバイル用のみグローバルに公開。toggleRightPanel は scripts.php の定義をそのまま使う（PCで⇒収納が動くように上書きしない）
     window.toggleMobileLeftPanel = toggleLeftPanel;
     window.toggleMobileRightPanel = toggleRightPanel;
+    window.toggleMobileRightPanelFn = toggleRightPanel;
     window.closeMobileAllPanels = closeAllPanels;
     window.openGroupDetailsPanel = openGroupDetailsPanel;
 
@@ -1269,15 +1188,29 @@
                     <span class="fab-label">強制リロード</span>
                 </div>
             </div>
-            <button class="fab-main" aria-label="メニュー">＋</button>
+            <button class="fab-main" aria-label="メニュー"><img src="assets/icons/line/app-grid.svg" alt="" class="icon-line fab-main-icon" width="24" height="24" aria-hidden="true"><span class="fab-main-close" aria-hidden="true">×</span></button>
         `;
 
-        // 上パネルの左側（top-left）にFABを挿入
+        // 上パネルの左側（top-left）に戻るボタンとFABを挿入
         const topLeft = document.querySelector('.top-panel .top-left');
         const topRight = document.querySelector('.top-panel .top-right');
         
         if (topLeft) {
-            // 左パネルボタン（⇒）の後に挿入
+            // チャット画面用戻るボタン（会話選択時のみ表示）
+            const backBtn = document.createElement('button');
+            backBtn.className = 'mobile-chat-back-btn';
+            backBtn.setAttribute('aria-label', '戻る');
+            backBtn.title = '戻る';
+            backBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+            backBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (!isMobile()) return;
+                location.href = 'chat.php';
+            });
+            topLeft.insertBefore(backBtn, topLeft.firstChild);
+            
+            // FABを左パネルボタン（⇒）の後に挿入
             const toggleLeftBtn = topLeft.querySelector('.toggle-left-btn, .mobile-menu-btn');
             if (toggleLeftBtn && toggleLeftBtn.nextSibling) {
                 topLeft.insertBefore(container, toggleLeftBtn.nextSibling);
@@ -1331,19 +1264,7 @@
             });
         });
 
-        // バッジを同期
         syncFABBadges();
-
-        // 白画面メニュー（.center-panel-start-menu）のクリック：data-action があれば FAB と同じアクションを実行
-        const startMenu = document.getElementById('centerPanelStartMenu');
-        if (startMenu) {
-            startMenu.addEventListener('click', function(e) {
-                const item = e.target.closest('.center-panel-start-menu-item');
-                if (!item || !item.dataset.action) return;
-                e.preventDefault();
-                executeFABAction(item.dataset.action);
-            });
-        }
     }
 
     function toggleFAB() {
@@ -1357,7 +1278,6 @@
             container.classList.add('open');
             overlay.classList.add('show');
             mainBtn.classList.add('open');
-            mainBtn.textContent = '×';
         }
     }
 
@@ -1370,7 +1290,6 @@
         container.classList.remove('open');
         overlay.classList.remove('show');
         mainBtn.classList.remove('open');
-        mainBtn.textContent = '＋';
     }
 
     // FABアクション実行用のフラグ（重複実行防止）
@@ -1490,26 +1409,20 @@
         }, 300);
     }
     
-    // 左パネルを開く
+    // 左パネルを確実に開く（トグルではなく常に開く）
     function openLeftPanelForGroups() {
         console.log('Opening left panel for groups');
-        const leftPanel = document.getElementById('leftPanel') || document.querySelector('.left-panel');
-        const mobileOverlay = document.querySelector('.mobile-overlay');
-        
-        if (leftPanel) {
-            leftPanel.classList.add('mobile-open');
-            leftPanel.style.left = '0';
-            leftPanel.style.zIndex = '99999';
-            
-            if (mobileOverlay) {
-                mobileOverlay.classList.add('show');
-                mobileOverlay.style.display = 'block';
-            }
-            
-            document.body.classList.add('mobile-panel-open');
-        } else {
-            console.error('Left panel not found');
-        }
+        var lp = document.getElementById('leftPanel') || document.querySelector('.left-panel');
+        if (!lp) { console.error('Left panel not found'); return; }
+        if (lp.classList.contains('mobile-open')) return;
+        if (typeof window.closeMobileAllPanels === 'function') window.closeMobileAllPanels();
+        lp.classList.add('mobile-open');
+        lp.style.setProperty('left', '0', 'important');
+        lp.style.setProperty('z-index', '100', 'important');
+        var ov = document.querySelector('.mobile-overlay') || document.getElementById('mobileOverlay');
+        if (ov) { ov.classList.add('show'); ov.style.display = 'block'; ov.style.opacity = '1'; }
+        document.body.classList.add('mobile-panel-open');
+        document.body.style.overflow = 'hidden';
     }
     
     // 旧関数名の互換性維持
@@ -1564,7 +1477,7 @@
 
         // スタイルを追加
         popup.style.cssText = `
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000;
             display: flex; align-items: flex-end; justify-content: center;
         `;
         popup.querySelector('.fab-language-backdrop').style.cssText = `
