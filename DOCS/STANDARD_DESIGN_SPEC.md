@@ -146,6 +146,10 @@
 | 入力エリアラッパー（`.input-area`）最大高さ | 380px | chat-main.css |
 | 保存高さの復元下限 | 168px | input-area-resize.js で 168 未満は 168 にクランプしてから適用 |
 
+- **デフォルト位置**: 中央パネル（PC）またはビューポート（携帯）の**下端に接着**。下余白はゼロとする。
+- **拡大方向**: リサイズ時は下辺を動かさず、**上方向にのみ**伸ばす（`top` は指定しない。高さは `style.height` のみで変更する）。
+- **詳細度**: チャット用の position / bottom は `body.page-chat .center-panel .input-area` で指定し、将来 `input-area.css` / `center-panel.css` が読み込まれても上書きされないようにする。
+
 **参照ファイル**: `chat.php`（textarea のインライン style）、`includes/chat/scripts.php`（autoResizeInput の minH/cap、DOMContentLoaded、AI秘書用 textarea）、`assets/css/chat-main.css`、`assets/css/chat-mobile.css`、`assets/js/chat/input-area-resize.js`。
 
 **注意**: `layout/center-panel.css` は chat-new.css で import がコメントアウトされているためチャットでは読み込まれない。高さ変更は chat-main.css / chat-mobile.css および上記 PHP・JS で行う。変更時は **CSS・JS・PHP の整合**（インライン style / autoResizeInput・DOMContentLoaded / AI秘書 textarea / リサイズ復元ロジック）を漏れなく揃える。

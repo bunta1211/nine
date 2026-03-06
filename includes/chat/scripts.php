@@ -2425,6 +2425,8 @@ window.submitChatTask = async function() {
         let isScreenSharing = false;
         /** リモート参加者数（3人以上レイアウト用） */
         let remoteParticipantCount = 0;
+        /** 現在の通話ID（終了時に leave API で送る。重複通知防止のため必須） */
+        let currentCallId = null;
         
         // 通話開始（APIでルーム作成→相手に着信通知・Pushが飛ぶ）
         async function startCall(type) {
@@ -2454,20 +2456,23 @@ window.submitChatTask = async function() {
                     return;
                 }
                 roomId = data.room_id;
+                currentCallId = data.call_id || null;
             } catch (e) {
                 console.error('Call create error:', e);
                 alert('通話の開始に失敗しました');
                 return;
             }
             
-            showCallUIAndStartJitsi(roomId, type === 'video', true);
+            showCallUIAndStartJitsi(roomId, type === 'video', true, currentCallId);
         }
         
         // 通話UI表示＋Jitsi開始（発信時・着信で「出る」押下時の共通）
         // 2画面レイアウト: 自分・相手を常に表示（Android/iPhone両方で確実に表示）
         // isInitiator: 発信者なら true（会議を開始する側＝モデレーター扱い）、着信で出たなら false
-        function showCallUIAndStartJitsi(roomName, startWithVideo, isInitiator) {
+        // callId: 終了時に leave API に渡す通話ID。省略時は currentCallId を変更しない。
+        function showCallUIAndStartJitsi(roomName, startWithVideo, isInitiator, callId) {
             if (typeof isInitiator === 'undefined') isInitiator = true;
+            if (callId != null) currentCallId = callId;
             const videoContainer = document.getElementById('callVideoContainer');
             const controlsContainer = document.getElementById('callControlsContainer');
             const callIndicator = document.getElementById('callStatusIndicator');
@@ -3021,6 +3026,15 @@ window.submitChatTask = async function() {
         // ページ離脱時の警告ハンドラ
         function handleBeforeUnload(e) {
             if (isCallActive) {
+                // タブ閉じ・リロード時も相手側の着信を止めるため leave を送る
+                if (currentCallId) {
+                    const form = new URLSearchParams();
+                    form.append('action', 'leave');
+                    form.append('call_id', String(currentCallId));
+                    const url = (window.__CHAT_API_BASE || '') + 'api/calls.php';
+                    navigator.sendBeacon(url, form);
+                    currentCallId = null;
+                }
                 e.preventDefault();
                 e.returnValue = '通話中です。ページを離れると通話が終了します。';
                 return e.returnValue;
@@ -3062,6 +3076,16 @@ window.submitChatTask = async function() {
         function endCall() {
             // beforeunloadイベントを削除
             window.removeEventListener('beforeunload', handleBeforeUnload);
+            
+            // 相手側の着信表示を止めるため leave を必ず呼ぶ（重複通知防止）
+            if (currentCallId) {
+                const form = new URLSearchParams();
+                form.append('action', 'leave');
+                form.append('call_id', String(currentCallId));
+                const url = (window.__CHAT_API_BASE || '') + 'api/calls.php';
+                fetch(url, { method: 'POST', credentials: 'same-origin', body: form, keepalive: true }).catch(function() {});
+                currentCallId = null;
+            }
             
             // ローカルカメラストリームを停止
             if (localStream) {
@@ -3114,6 +3138,7 @@ window.submitChatTask = async function() {
             isVideoMuted = false;
             isScreenSharing = false;
             callStartTime = null;
+            currentCallId = null;
             
             // ボタンリセット
             document.getElementById('micToggleBtn').classList.remove('muted');
@@ -3247,7 +3272,8 @@ window.submitChatTask = async function() {
                         .then(function(data) {
                             stopIncomingCallAlert();
                             if (data.success && data.room_id) {
-                                showCallUIAndStartJitsi(data.room_id, data.call_type === 'video', false);
+                                currentCallId = data.call_id || null;
+                                showCallUIAndStartJitsi(data.room_id, data.call_type === 'video', false, currentCallId);
                             }
                         })
                         .catch(function() { stopIncomingCallAlert(); });

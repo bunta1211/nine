@@ -118,20 +118,11 @@ exit
 マイグレーション済みでも引用がリロードで消える場合は、次を順に確認してください。
 
 1. **api/messages.php を本番に反映しているか**  
-   送信直後に `UPDATE messages SET reply_to_id = ? WHERE id = ?` が動くのはこのファイルです。未反映なら scp でアップロードしてください。
-   ```powershell
-   scp -i "C:\Users\narak\Desktop\social9-key.pem" c:\xampp\htdocs\nine\api\messages.php ec2-user@54.95.86.79:/var/www/html/api/
-   ```
+   送信直後に `UPDATE messages SET reply_to_id = ? WHERE id = ?` が動くのはこのファイルです。**実装ファイルの反映は EC2 への直接アップロードでは行いません。** main にマージして push すれば GitHub Actions で自動デプロイされ、本番に反映されます。未反映の場合は main へのマージと push を確認してください。
 2. **includes/chat/data.php を本番に反映しているか**  
-   初回表示で `reply_to_id` 付きでメッセージを取得するのはこのファイルです。
-   ```powershell
-   scp -i "C:\Users\narak\Desktop\social9-key.pem" c:\xampp\htdocs\nine\includes\chat\data.php ec2-user@54.95.86.79:/var/www/html/includes/chat/
-   ```
+   初回表示で `reply_to_id` 付きでメッセージを取得するのはこのファイルです。main にマージして push すれば自動で本番に反映されます。
 3. **chat.php を本番に反映しているか**  
-   引用ブロックを描画するのはこのファイルです。
-   ```powershell
-   scp -i "C:\Users\narak\Desktop\social9-key.pem" c:\xampp\htdocs\nine\chat.php ec2-user@54.95.86.79:/var/www/html/
-   ```
+   引用ブロックを描画するのはこのファイルです。main にマージして push すれば自動で本番に反映されます。
 4. **PHP の opcache を使っている場合**  
    反映後に Apache または PHP-FPM を再起動すると、新しいコードが確実に読み込まれます。
    ```bash

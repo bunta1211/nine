@@ -28,6 +28,7 @@
         const area = getInputArea();
         if (!area) return;
         const val = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, height));
+        /* 下辺固定のため style.height のみ設定。top は使わない */
         area.style.height = val + 'px';
         area.classList.add('input-area-has-height');
         try { localStorage.setItem(STORAGE_KEY, String(val)); } catch (e) {}
