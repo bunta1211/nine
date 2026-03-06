@@ -8121,12 +8121,8 @@ window.submitChatTask = async function() {
         
         // モーダル
         function openModal(id) {
-            // モバイルでは右パネルと左パネルを閉じる
-            if (window.innerWidth <= 768) {
-                const rightPanel = document.querySelector('.right-panel');
-                const leftPanel = document.querySelector('.left-panel');
-                if (rightPanel) rightPanel.classList.remove('mobile-open');
-                if (leftPanel) leftPanel.classList.remove('mobile-open');
+            if (window.innerWidth <= 768 && typeof window.closeMobileAllPanels === 'function') {
+                window.closeMobileAllPanels();
             }
             document.getElementById(id).classList.add('active');
         }
@@ -10583,37 +10579,34 @@ window.submitChatTask = async function() {
         });
         
         function toggleLeftMenu() {
-            const leftPanel = document.getElementById('leftPanel');
-            const overlay = document.getElementById('mobileOverlay');
-            
-            // モバイルかどうかを判定
             const isMobile = window.innerWidth <= 768;
             
             if (isMobile) {
-                // モバイル: スライドイン/アウト
-                if (typeof window.playPanelCollapseSound === 'function') window.playPanelCollapseSound();
-                leftPanel.classList.toggle('mobile-open');
-                overlay.classList.toggle('active', leftPanel.classList.contains('mobile-open'));
-            } else {
-                // PC: 折りたたみ
-                if (typeof window.playPanelCollapseSound === 'function') window.playPanelCollapseSound();
-                leftPanel.classList.toggle('collapsed');
-                const isCollapsed = leftPanel.classList.contains('collapsed');
-                localStorage.setItem('leftPanelCollapsed', isCollapsed);
-                
-                // アイコン更新: 非表示時は⇒（開く）、表示時は⇐（閉じる）
-                const toggleBtn = document.getElementById('toggleLeftBtn');
-                if (toggleBtn) {
-                    toggleBtn.textContent = isCollapsed ? '⇒' : '⇐';
+                if (typeof window.toggleMobileLeftPanel === 'function') {
+                    window.toggleMobileLeftPanel();
+                    return;
                 }
+            }
+            // PC: 折りたたみ
+            const leftPanel = document.getElementById('leftPanel');
+            if (typeof window.playPanelCollapseSound === 'function') window.playPanelCollapseSound();
+            leftPanel.classList.toggle('collapsed');
+            const isCollapsed = leftPanel.classList.contains('collapsed');
+            localStorage.setItem('leftPanelCollapsed', isCollapsed);
+            const toggleBtn = document.getElementById('toggleLeftBtn');
+            if (toggleBtn) {
+                toggleBtn.textContent = isCollapsed ? '⇒' : '⇐';
             }
         }
         
         // モバイル用: 右パネルを開く
         function toggleMobileRightPanel() {
+            if (window.innerWidth <= 768 && typeof window.toggleMobileRightPanelFn === 'function') {
+                window.toggleMobileRightPanelFn();
+                return;
+            }
             const rightPanel = document.getElementById('rightPanel');
             const overlay = document.getElementById('mobileOverlay');
-            
             rightPanel.classList.toggle('mobile-open');
             const isOpen = rightPanel.classList.contains('mobile-open');
             overlay.classList.toggle('active', isOpen);
@@ -10623,9 +10616,12 @@ window.submitChatTask = async function() {
         
         // モバイル用: 右パネルを閉じる
         function closeMobileRightPanel() {
+            if (window.innerWidth <= 768 && typeof window.closeMobileAllPanels === 'function') {
+                window.closeMobileAllPanels();
+                return;
+            }
             const rightPanel = document.getElementById('rightPanel');
             const overlay = document.getElementById('mobileOverlay');
-            
             rightPanel.classList.remove('mobile-open');
             overlay.classList.remove('active');
             overlay.classList.remove('show');
@@ -10634,14 +10630,16 @@ window.submitChatTask = async function() {
         
         // モバイル用: すべてのパネルを閉じる
         function closeMobilePanels() {
+            if (window.innerWidth <= 768 && typeof window.closeMobileAllPanels === 'function') {
+                window.closeMobileAllPanels();
+                return;
+            }
             const leftPanel = document.getElementById('leftPanel');
             const rightPanel = document.getElementById('rightPanel');
             const overlay = document.getElementById('mobileOverlay');
-            
-            leftPanel.classList.remove('mobile-open');
-            rightPanel.classList.remove('mobile-open');
-            overlay.classList.remove('active');
-            overlay.classList.remove('show');
+            if (leftPanel) leftPanel.classList.remove('mobile-open');
+            if (rightPanel) rightPanel.classList.remove('mobile-open');
+            if (overlay) { overlay.classList.remove('active'); overlay.classList.remove('show'); }
             document.body.classList.remove('mobile-panel-open');
         }
         

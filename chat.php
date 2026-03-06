@@ -1140,14 +1140,11 @@ if ($is_secretary_mode) {
                     <button class="add-media-btn" style="margin-top:20px;width:auto;padding:12px 24px;" onclick="openNewConversation()">➕ 新しい会話を始める</button>
                 </div>
                 <nav class="center-panel-start-menu" id="centerPanelStartMenu" aria-label="メニュー">
-                    <a href="javascript:void(0)" class="center-panel-start-menu-item" data-action="groups">チャット</a>
-                    <a href="javascript:void(0)" class="center-panel-start-menu-item" data-action="storage-new">共有フォルダ</a>
-                    <a href="design.php" class="center-panel-start-menu-item">デザイン</a>
-                    <a href="tasks.php" class="center-panel-start-menu-item">タスク/メモ</a>
-                    <a href="notifications.php" class="center-panel-start-menu-item">お知らせ</a>
-                    <a href="settings.php" class="center-panel-start-menu-item">設定</a>
-                    <a href="javascript:void(0)" class="center-panel-start-menu-item" data-action="language">言語</a>
-                    <a href="javascript:void(0)" class="center-panel-start-menu-item" data-action="reload">強制リロード</a>
+                    <a href="javascript:void(0)" class="center-panel-start-menu-item" data-action="groups"><span class="center-panel-start-menu-icon"><img src="assets/icons/line/users.svg" alt="" class="icon-line" width="20" height="20" aria-hidden="true"></span><span class="center-panel-start-menu-label">チャット</span></a>
+                    <a href="javascript:void(0)" class="center-panel-start-menu-item" data-action="storage-new"><span class="center-panel-start-menu-icon"><img src="assets/icons/line/folder.svg" alt="" class="icon-line" width="20" height="20" aria-hidden="true"></span><span class="center-panel-start-menu-label">共有フォルダ</span></a>
+                    <a href="tasks.php" class="center-panel-start-menu-item"><span class="center-panel-start-menu-icon"><img src="assets/icons/line/clipboard.svg" alt="" class="icon-line" width="20" height="20" aria-hidden="true"></span><span class="center-panel-start-menu-label">タスク/メモ</span></a>
+                    <a href="notifications.php" class="center-panel-start-menu-item"><span class="center-panel-start-menu-icon"><img src="assets/icons/line/bell.svg" alt="" class="icon-line" width="20" height="20" aria-hidden="true"></span><span class="center-panel-start-menu-label">お知らせ</span></a>
+                    <a href="settings.php" class="center-panel-start-menu-item"><span class="center-panel-start-menu-icon"><img src="assets/icons/line/gear.svg" alt="" class="icon-line" width="20" height="20" aria-hidden="true"></span><span class="center-panel-start-menu-label">設定</span></a>
                 </nav>
             </div>
             <?php endif; ?>
