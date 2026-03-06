@@ -2485,13 +2485,13 @@ window.submitChatTask = async function() {
             twoPanels.className = 'call-two-panels';
             twoPanels.innerHTML = `
                 <div class="call-panel call-panel-draggable call-panel-self" data-call-panel="self">
-                    <div class="call-panel-label">自分</div>
+                    <div class="call-panel-label call-panel-label-self" aria-label="自分のカメラ">自分（あなた）</div>
                     <div class="call-panel-circle call-panel-circle-self">
                         <video id="selfVideo" autoplay muted playsinline></video>
                     </div>
                 </div>
                 <div class="call-panel call-panel-draggable call-panel-remote" data-call-panel="remote">
-                    <div class="call-panel-label">相手</div>
+                    <div class="call-panel-label call-panel-label-remote" aria-label="相手の映像">相手</div>
                     <div class="call-panel-circle call-panel-circle-remote">
                         <div id="jitsiContainer" class="call-jitsi-wrap"></div>
                     </div>
