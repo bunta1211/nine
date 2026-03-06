@@ -10,7 +10,8 @@
 | 現象 | コンソール／画面の手がかり |
 |------|----------------------------|
 | 「通話に参加しています」のまま繋がらない | スピナーが続き、相手の映像が表示されない。タイマー 00:00 のまま。 |
-| **net::ERR_FAILED** | DevTools Console に `Failed to load resource: net::ERR_FAILED (index):1`。どのリソースが失敗しているかは Console だけでは不明。 |
+| **net::ERR_FAILED** | DevTools Console に `Failed to load resource: net::ERR_FAILED`。**どの URL が失敗しているかは Console だけでは分からない**ため、Network タブで失敗したリクエストの URL を確認する。 |
+| **chrome-extension://invalid/ の net::ERR_FAILED** | 失敗しているリソースが `chrome-extension://invalid/:1` の場合。**ブラウザまたは拡張機能（例: DevTools の AI 機能）が無効な拡張 URL を読もうとして出るもので、アプリ・Jitsi の通話とは無関係**。通話が繋がらない原因としては無視してよい。気になる場合はシークレットウィンドウや拡張無効で試す。 |
 | **Unrecognized feature: 'speaker-selection'** | `external_api.is:364`。Jitsi がブラウザに speaker-selection を要求しているが、未対応・未認識。 |
 | **RECORDING OFF SOUND** | `[app:sounds] PLAY SOUND: no sound found for id: RECORDING OFF SOUND`。音声アセット不足。 |
 | **web-hid non-compliant** | `[app:web-hid] sendDeviceReport: There are currently non-compliant conditions`。デバイス／HID の条件が非準拠。 |
@@ -24,6 +25,7 @@
 ### 2.1 ネットワーク・リソース（net::ERR_FAILED の正体）
 
 - **目的**: どの URL が `net::ERR_FAILED` で失敗しているかを特定する。
+- **重要**: 失敗している URL が **`chrome-extension://invalid/`** のときは、ブラウザや DevTools（例: Console Insights / AI assistance）が無効な拡張を参照して出るエラーであり、**通話の原因ではない**。無視してよい。
 - **手順**:
   1. call.php を開き、DevTools の **Network** タブを開いた状態で通話を開始する。
   2. ステータスが "Failed" または "(failed)" のリクエストを記録する（URL・種類・Initiator）。
@@ -65,6 +67,7 @@
 
 | 想定原因 | 検証方法 | 対策 |
 |----------|----------|------|
+| **chrome-extension://invalid/ の net::ERR_FAILED** | Network で失敗 URL が `chrome-extension://invalid/` か確認 | **通話とは無関係**。ブラウザ・拡張の仕様。無視してよい。コンソールを気にしないならシークレットや拡張無効で試す。 |
 | 会議が開始されない（モデレーター待ち） | 画面に「私はホストです」が出ているか確認。発信者が押してから着信者が参加する | 暫定: 発信者で「私はホストです」を手動で押す。恒久: 自前 Jitsi で everyoneIsModerator 等を設定（PHONE_VIDEO_CALL_PLAN.md 8.2-B）。 |
 | あるリソースの net::ERR_FAILED | Network タブで失敗している URL を特定 | ファイアウォール・プロキシ・VPN で meet.jit.si や WebRTC がブロックされていないか確認。別ネット（例: スマホのテザリング）で試す。 |
 | external_api.js の読み込み失敗 | Network で external_api.js が (failed) か 200 か | HTTPS 混合・CSP・ネット障害を確認。本番の JITSI_BASE_URL が正しいか確認。 |
@@ -76,7 +79,8 @@
 ## 4. 通話が繋がらないときに確認すること（チェックリスト）
 
 1. **Network タブで Failed なリソースの URL を記録する**  
-   DevTools → Network を開き、call.php で通話を開始した状態で、ステータスが Failed のリクエストの URL を控える。
+   DevTools → Network を開き、call.php で通話を開始した状態で、ステータスが Failed のリクエストの URL を控える。  
+   **失敗している URL が `chrome-extension://invalid/` だけの場合は、ブラウザ側のもので通話の原因ではないので無視してよい。**
 
 2. **発信者・着信者双方で「私はホストです」の有無を確認し、発信者で押してから参加を試す**  
    Jitsi の画面内に「私はホストです」が出ている場合は、発信者側でクリックしてから、着信者が「ミーティングに参加」を押す。
