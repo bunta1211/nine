@@ -1,6 +1,7 @@
 <?php
 /**
  * Social9 通話画面（Jitsi Meet統合）
+ * 統合計画: 通話はこのページのみ。call_id で参加。
  * 仕様書: 06_通話機能.md
  */
 
@@ -12,24 +13,65 @@ require_once __DIR__ . '/includes/lang.php';
 
 requireLogin();
 
-// 言語設定を初期化
-$currentLang = getCurrentLanguage();
-
 $pdo = getDB();
 $user_id = $_SESSION['user_id'];
-
-// デザイン設定を取得
 $designSettings = getDesignSettings($pdo, $user_id);
 $display_name = $_SESSION['display_name'] ?? 'ユーザー';
 
+$call_id_param = (int)($_GET['call_id'] ?? 0);
 $conversation_id = (int)($_GET['c'] ?? 0);
-$call_type = $_GET['type'] ?? 'video'; // video or audio
+$call_type_param = $_GET['type'] ?? '';
 
-if (!$conversation_id) {
-    die('会話IDが必要です');
+$call = null;
+$conversation = null;
+$room_name = '';
+$conversation_name = '';
+$call_type = 'video';
+$members = [];
+
+if ($call_id_param > 0) {
+    // call_id 指定: 通話レコードから room_id 等を取得
+    $stmt = $pdo->prepare("
+        SELECT c.* FROM calls c
+        INNER JOIN conversation_members cm ON c.conversation_id = cm.conversation_id AND cm.user_id = ? AND cm.left_at IS NULL
+        WHERE c.id = ? AND c.status IN ('ringing', 'active')
+    ");
+    $stmt->execute([$user_id, $call_id_param]);
+    $call = $stmt->fetch();
+    if (!$call) {
+        die('通話が見つからないか、すでに終了しています。チャットから通話を開始してください。');
+    }
+    $room_name = $call['room_id'];
+    $call_type = ($call['call_type'] ?? 'video') === 'audio' ? 'audio' : 'video';
+    $conversation_id = (int)$call['conversation_id'];
 }
 
-// 会話の確認
+if ($conversation_id > 0 && !$call) {
+    // 後方互換: c= のみの場合は、この会話のアクティブな通話に参加しているか確認
+    $stmt = $pdo->prepare("
+        SELECT c.* FROM calls c
+        INNER JOIN call_participants cp ON cp.call_id = c.id AND cp.user_id = ?
+        INNER JOIN conversation_members cm ON c.conversation_id = cm.conversation_id AND cm.user_id = ? AND cm.left_at IS NULL
+        WHERE c.conversation_id = ? AND c.status IN ('ringing', 'active')
+        ORDER BY c.id DESC LIMIT 1
+    ");
+    $stmt->execute([$user_id, $user_id, $conversation_id]);
+    $call = $stmt->fetch();
+    if ($call) {
+        $call_id_param = (int)$call['id'];
+        $room_name = $call['room_id'];
+        $call_type = ($call['call_type'] ?? 'video') === 'audio' ? 'audio' : 'video';
+    } else {
+        $room_name = 'social9_' . $conversation_id;
+        $call_type = in_array($call_type_param, ['audio', 'video']) ? $call_type_param : 'video';
+    }
+}
+
+if ($conversation_id <= 0) {
+    die('会話IDまたは通話IDが必要です。チャットから通話を開始してください。');
+}
+
+// 会話情報を取得
 $stmt = $pdo->prepare("
     SELECT c.*, cm.role
     FROM conversations c
@@ -38,15 +80,11 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$conversation_id, $user_id]);
 $conversation = $stmt->fetch();
-
 if (!$conversation) {
     die('この会話にアクセスする権限がありません');
 }
 
-// 会話名を取得
-$room_name = 'social9_' . $conversation_id;
 $conversation_name = $conversation['name'];
-
 if ($conversation['type'] === 'dm') {
     $stmt = $pdo->prepare("
         SELECT u.display_name FROM conversation_members cm
@@ -138,6 +176,23 @@ $members = $stmt->fetchAll();
         #jitsiContainer {
             width: 100%;
             height: 100%;
+        }
+        
+        /* meet.jit.si 暫定案内（通話専用ページでも同一文言を表示） */
+        .call-jitsi-host-hint {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+            padding: 6px 12px;
+            font-size: 12px;
+            line-height: 1.3;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 10;
         }
         
         .call-controls {
@@ -340,6 +395,7 @@ $members = $stmt->fetchAll();
         
         <div class="video-area">
             <div id="jitsiContainer"></div>
+            <p class="call-jitsi-host-hint">接続しない場合は、画面内の「私はホストです」を押してください。</p>
             
             <div class="connecting-overlay" id="connectingOverlay">
                 <div class="spinner"></div>
@@ -398,16 +454,32 @@ $members = $stmt->fetchAll();
     
     <script src="<?= htmlspecialchars(rtrim(JITSI_BASE_URL, '/') . '/external_api.js') ?>"></script>
     <script>
-        const roomName = '<?= $room_name ?>';
+        const roomName = '<?= addslashes($room_name) ?>';
         const displayName = '<?= addslashes($display_name) ?>';
-        const callType = '<?= $call_type ?>';
-        const conversationId = <?= $conversation_id ?>;
+        const callType = '<?= addslashes($call_type) ?>';
+        const conversationId = <?= (int)$conversation_id ?>;
+        const callId = <?= (int)$call_id_param ?>; // leave API 用（0の場合はレガシー c= のみなので leave しない）
+        const apiCallsBase = (function(){
+            const a = document.createElement('a');
+            a.href = window.location.href;
+            return a.origin + a.pathname.replace(/\/[^/]*$/, '') + '/';
+        })();
         
         let api = null;
         let startTime = null;
         let timerInterval = null;
         let isMuted = false;
         let isVideoOff = callType === 'audio';
+        let leaveSent = false;
+        
+        function callLeaveApi() {
+            if (leaveSent || !callId) return;
+            leaveSent = true;
+            const form = new FormData();
+            form.append('action', 'leave');
+            form.append('call_id', String(callId));
+            fetch(apiCallsBase + 'api/calls.php', { method: 'POST', credentials: 'same-origin', body: form }).catch(function(){});
+        }
         
         // Jitsi Meet初期化（自前サーバー対応: config の JITSI_DOMAIN）
         function initJitsi() {
@@ -463,7 +535,8 @@ $members = $stmt->fetchAll();
             });
             
             api.addListener('videoConferenceLeft', () => {
-                window.close();
+                callLeaveApi();
+                window.location.href = conversationId ? ('chat.php?c=' + conversationId) : 'chat.php';
             });
             
             api.addListener('participantJoined', (participant) => {
@@ -517,10 +590,11 @@ $members = $stmt->fetchAll();
                 if (api) {
                     api.executeCommand('hangup');
                 }
+                callLeaveApi();
                 if (timerInterval) {
                     clearInterval(timerInterval);
                 }
-                window.close();
+                window.location.href = conversationId ? ('chat.php?c=' + conversationId) : 'chat.php';
             }
         }
         
@@ -561,6 +635,7 @@ $members = $stmt->fetchAll();
         window.onbeforeunload = function() {
             if (api) {
                 api.executeCommand('hangup');
+                callLeaveApi();
             }
         };
         

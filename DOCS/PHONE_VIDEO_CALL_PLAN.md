@@ -4,21 +4,23 @@
 
 ### 1.1 実装済みの構成
 
+**通話は call.php に統合済み**（2026 統合計画）。チャットは「発信」「着信応答」の入口のみ。Jitsi は call.php でだけ動作する。
+
 | 項目 | 内容 |
 |------|------|
-| **入口** | チャット画面（会話選択中）の通話ボタン → メニューで「ビデオ通話」「音声通話」を選択 |
+| **入口** | チャット画面（会話選択中）の通話ボタン → メニューで「ビデオ通話」「音声通話」を選択 → **call.php へ遷移** |
 | **バックエンド** | `api/calls.php`（create / join / leave / decline / get_active / history） |
 | **DB** | `calls`（conversation_id, initiator_id, room_id, call_type, status 等）、`call_participants`（参加・招待・拒否・退出） |
-| **メディア** | Jitsi Meet（meet.jit.si）をルームIDで利用。音声・ビデオ・画面共有・バーチャル背景・背景ぼかしに対応 |
-| **UI** | `includes/chat/call-ui.php`（着信モーダル・通話メニュー・通話中インジケーター・ビデオウィンドウ・コントロールバー） |
-| **着信** | Web Push（`push_helper.php` の `triggerCallPushNotification`）＋通知DB＋ポーリング（get_active）で着信検知。着信音・バイブ・着信モーダル（出る/拒否） |
-| **別画面** | `call.php`（会話ID・タイプをクエリで受け取り、Jitsi のみの専用ページ。参加者サイドバー・通話中チャットUIあり） |
+| **メディア** | Jitsi Meet（meet.jit.si）をルームIDで利用。音声・ビデオ・画面共有等は **call.php 内**で実施 |
+| **チャット側UI** | `includes/chat/call-ui.php`（着信モーダル・通話メニューのみ。通話ビデオウィンドウ・コントロールバーは廃止） |
+| **着信** | Web Push ＋ ポーリング（get_active）で着信検知。着信音・バイブ・着信モーダル（出る/拒否）→「出る」で **call.php へ遷移** |
+| **通話画面** | **call.php のみ**。`call_id` で参加。Jitsi 埋め込み・「私はホストです」案内・終了時の leave 呼び出しは call.php で実施。詳細は [CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md](DOCS/CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md)。
 
 ### 1.2 現状の動作フロー
 
-1. **発信**: チャットで「ビデオ通話」または「音声通話」選択 → `api/calls.php` create → ルーム作成・参加者招待・Push 送信 → `showCallUIAndStartJitsi(roomId, isVideo)` で Jitsi 埋め込み＋自分カメラ表示。
-2. **着信**: Push またはポーリングで着信検知 → 着信モーダル表示・着信音ループ → 「出る」で join → 同上で Jitsi 開始。
-3. **終了**: 通話終了ボタン → Jitsi hangup・call_participants 更新・ルーム削除処理。
+1. **発信**: チャットで「ビデオ通話」または「音声通話」選択 → `api/calls.php` create → ルーム作成・参加者招待・Push 送信 → **call.php?call_id=xxx へ遷移** → call.php で Jitsi 開始。
+2. **着信**: Push またはポーリングで着信検知 → 着信モーダル表示・着信音ループ → 「出る」で join → **call.php?call_id=xxx へ遷移** → call.php で Jitsi 開始。
+3. **終了**: call.php の通話終了ボタン → Jitsi hangup・`api/calls.php?action=leave` 呼び出し・call_participants 更新。
 
 ### 1.3 制限・未実装になっている点
 

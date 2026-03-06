@@ -12,7 +12,7 @@
 | `rightpanel.php` | 右パネル（詳細）HTML | ~100行 |
 | `rightpanel_secretary.php` | AI秘書（AIクローン）専用右パネルHTML。訓練言語選択・判断材料フォルダツリー・会話記憶表示・自動返信トグル＋統計。secretary-rightpanel.js（SecRP）と連携 | ~100行 |
 | `settings-account-bar.php` | 設定＋アカウントドロップダウン共通。`$account_bar_variant = 'left_panel'` のときは左パネル用に「グループ管理」ボタンのみ（歯車なし・クリックで右パネル＝詳細を開く） | ~95行 |
-| `call-ui.php` | 通話関連UI HTML | ~70行 |
+| `call-ui.php` | 通話関連UI HTML。**通話は call.php に統合**。チャットでは通話メニュー・着信モーダル（拒否/出る）のみ。通話ビデオウィンドウ・コントロールバーは廃止。「出る」で call.php へ遷移。 |
 | `member-popup.php` | メンバーポップアップ HTML | ~70行 |
 | `modals.php` | モーダルウィンドウHTML。手動タスク追加（manualWishModal）では「元のメッセージ」を textarea（wishOriginalText）で編集可能 | 既存 |
 | `scripts.php` | JavaScript（メッセージ表示・送信・返信引用等）。1000文字以上送信時はコンソールで「長文はテキストのまま保存され、検索・AI学習に利用されます」と案内。**ファイル添付カード**: 題名ラッパーに `file-attachment-card__title` を付与。題名は横書き・1 行省略（`white-space:nowrap; overflow:hidden; text-overflow:ellipsis`）に統一し、省略時は `title` 属性でフルファイル名を表示。PDF/Office/圧縮/テキストファイルの各カードで共通。**PC版送信**: `messagesArea` が無い場合でもAPI送信は実行（楽観的UIは任意）。`window.sendMessage` を明示代入し、`#messageForm` の submit を送信に紐付け。**APIドメイン固定**: `window.__CHAT_API_BASE`（chat.phpで設定）を用い、全 `api/*.php` の fetch を現在オリジンに固定（`<base>` タグや別ドメインキャッシュ対策）。`__chatApiUrl(path)` ヘルパーを定義。**朝のニュース動画**: answer に「（朝のニュース動画）」が含まれる場合は JSON 動画リストを解析し、一覧＋小窓埋め込み（YouTube IFrame API）で表示。再生終了で次を自動再生。一覧クリックでその動画を再生。**AI秘書入力欄**: グループチャット同様にドラッグで高さ変更可能。パネル描画時に `input-area-resize-handle` を差し込み、`initInputAreaResize()` でリサイズを有効化。**メッセージ内画像404対策**: ファイル名のみの img src（例: msg_xxx.png）で読み込み失敗時に `uploads/messages/` を付与して再試行する error イベントリスナーを document に登録。 | 既存 |
@@ -406,8 +406,9 @@ chat.php (317行)
 
 - **自前 Jitsi 対応（計画書 8.5）**: ドメイン・ベースURLは `config/app.php` の `JITSI_DOMAIN` / `JITSI_BASE_URL` で設定。`chat.php` が `window.__JITSI_DOMAIN` と `window.__JITSI_BASE_URL` を head で出力し、`scripts.php`（インライン）は PHP で同定数を参照。`call.php` と `assets/js/chat/call.js`・`assets/js/chat-call.js` は `window.__JITSI_*` を優先（未設定時は meet.jit.si）。API の `join_url` は `api/calls.php` で `JITSI_BASE_URL` から生成。詳細は DOCS/PHONE_VIDEO_CALL_PLAN.md。
 - **会議開始・二重表示の防止**: 発信者のみ `showCallUIAndStartJitsi(..., true)`（isInitiator=true）で Jitsi に `startConference: true` を渡し、着信で「出る」のときは `false`。これで「モデレーター待ち」で双方が止まるのを防ぐ。2画面レイアウトでは「自分」パネルにローカルカメラ、「相手」パネルに Jitsi を表示。Jitsi は `disableSelfView: true` と `filmstrip.disabled: true` で自分を非表示にし、相手のみ表示する。
-- **終了時の leave 必呼び出し（重複通知防止）**: 通話終了時・タブ閉じ時に相手へ同じ着信が何度も表示されないよう、`currentCallId` を保持し、`endCall()` および `handleBeforeUnload` で `api/calls.php?action=leave` を必ず呼ぶ。詳細は DOCS/CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md。
-- **meet.jit.si 暫定案内**: 通話が繋がらない場合の暫定として、相手パネル下に「接続しない場合は、画面内の『私はホストです』を押してください」を表示（`.call-jitsi-host-hint`）。確実に繋ぐには自前 Jitsi で会議即開始設定を実施すること（DOCS/通話が繋がらない原因特定と接続計画）。
+- **通話は call.php に統合**: チャットでは発信（create → call.php へ遷移）・着信（join → call.php へ遷移）の入口のみ。Jitsi は call.php でのみ動作。call-ui.php は着信モーダル・通話メニューのみ（ビデオウィンドウ・コントロールバーは廃止）。
+- **終了時の leave 必呼び出し（重複通知防止）**: call.php の通話終了時・beforeunload で `api/calls.php?action=leave` を呼ぶ。詳細は DOCS/CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md。
+- **meet.jit.si 暫定案内**: 「接続しない場合は、画面内の『私はホストです』を押してください」は **call.php** の `.video-area` 内に表示。確実に繋ぐには自前 Jitsi で会議即開始設定を実施すること（DOCS/CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md）。
 
 ```
 ✅ 最適化済み（2026-01）:
@@ -416,13 +417,13 @@ chat.php (317行)
 - 初期表示時の外部リソース読み込みを削減
 ```
 
-**関連関数**:
+**関連関数**（通話は call.php に統合済み。チャット側は以下のみ）:
 | 関数名 | 役割 |
 |-------|------|
-| `loadJitsiApi()` | Jitsi API の遅延読み込み |
-| `initJitsiMeet()` | Jitsi Meet の初期化 |
-| `startCall()` | 通話開始 |
-| `endCall()` | 通話終了 |
+| `startCall(type)` | 通話開始（API create 後に call.php へ遷移） |
+| `stopIncomingCallAlert()` | 着信音・バイブ停止 |
+| `startIncomingCallAlert()` | 着信音・バイブ開始 |
+| `showIncomingCallModal(call)` | 着信モーダル表示。Jitsi は call.php で実施。 |
 
 ### テーマ/デザインとの干渉ポイント
 

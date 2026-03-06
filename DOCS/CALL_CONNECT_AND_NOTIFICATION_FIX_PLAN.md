@@ -46,8 +46,8 @@ sequenceDiagram
     API->>DB: INSERT calls (room_id, status=ringing), call_participants
     API->>Push: triggerCallPushNotification(room_id, call_id, ...)
     API-->>A: room_id, call_id
-    A->>A: showCallUIAndStartJitsi(room_id, ..., true)
-    A->>A: Jitsi に room_id で参加（startConference: true）
+    A->>A: call.php?call_id=xxx へ遷移
+    A->>A: call.php で Jitsi に room_id で参加（startConference: true）
 
     Push->>B: 着信通知
     B->>B: ポーリング get_active または Push で call_id 取得
@@ -55,18 +55,19 @@ sequenceDiagram
     B->>API: join (call_id)
     API->>DB: call_participants 更新, status=active
     API-->>B: room_id（同じ）, call_id
-    B->>B: showCallUIAndStartJitsi(room_id, ..., false)
-    B->>B: Jitsi に 同じ room_id で参加
+    B->>B: call.php?call_id=xxx へ遷移
+    B->>B: call.php で Jitsi に 同じ room_id で参加
 
     Note over A,B: 同一 room_id の Jitsi ルームで双方が接続
 ```
 
 **確認すべき点**:
 - 着信者が「出る」を押したとき、**join に渡す call_id** は get_active または Push の data.call_id と一致しているか。→ 現状、get_active の call.id と join の call_id は一致。Push の data.call_id も同じ。
-- join のレスポンスの **room_id** を、showCallUIAndStartJitsi の第1引数（roomName）に渡しているか。→ 着信時は `data.room_id` を渡している。同線になる。
+- join のレスポンスの **room_id** を、call.php が DB から取得した room_id で Jitsi に渡しているか。→ call.php は call_id で room_id を取得し、Jitsi の roomName に渡す。同線になる。
 
-**修正が必要な点**:
-- 発信者が create 後に **call_id** を保持しておらず、endCall で leave を呼べない。→ **currentCallId を保持し、endCall および beforeunload で leave を必ず呼ぶ。**
+**実施済みの点**:
+- 発信者は create 後に **call.php?call_id=xxx へ遷移**。call.php で leave を endCall および beforeunload で呼ぶ（callId を PHP で渡している）。
+- 着信者は join 後に **call.php?call_id=xxx へ遷移**。同じく call.php で leave を呼ぶ。
 
 ### 2.4 映像が届く条件（Jitsi 側）
 
@@ -77,7 +78,18 @@ sequenceDiagram
 
 自前 Jitsi では、config.js で `everyoneIsModerator` や会議即開始を設定し、meet.jit.si 依存の「モデレーター待ち」をなくす。
 
-### 2.5 繋がらない原因の一覧と対策
+### 2.6 通話UIの統合（call.php のみ）
+
+**通話は call.php に統合済み**（通話機能統合計画書）。チャットは「発信」「着信応答」の入口のみで、Jitsi は **call.php でだけ** 動作する。チャット内に通話ビデオウィンドウ・コントロールバーは出さない。
+
+| 入口 | URL・ファイル | 案内の場所 |
+|------|----------------|------------|
+| **通話画面（唯一）** | `call.php?call_id=xxx`。発信時は create 後に遷移、着信時は join 後に遷移。 | `call.php` の `.video-area` 内、`#jitsiContainer` 直後に `<p class="call-jitsi-host-hint">接続しない場合は、画面内の「私はホストです」を押してください。</p>`。スタイルは `call.php` の `<style>` 内。 |
+| **チャット** | `chat.php`。通話メニュー（ビデオ/音声）・着信モーダル（拒否/出る）のみ。「出る」で call.php へ遷移。 | 案内は表示しない（通話は call.php で実施）。 |
+
+- **meet.jit.si 暫定案内** は **call.php のみ** に表示。確実に繋ぐには自前 Jitsi で会議即開始設定を実施すること（本ドキュメント 2.1〜2.2 および [PHONE_VIDEO_CALL_PLAN.md](DOCS/PHONE_VIDEO_CALL_PLAN.md) 8.2-B・8.6 参照）。
+
+### 2.7 繋がらない原因の一覧と対策
 
 | 原因 | 対策 |
 |------|------|
@@ -114,13 +126,15 @@ sequenceDiagram
 
 ### 4.1 接続の確実性（最優先）
 
+**通話は call.php に統合済み**。leave の呼び出しは **call.php** で実施（callId を PHP で渡し、endCall および beforeunload で callLeaveApi を実行）。チャット側は create 後に call.php へ遷移、join 後に call.php へ遷移するのみ。
+
 | # | タスク | ファイル | 内容 |
 |---|--------|----------|------|
-| 1 | 通話 ID の保持 | includes/chat/scripts.php | グローバル変数 `currentCallId` を追加。create のレスポンスで `currentCallId = data.call_id`。showCallUIAndStartJitsi の引数に callId を追加し、内部で currentCallId をセット。 |
-| 2 | 着信で「出る」時の call_id 保持 | includes/chat/scripts.php | join のレスポンスで `currentCallId = data.call_id` をセット。showCallUIAndStartJitsi(room_id, ..., false, data.call_id) を渡す。 |
-| 3 | endCall で leave 必呼び出し | includes/chat/scripts.php | endCall() の冒頭で、currentCallId が存在すれば POST api/calls.php action=leave, call_id=currentCallId を送信。送信後 currentCallId = null。二重送信防止。 |
-| 4 | beforeunload で leave 送信 | includes/chat/scripts.php | handleBeforeUnload 内で、isCallActive && currentCallId のとき navigator.sendBeacon または fetch(..., { keepalive: true }) で leave を送信。 |
-| 5 | 発信時に call_id を渡す | includes/chat/scripts.php | startCall で create 後に showCallUIAndStartJitsi(roomId, type === 'video', true, data.call_id) を渡す。 |
+| 1 | 通話 ID の渡し方 | call.php | call_id を GET で受け取り、leave API に渡す。callId を PHP で出力し、callLeaveApi() で使用。 |
+| 2 | 着信で「出る」時の遷移 | includes/chat/scripts.php | join のレスポンスで call_id を取得し、location.href = 'call.php?call_id=' + data.call_id で遷移。 |
+| 3 | endCall で leave 必呼び出し | call.php | endCall() 内で callLeaveApi() を呼ぶ。callLeaveApi は leaveSent で二重送信防止。 |
+| 4 | beforeunload で leave 送信 | call.php | window.onbeforeunload で api が存在すれば callLeaveApi() を呼ぶ。 |
+| 5 | 発信時の遷移 | includes/chat/scripts.php | startCall で create 後に location.href = 'call.php?call_id=' + data.call_id で遷移。 |
 
 ### 4.2 相手パネルの移動
 
