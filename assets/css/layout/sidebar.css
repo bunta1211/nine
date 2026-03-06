@@ -99,7 +99,8 @@
 
 .conv-filter input:focus {
     outline: none;
-    border-color: var(--primary);
+    border-color: var(--dt-input-focus-border, var(--primary));
+    box-shadow: 0 0 0 2px var(--dt-input-focus-border, var(--primary));
 }
 
 /* ========================================

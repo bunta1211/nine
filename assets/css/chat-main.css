@@ -833,7 +833,8 @@
         }
         .left-panel-filter-trigger:focus {
             outline: none;
-            border-color: var(--text-muted);
+            border-color: var(--dt-input-focus-border, var(--text-muted));
+            box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25));
             box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
         }
         .left-panel-filter-label {
@@ -2956,6 +2957,7 @@
         .reply-preview-toggle:focus,
         .reply-preview-goto:focus {
             outline: none;
+            box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25));
         }
         .reply-preview {
             cursor: default;
@@ -3901,7 +3903,8 @@
         
         .memo-input:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--dt-input-focus-border, var(--primary));
+            box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25));
         }
         
         .save-memo-btn {
@@ -4002,6 +4005,8 @@
         
         .overview-entry textarea:focus {
             outline: none;
+            border-color: var(--dt-input-focus-border, #6b7280);
+            box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25));
         }
         
         /* 保存済みのテキスト: 黒文字（白ベースボディ用） */
@@ -4346,6 +4351,7 @@
         .media-add-compact input#mediaTitleInput:focus,
         .media-add-compact input#mediaUrlInput:focus {
             border-color: var(--dt-input-focus-border, var(--primary)) !important;
+            box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25)) !important;
             background: var(--dt-input-bg, #ffffff) !important;
             color: var(--dt-input-text, #1e293b) !important;
             -webkit-text-fill-color: var(--dt-input-text, #1e293b) !important;
@@ -5848,7 +5854,8 @@
         }
         .member-search-input:focus {
             outline: none !important;
-            border-color: #667eea !important;
+            border-color: var(--dt-input-focus-border, #6b7280) !important;
+            box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25)) !important;
             background: #fff !important;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
         }
@@ -6581,7 +6588,8 @@
         }
         
         .search-user-box input:focus {
-            border-color: var(--primary);
+            border-color: var(--dt-input-focus-border, var(--primary));
+            box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25));
         }
         
         .search-user-results {
@@ -7306,7 +7314,8 @@
         
         .ai-name-input:focus {
             outline: none;
-            border-color: #6366f1;
+            border-color: var(--dt-input-focus-border, #6b7280);
+            box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25));
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
         
@@ -7553,7 +7562,8 @@
         
         .ai-custom-instructions-input:focus {
             outline: none;
-            border-color: #6366f1;
+            border-color: var(--dt-input-focus-border, #6b7280);
+            box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25));
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
         

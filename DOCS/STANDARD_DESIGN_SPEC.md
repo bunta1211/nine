@@ -132,8 +132,18 @@
 | scrollThumbHover | `#9e9e9e` |
 | filterBtnBg | `#f5f5f5` |
 | filterBtnActiveBg | `#e67e22` |
+| focusRing（`--dt-focus-ring`） | `0 0 0 2px var(--dt-input-focus-border)`（キーボードフォーカス可視用） |
 
 ※ 上記は `includes/design_config.php` の `getThemeConfigs()['lavender']` および `getDefaultDesignTokens()` と一致させる。
+
+### フォーカス・アクセシビリティ
+
+- フォーカス可能要素では `outline: none` のみにせず、`:focus` / `:focus-visible` で **box-shadow** によるフォーカスリング（例: `0 0 0 2px var(--dt-input-focus-border)`）を必ず付与する。
+- トークンは `assets/css/tokens/base.css` の `--dt-focus-ring` および各コンポーネントで `var(--dt-input-focus-border)` を参照。
+
+### タッチターゲット（モバイル）
+
+- ボタン・リンク・アイコンなど**インタラクティブ要素**は、モバイルで **min-height / min-width 44px** を目安にし、タップ領域を十分に確保する（`assets/css/chat-mobile.css` の入力ツールバー・リアクションバッジ等で適用）。
 
 ### チャット入力欄のレイアウト規格
 

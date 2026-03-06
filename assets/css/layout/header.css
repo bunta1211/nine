@@ -181,6 +181,9 @@
     border-width: 0 !important;
     border-color: transparent !important;
 }
+.search-box-input:focus {
+    box-shadow: 0 0 0 2px var(--dt-input-focus-border, #6b7280);
+}
 
 .search-box .shortcut {
     opacity: 0.6;
