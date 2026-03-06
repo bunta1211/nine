@@ -433,7 +433,8 @@ $members = $stmt->fetchAll();
                     disableRemoteMute: true,
                     disableRemoteVideoMenu: true,
                     remoteVideoMenu: { disableKick: true, disableGrantModerator: true },
-                    disableProfile: true
+                    disableProfile: true,
+                    startConference: true
                 },
                 interfaceConfigOverwrite: {
                     TOOLBAR_BUTTONS: [],

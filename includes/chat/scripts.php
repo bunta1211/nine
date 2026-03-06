@@ -2460,12 +2460,14 @@ window.submitChatTask = async function() {
                 return;
             }
             
-            showCallUIAndStartJitsi(roomId, type === 'video');
+            showCallUIAndStartJitsi(roomId, type === 'video', true);
         }
         
         // 通話UI表示＋Jitsi開始（発信時・着信で「出る」押下時の共通）
         // 2画面レイアウト: 自分・相手を常に表示（Android/iPhone両方で確実に表示）
-        function showCallUIAndStartJitsi(roomName, startWithVideo) {
+        // isInitiator: 発信者なら true（会議を開始する側＝モデレーター扱い）、着信で出たなら false
+        function showCallUIAndStartJitsi(roomName, startWithVideo, isInitiator) {
+            if (typeof isInitiator === 'undefined') isInitiator = true;
             const videoContainer = document.getElementById('callVideoContainer');
             const controlsContainer = document.getElementById('callControlsContainer');
             const callIndicator = document.getElementById('callStatusIndicator');
@@ -2503,7 +2505,7 @@ window.submitChatTask = async function() {
             callDurationInterval = setInterval(updateCallDuration, 1000);
             
             initLocalCamera(startWithVideo);
-            initJitsiMeet(roomName, startWithVideo);
+            initJitsiMeet(roomName, startWithVideo, isInitiator);
         }
         
         // ローカルカメラ初期化
@@ -2559,7 +2561,9 @@ window.submitChatTask = async function() {
         }
         
         // Jitsi Meet 初期化
-        async function initJitsiMeet(roomName, startWithVideo) {
+        // isInitiator: true のとき startConference で会議を開始（モデレーター待ちを防ぐ）
+        async function initJitsiMeet(roomName, startWithVideo, isInitiator) {
+            if (typeof isInitiator === 'undefined') isInitiator = true;
             const container = document.getElementById('jitsiContainer');
             
             if (!container) {
@@ -2609,8 +2613,9 @@ window.submitChatTask = async function() {
                     disableSelfView: true,
                     disableSelfViewSettings: true,
                     filmstrip: {
-                        disabled: false
+                        disabled: true
                     },
+                    startConference: !!isInitiator,
                     notifications: [],
                     disableNotifications: true,
                     hideParticipantsStats: true,
@@ -3242,7 +3247,7 @@ window.submitChatTask = async function() {
                         .then(function(data) {
                             stopIncomingCallAlert();
                             if (data.success && data.room_id) {
-                                showCallUIAndStartJitsi(data.room_id, data.call_type === 'video');
+                                showCallUIAndStartJitsi(data.room_id, data.call_type === 'video', false);
                             }
                         })
                         .catch(function() { stopIncomingCallAlert(); });

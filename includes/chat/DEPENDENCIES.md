@@ -404,6 +404,7 @@ chat.php (317行)
 ### 通話機能（Jitsi統合）
 
 - **自前 Jitsi 対応（計画書 8.5）**: ドメイン・ベースURLは `config/app.php` の `JITSI_DOMAIN` / `JITSI_BASE_URL` で設定。`chat.php` が `window.__JITSI_DOMAIN` と `window.__JITSI_BASE_URL` を head で出力し、`scripts.php`（インライン）は PHP で同定数を参照。`call.php` と `assets/js/chat/call.js`・`assets/js/chat-call.js` は `window.__JITSI_*` を優先（未設定時は meet.jit.si）。API の `join_url` は `api/calls.php` で `JITSI_BASE_URL` から生成。詳細は DOCS/PHONE_VIDEO_CALL_PLAN.md。
+- **会議開始・二重表示の防止**: 発信者のみ `showCallUIAndStartJitsi(..., true)`（isInitiator=true）で Jitsi に `startConference: true` を渡し、着信で「出る」のときは `false`。これで「モデレーター待ち」で双方が止まるのを防ぐ。2画面レイアウトでは「自分」パネルにローカルカメラ、「相手」パネルに Jitsi を表示。Jitsi は `disableSelfView: true` と `filmstrip.disabled: true` で自分を非表示にし、相手のみ表示する。
 
 ```
 ✅ 最適化済み（2026-01）:
