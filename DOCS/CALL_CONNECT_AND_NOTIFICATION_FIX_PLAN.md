@@ -102,6 +102,10 @@ sequenceDiagram
    - leave が実行されると calls.status が ended になり、get_active に現れなくなる。  
    - 着信モーダルを閉じたあと、同じ call が再度表示されないようにする。
 
+4. **着信は画面中央のモーダル（拒否・出る）のみとする**  
+   - 通話着信時は **Web Push のトースト（OS通知）を一切出さない**。着信表示は **画面中央のモーダル（拒否・出る）のみ**とする（チャットの get_active ポーリングで表示）。  
+   - 実装: [sw.js](sw.js) の push ハンドラで、`data.type === 'call_incoming'` のときは常に `showNotification` を呼ばない。
+
 ---
 
 ## 4. 実装タスク一覧

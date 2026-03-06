@@ -314,6 +314,7 @@ chat.php (317行)
    - appendMessageToUI() 内で、他人メッセージ受信時に checkAndPlayMessageNotification(toMe) を呼び出し
    - **AI返信提案バー（自分宛メンション・3日以内）**: chat.php 初回描画で、自分宛メンションかつ自分以外の送信・システム以外のメッセージで、かつ created_at が3日以内の場合に `.ai-reply-suggest-bar`（🤖 AI返信提案を生成）をメッセージ直下に表示。**全グループチャットで利用可能**（労務・事務局・その他グループに共通）。ポーリングで追加される新着メッセージは常に3日以内のため scripts.php では日付チェックなしで挿入。**JSフォールバック**: `assets/js/ai-reply-suggest.js` の `injectBarsForInitialMessages()` が DOMContentLoaded と load 後 150ms で実行。自分宛判定は `.mentioned-me`、`data-to-users`（JSON）、`data-content` の `[To:ID]`、および**表示上のTOチップ**（カード内 `[data-to="ユーザーID"]` または `[data-to="all"]`）で行い、事務局など全グループで表示されるようにしている。右パネル「会話記憶」「自動返信」アイコンは `assets/icons/line/brain.svg`, `assets/icons/line/zap.svg` を参照。
    - 通話着信: getNotificationSettings().call_ringtone で assets/sounds/{id}.mp3 をループ再生（応答/拒否で停止）。パスが無い場合は playMessageNotification を間隔で呼ぶフォールバック。
+   - 通話着信の表示: 画面中央の「拒否」「出る」モーダルのみ。sw.js では call_incoming 時にトースト（showNotification）を出さず、重複着信表示を防ぐ。
    - 自分宛・To全員を含むメンション時はすべて .mention-frame で枠表示（改善提案「TO機能のメンション通知改善」に沿い、to_all も枠で囲む）。
    - 着信音の種類: config/ringtone_sounds.php の RINGTONE_SOUNDS_LIST + 旧プリセット（default/gentle 等）と silent。chat.php で window.__RINGTONE_PATHS を出力。api/settings.php?action=get で notification_sound / call_ringtone を取得。
    - 自分宛通知時、プッシュ許可がオフなら PushNotifications.showNotificationPermissionHop() を表示

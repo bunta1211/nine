@@ -165,25 +165,34 @@ self.addEventListener('push', (event) => {
         }
     }
     
+    // 通話着信はトーストを出さず、画面中央の「拒否」「出る」モーダルのみにする（重複防止）
+    const isCallIncoming = notificationData.data && notificationData.data.type === 'call_incoming';
+
     // 通知を表示してアプリバッジを更新
     event.waitUntil(
-        Promise.all([
-            // 通知を表示
-            self.registration.showNotification(notificationData.title, {
-                body: notificationData.body,
-                icon: notificationData.icon,
-                badge: notificationData.badge,
-                tag: notificationData.tag,
-                data: notificationData.data,
-                actions: notificationData.actions,
-                requireInteraction: notificationData.requireInteraction,
-                renotify: notificationData.renotify,
-                silent: notificationData.silent,
-                vibrate: notificationData.vibrate
-            }),
-            // タスクバーのアプリバッジを更新（サーバーから実際の未読数を取得）
-            fetchAndUpdateBadge()
-        ])
+        (async () => {
+            let showToast = true;
+            if (isCallIncoming) {
+                showToast = false; // 通話着信は常にトーストなし。中央モーダルはチャットのポーリングで表示
+            }
+            await Promise.all([
+                showToast
+                    ? self.registration.showNotification(notificationData.title, {
+                        body: notificationData.body,
+                        icon: notificationData.icon,
+                        badge: notificationData.badge,
+                        tag: notificationData.tag,
+                        data: notificationData.data,
+                        actions: notificationData.actions,
+                        requireInteraction: notificationData.requireInteraction,
+                        renotify: notificationData.renotify,
+                        silent: notificationData.silent,
+                        vibrate: notificationData.vibrate
+                    })
+                    : Promise.resolve(),
+                fetchAndUpdateBadge()
+            ]);
+        })()
     );
 });
 
