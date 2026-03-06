@@ -36,7 +36,6 @@ $topbar_header_id_attr = isset($topbar_header_id) && $topbar_header_id !== '' ? 
             <img src="assets/icons/line/search.svg" alt="" class="search-box-icon icon-line" aria-hidden="true" width="20" height="20">
             <input type="text" id="topBarSearchInput" class="search-box-input" name="q" placeholder="<?= htmlspecialchars(__('search') . '... (Ctrl+K)', ENT_QUOTES, 'UTF-8') ?>" autocomplete="off" aria-label="<?= htmlspecialchars(__('search'), ENT_QUOTES, 'UTF-8') ?>">
         </div>
-        <span class="topbar-search-right-label">test</span>
     </div>
     
     <div class="top-right">

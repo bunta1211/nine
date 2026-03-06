@@ -187,12 +187,6 @@
     font-size: 11px;
 }
 
-.topbar-search-right-label {
-    margin-left: 8px;
-    font-size: 14px;
-    color: var(--dt-text, #374151);
-}
-
 /* ========================================
    中央セクション
    ======================================== */
