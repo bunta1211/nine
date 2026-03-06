@@ -46,7 +46,7 @@ assets/css/
 | `ai-personality.css` | AI秘書 性格設定パネル・熟慮モード進行表示ボックスのスタイル | chat.php |
 | `themes/*.css` | 静的テーマCSS | 任意 |
 | `BEM-GUIDE.md` | BEM命名規則ガイド | - |
-| `chat-mobile.css` | モバイル用上書き。**グループ追加フォーム表示中**: `.left-panel.left-panel-group-form-open` のとき `.left-panel-filter` と `.conversation-list`／`#conversationList` を非表示。**友達追加フォーム**: `.mobile-friend-qr-scan-btn`（QRコードボタン）、`.mobile-friend-search-desc`（説明文）、`.mobile-friend-invite-row`／`.mobile-friend-invite-btn`（未登録時招待）、`.mobile-show-my-qr-btn`、`.mobile-my-qr-container`（自分のQR表示）。Phase 3 で携帯用3ページストリップ。**チャット入力欄**: 携帯は `padding-bottom: env(safe-area-inset-bottom)` のみでキーボードに接着、PC（769px以上）は `padding-bottom: 0` で画面下辺に接着。**携帯版ファイル添付題名**: `body.page-chat .message-card .file-attachment-card` の題名ブロック（`.file-attachment-card__title` または `[style*="flex:1"]`）に `writing-mode: horizontal-tb`・`min-width: min(140px,55%)`、題名行に 1 行省略（nowrap＋ellipsis）を適用し、縦書き崩れを防止。 | chat.php |
+| `chat-mobile.css` | モバイル用上書き。**v1.7.0**: スタートメニュー廃止（FABに統一）、戻るボタンで会話一覧を表示。入力欄1行デフォルト（font-size:16px でiOSズーム防止）。リアクションバッジ適正化。会話名1行省略。パネル閉じるボタン追加。z-indexを5段階（1/10/100/1000/10000）に整理。主要色をデザイントークンに移行。 | chat.php |
 | `pages-mobile.css` | 非チャットページのモバイルレイアウト。`.main-container` ルールは `:not()` で上パネル共有4ページ（settings/design/tasks/notifications）を除外。**全デバイス表示計画**: FAB に `env(safe-area-inset-bottom/right)` を追加（ノッチ・ホームインジケータ対応） | settings.php, design.php, tasks.php, notifications.php |
 | `admin.css` | 管理画面共通（組織作成ページの `.create-org-card`, `.create-org-error` 含む） | admin/*.php |
 | `admin-ai-memories.css` | AI記憶管理ページ（`aimem-*` プレフィクス。テーブル・フィルタ・モーダル・履歴表示） | admin/ai_memories.php |

@@ -7,7 +7,7 @@
 | ファイル | 役割 | 読込み元 |
 |---------|------|---------|
 | `chat.js` | チャット画面メインJS | chat.php |
-| `chat-mobile.js` | モバイル対応。**グループ追加時**: showMobileForm('group') で #leftPanel に `left-panel-group-form-open` 付与、closeMobileInlineForm で削除（フィルター・会話リスト非表示）。**友達追加**: searchMobileFriend で api/friends.php search（Email/携帯番号のみ）、0件かつ invite_available 時に「このメールアドレスに友達申請を送る」表示と sendMobileInvite（send_invite）。openAddFriendModalForQR で友達追加モーダルをQRタブで開く。showMyQRCodeMobile / closeMyQRCodeMobile で自分の招待用QR表示。キーボード表示時は applyInputAreaAboveKeyboard。**FABメニュー**: ラベル「チャット」「共有フォルダ」「タスク/メモ」等。 | chat.php |
+| `chat-mobile.js` | モバイル対応。**v1.7.0**: パネル閉じるボタン（`mobile-panel-close-btn`）を左右パネル上部に動的追加。z-indexを100に統一。スタートメニュー廃止に対応。パネル操作: `toggleMobileLeftPanel` / `closeMobileAllPanels` / `toggleMobileRightPanelFn` をグローバル公開。 | chat.php |
 | `chat-call.js` | 通話機能（Jitsi統合） | chat.php（オプション） |
 | `common.js` | 共通ユーティリティ | 複数ページ |
 | `design-settings.js` | デザイン設定画面 | design.php |
@@ -86,6 +86,8 @@ Social9では2種類のJavaScriptが使用されています：
 - 仮想キーボード対応
 - LINE風メッセージメニュー（ワンタップで編集等）：表示時にタップしたメッセージがボトムシート上に見えるようスクロール、編集タップでチャット入力欄を開く
 - FABメニュー：ラベル「チャット」「共有フォルダ」「タスク/メモ」等。共有フォルダタップでグループ選択モーダル→選択時に chat.php?c=ID#storage へ遷移。メニューは画面中央に表示。
+- 戻るボタン（.mobile-chat-back-btn）：会話選択時のみ表示。タップで toggleLeftPanel() を呼び、左パネル（会話リスト）を固定オーバーレイで表示。
+- **v1.6.0**: toggleLeftPanel/toggleRightPanel/closeAllPanels からストリップスクロール分岐を全削除。すべて fixed overlay（mobile-open クラス）方式に統一。setupTopPanelTapToReveal は廃止。
 - FABメニューに「強制リロード」を追加（携帯アプリでリロードできない場合用）
 - 入力欄スクロール非表示時（`setupScrollHideInput`）に `messages-area` の `padding-bottom` を動的に調整し、メッセージが最下部まで表示されるようにする
 
