@@ -2593,6 +2593,27 @@
         margin-top: 4px;
     }
 
+    /* 携帯版: ファイル添付カードの題名を横書き・1行省略で表示（縦書き崩れ防止） */
+    body.page-chat .message-card .file-attachment-card .file-attachment-card__title {
+        writing-mode: horizontal-tb;
+        min-width: min(140px, 55%);
+    }
+    body.page-chat .message-card .file-attachment-card .file-attachment-card__title > div:first-child {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    /* [style*="flex:1"] の題名ラッパーにも適用（クラス未付与のレガシー表示のフォールバック） */
+    body.page-chat .message-card .file-attachment-card > div[style*="flex:1"] {
+        writing-mode: horizontal-tb;
+        min-width: min(140px, 55%);
+    }
+    body.page-chat .message-card .file-attachment-card > div[style*="flex:1"] > div:first-child {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     /* 返信プレビュー */
     .reply-preview {
         padding: 8px 10px;

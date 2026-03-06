@@ -1707,7 +1707,7 @@ window.submitChatTask = async function() {
                             pdfFileName = displayNameMatch[1].trim();
                         }
                         const textBeforePdf = getTextBeforeFile(content, pdfMatch);
-                        const pdfCardHtml = `<div class="file-attachment-card" data-file-path="${escapeHtml(pdfPath)}" data-file-display-name="${escapeHtml(pdfFileName)}" style="background:var(--bg-main);padding:12px;border-radius:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><span style="font-size:24px;">📄</span><div style="flex:1;min-width:0;overflow:hidden;padding:4px 0;"><div style="font-weight:500;word-break:break-word;">${escapeHtml(pdfFileName)}</div><div style="font-size:11px;color:var(--text-light);">PDF ドキュメント</div></div><a href="${escapeHtml(pdfPath)}" target="_blank" style="background:var(--bg-hover);color:var(--text);border:none;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;flex-shrink:0;">開く</a><button onclick="openMediaViewer('pdf', '${escapeHtml(pdfPath)}', 'PDF')" style="background:var(--primary);color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;flex-shrink:0;">プレビュー</button>${isOwn ? `<button type="button" class="js-edit-file-display-name" data-edit-file-message-id="${msg.id}" onclick="openEditFileDisplayNameModal(${msg.id}); return false;" title="名前を変更" style="background:none;color:var(--text-light);border:none;padding:4px 6px;border-radius:4px;cursor:pointer;font-size:14px;flex-shrink:0;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-light)'">✏️</button>` : ''}</div>`;
+                        const pdfCardHtml = `<div class="file-attachment-card" data-file-path="${escapeHtml(pdfPath)}" data-file-display-name="${escapeHtml(pdfFileName)}" style="background:var(--bg-main);padding:12px;border-radius:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><span style="font-size:24px;">📄</span><div class="file-attachment-card__title" style="flex:1;min-width:0;overflow:hidden;padding:4px 0;"><div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(pdfFileName)}">${escapeHtml(pdfFileName)}</div><div style="font-size:11px;color:var(--text-light);">PDF ドキュメント</div></div><a href="${escapeHtml(pdfPath)}" target="_blank" style="background:var(--bg-hover);color:var(--text);border:none;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;flex-shrink:0;">開く</a><button onclick="openMediaViewer('pdf', '${escapeHtml(pdfPath)}', 'PDF')" style="background:var(--primary);color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;flex-shrink:0;">プレビュー</button>${isOwn ? `<button type="button" class="js-edit-file-display-name" data-edit-file-message-id="${msg.id}" onclick="openEditFileDisplayNameModal(${msg.id}); return false;" title="名前を変更" style="background:none;color:var(--text-light);border:none;padding:4px 6px;border-radius:4px;cursor:pointer;font-size:14px;flex-shrink:0;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-light)'">✏️</button>` : ''}</div>`;
                         contentHtml = textBeforePdf ? (formatTextContentWithToChips(textBeforePdf) + '<br>' + pdfCardHtml) : pdfCardHtml;
                         var toChipsPdf = buildToChipsFromMentionIds(msg, memberMapForContent);
                         if (toChipsPdf && !hasToInContent(content)) contentHtml = toChipsPdf + '<br>' + contentHtml;
@@ -1732,7 +1732,7 @@ window.submitChatTask = async function() {
                         const officeEditBtn = isOwn ? `<button type="button" class="js-edit-file-display-name" data-edit-file-message-id="${msg.id}" onclick="openEditFileDisplayNameModal(${msg.id}); return false;" title="名前を変更" style="background:none;color:var(--text-light);border:none;padding:4px 6px;border-radius:4px;cursor:pointer;font-size:14px;flex-shrink:0;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-light)'">✏️</button>` : '';
                         const officeCardHtml = `<div class="file-attachment-card" data-file-path="${escapeHtml(filePath)}" data-file-display-name="${escapeHtml(fileName)}" style="background:var(--bg-main);padding:12px;border-radius:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                             <span style="font-size:28px;">${icon}</span>
-                            <div style="flex:1;min-width:0;overflow:hidden;padding:4px 0;"><div style="font-weight:500;word-break:break-word;">${escapeHtml(fileName)}</div><div style="font-size:12px;color:var(--text-light);">${typeName}ファイル</div></div>
+                            <div class="file-attachment-card__title" style="flex:1;min-width:0;overflow:hidden;padding:4px 0;"><div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div><div style="font-size:12px;color:var(--text-light);">${typeName}ファイル</div></div>
                             <a href="${escapeHtml(filePath)}" download="${escapeHtml(fileName)}" style="padding:6px 12px;background:var(--primary);color:white;border-radius:6px;text-decoration:none;font-size:13px;">ダウンロード</a>
                             ${officeEditBtn}
                         </div>`;
@@ -1762,8 +1762,8 @@ window.submitChatTask = async function() {
                         const fileName = filePath.split('/').pop();
                         contentHtml = `<div class="file-attachment-card" style="background:var(--bg-main);padding:12px;border-radius:8px;display:flex;align-items:center;gap:10px;">
                             <span style="font-size:28px;">📦</span>
-                            <div style="flex:1;min-width:0;">
-                                <div style="font-weight:500;word-break:break-word;">${escapeHtml(fileName)}</div>
+                            <div class="file-attachment-card__title" style="flex:1;min-width:0;">
+                                <div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
                                 <div style="font-size:12px;color:var(--text-light);">圧縮ファイル</div>
                             </div>
                             <a href="${escapeHtml(filePath)}" download style="padding:6px 12px;background:var(--primary);color:white;border-radius:6px;text-decoration:none;font-size:13px;">ダウンロード</a>
@@ -1777,8 +1777,8 @@ window.submitChatTask = async function() {
                         const fileName = filePath.split('/').pop();
                         contentHtml = `<div class="file-attachment-card" style="background:var(--bg-main);padding:12px;border-radius:8px;display:flex;align-items:center;gap:10px;">
                             <span style="font-size:28px;">📃</span>
-                            <div style="flex:1;min-width:0;">
-                                <div style="font-weight:500;word-break:break-word;">${escapeHtml(fileName)}</div>
+                            <div class="file-attachment-card__title" style="flex:1;min-width:0;">
+                                <div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
                                 <div style="font-size:12px;color:var(--text-light);">テキストファイル</div>
                             </div>
                             <a href="${escapeHtml(filePath)}" target="_blank" style="padding:6px 12px;background:var(--primary);color:white;border-radius:6px;text-decoration:none;font-size:13px;">開く</a>

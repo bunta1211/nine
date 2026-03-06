@@ -30,7 +30,7 @@ const DESIGN_ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'ima
 const DESIGN_ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
 // キャッシュバージョン（CSSやJS更新時に変更）
-const DESIGN_ASSET_VERSION = '1.5.21';
+const DESIGN_ASSET_VERSION = '1.5.22';
 
 // ============================================
 // デザイントークンシステム

@@ -805,7 +805,7 @@ if ($is_secretary_mode) {
                             $has_editable_file = true;
                             echo '<div class="file-attachment-card" data-file-path="' . htmlspecialchars($pdfPath) . '" data-file-display-name="' . htmlspecialchars($pdfFileName) . '" style="background:var(--bg-main);padding:12px;border-radius:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
                             echo '<span style="font-size:32px;">📄</span>';
-                            echo '<div style="flex:1;min-width:0;overflow:hidden;padding:4px 0;">';
+                            echo '<div class="file-attachment-card__title" style="flex:1;min-width:0;overflow:hidden;padding:4px 0;">';
                             echo '<div style="font-weight:500;color:var(--text);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">' . htmlspecialchars($pdfFileName) . '</div>';
                             echo '<div style="font-size:11px;color:var(--text-light);">PDF ドキュメント</div>';
                             echo '</div>';
@@ -846,7 +846,7 @@ if ($is_secretary_mode) {
                             }
                             echo '<div class="file-attachment-card" data-file-path="' . htmlspecialchars($filePath) . '" data-file-display-name="' . htmlspecialchars($officeFileName) . '" style="background:var(--bg-main);padding:12px;border-radius:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
                             echo '<span style="font-size:32px;">' . $emoji . '</span>';
-                            echo '<div style="flex:1;min-width:0;overflow:hidden;padding:4px 0;">';
+                            echo '<div class="file-attachment-card__title" style="flex:1;min-width:0;overflow:hidden;padding:4px 0;">';
                             echo '<div style="font-weight:500;color:var(--text);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">' . htmlspecialchars($officeFileName) . '</div>';
                             echo '<div style="font-size:11px;color:var(--text-light);">' . $typeName . '</div>';
                             echo '</div>';
@@ -872,7 +872,7 @@ if ($is_secretary_mode) {
                             $filePath = $normalizeFilePath($rawPath);
                             echo '<div class="file-attachment-card" style="background:var(--bg-main);padding:12px;border-radius:8px;display:flex;align-items:center;gap:10px;">';
                             echo '<span style="font-size:32px;">📦</span>';
-                            echo '<div style="flex:1;overflow:hidden;"><div style="font-weight:500;color:var(--text);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">' . htmlspecialchars(basename($rawPath)) . '</div><div style="font-size:11px;color:var(--text-light);">圧縮ファイル</div></div>';
+                            echo '<div class="file-attachment-card__title" style="flex:1;overflow:hidden;"><div style="font-weight:500;color:var(--text);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">' . htmlspecialchars(basename($rawPath)) . '</div><div style="font-size:11px;color:var(--text-light);">圧縮ファイル</div></div>';
                             echo '<a href="' . htmlspecialchars($filePath) . '" download style="background:var(--primary);color:white;border:none;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;">⬇ ダウンロード</a>';
                             echo '</div>';
                         // テキスト/CSV/JSONファイル（アップロード済みパスのみ）
@@ -884,7 +884,7 @@ if ($is_secretary_mode) {
                             $typeName = strtoupper($ext);
                             echo '<div class="file-attachment-card" style="background:var(--bg-main);padding:12px;border-radius:8px;display:flex;align-items:center;gap:10px;">';
                             echo '<span style="font-size:32px;">📃</span>';
-                            echo '<div style="flex:1;overflow:hidden;"><div style="font-weight:500;color:var(--text);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">' . htmlspecialchars(basename($rawPath)) . '</div><div style="font-size:11px;color:var(--text-light);">' . $typeName . '</div></div>';
+                            echo '<div class="file-attachment-card__title" style="flex:1;overflow:hidden;"><div style="font-weight:500;color:var(--text);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">' . htmlspecialchars(basename($rawPath)) . '</div><div style="font-size:11px;color:var(--text-light);">' . $typeName . '</div></div>';
                             echo '<a href="' . htmlspecialchars($filePath) . '" target="_blank" style="background:var(--bg-hover);color:var(--text);border:none;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;margin-right:4px;">👁 開く</a>';
                             echo '<a href="' . htmlspecialchars($filePath) . '" download style="background:var(--primary);color:white;border:none;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;">⬇</a>';
                             echo '</div>';
