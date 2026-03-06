@@ -40,18 +40,18 @@
     
     /**
      * テキストエリアの自動リサイズ
+     * 長文貼り付けでも入力欄が伸びないよう、計測時も max-height を外さない。
      * @param {HTMLTextAreaElement} textarea - テキストエリア要素
      * @param {number} maxHeight - 最大高さ（px）
      */
     function autoResizeInput(textarea, maxHeight) {
         if (!textarea) return;
-        // 携帯・PCとも最大15行(300px)
         if (maxHeight == null) maxHeight = 300;
         var minH = 52;
-        // setProperty('important') で CSS !important を確実に上書き
         textarea.style.setProperty('min-height', '0px', 'important');
-        textarea.style.setProperty('max-height', 'none', 'important');
-        textarea.style.setProperty('height', 'auto', 'important');
+        textarea.style.setProperty('max-height', maxHeight + 'px', 'important');
+        textarea.style.setProperty('height', '0px', 'important');
+        textarea.style.setProperty('overflow-y', 'hidden', 'important');
         var sh = textarea.scrollHeight;
         var newHeight = Math.min(maxHeight, Math.max(minH, sh));
         textarea.style.setProperty('height', newHeight + 'px', 'important');

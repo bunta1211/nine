@@ -7052,8 +7052,7 @@ window.submitChatTask = async function() {
             const messageInput = document.getElementById('messageInput');
             messageInput.value = contentToShow;
             
-            // 編集時はコンテンツに合わせて高さを調整
-            messageInput.style.height = 'auto';
+            // 編集時はコンテンツに合わせて高さを調整（height=auto は長文で入力欄が伸びるため行わず autoResizeInput に任せる）
             autoResizeInput(messageInput);
             messageInput.focus();
             
@@ -7763,7 +7762,7 @@ window.submitChatTask = async function() {
 
         // テキストエリア自動リサイズ：7行表示で入力中も読める（168px〜280px）
         // 入力欄を手動リサイズ中（input-area-has-height）のときは高さを触らない
-        // 長文貼り付け時は一時的に height:0 で測るため、親の min-height（.input-row / .input-wrapper）で入力欄が消えないようにし、rAF で計測して崩れを防ぐ
+        // 長文貼り付けでも max-height を外さず計測する（外すと1フレームで入力エリアが伸びてボタンが画面外に出る）
         function autoResizeInput(textarea) {
             if (!textarea) return;
             var inputArea = document.getElementById('inputArea');
@@ -7771,7 +7770,7 @@ window.submitChatTask = async function() {
             var cap = 280;
             var minH = 168;
             textarea.style.setProperty('min-height', '0', 'important');
-            textarea.style.setProperty('max-height', 'none', 'important');
+            textarea.style.setProperty('max-height', cap + 'px', 'important');
             textarea.style.setProperty('height', '0px', 'important');
             textarea.style.setProperty('overflow-y', 'hidden', 'important');
             requestAnimationFrame(function() {

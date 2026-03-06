@@ -2551,6 +2551,7 @@
             background: transparent;
             border-radius: 16px 16px 16px 16px;
             max-height: 380px;
+            overflow: hidden;
         }
         
         /* グループチャットもAI秘書同様に入力欄を画面下端に接着（下余白なし） */

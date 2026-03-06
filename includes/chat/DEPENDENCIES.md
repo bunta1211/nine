@@ -203,6 +203,12 @@ chat.php (317行)
 - フォーマット: `📋 **タスク依頼**` または `✅ **タスク完了**` で始まり、`**ラベル**: 値` 形式の行が続く
 - 出力: `.task-card` 構造（ヘッダー・本文・フッター）
 
+### チャット入力欄の自動リサイズ（長文貼り付け対策）
+
+- **scripts.php** の `window.autoResizeInput`: 長文貼り付け時に入力欄・ボタンが消えないよう、計測時も **max-height を外さず**（常に 280px を維持）`scrollHeight` を取得する。`requestAnimationFrame` 内で高さを適用。
+- **assets/js/chat/utils.js** の `Chat.utils.autoResizeInput`: messages.js の送信後クリア等から呼ばれる。上記と同様に計測時も max-height（引数 maxHeight、未指定時 300px）を維持し、`height: 0` + `overflow-y: hidden` で scrollHeight を取得する実装に統一済み。
+- 編集文・send-to-group 表示時は、`messageInput.style.height = 'auto'` は行わず `autoResizeInput` のみで高さを設定する。
+
 ### 最適化済みの項目
 
 ```
