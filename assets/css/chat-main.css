@@ -3411,6 +3411,7 @@
             align-items: stretch;
             padding: 8px 16px 0 16px;
             gap: 8px;
+            min-height: 168px; /* 長文貼り付け時も autoResize の計測で一瞬 height:0 になっても入力欄が消えないようにする */
         }
         
         .input-wrapper {
@@ -3420,6 +3421,7 @@
             flex-direction: column;
             align-items: stretch;
             gap: 6px;
+            min-height: 168px; /* 同上 */
         }
         
         .input-row textarea,

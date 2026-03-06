@@ -7763,24 +7763,26 @@ window.submitChatTask = async function() {
 
         // テキストエリア自動リサイズ：7行表示で入力中も読める（168px〜280px）
         // 入力欄を手動リサイズ中（input-area-has-height）のときは高さを触らない
+        // 長文貼り付け時は一時的に height:0 で測るため、親の min-height（.input-row / .input-wrapper）で入力欄が消えないようにし、rAF で計測して崩れを防ぐ
         function autoResizeInput(textarea) {
             if (!textarea) return;
             var inputArea = document.getElementById('inputArea');
             if (inputArea && inputArea.classList.contains('input-area-has-height')) return;
             var cap = 280;
             var minH = 168;
-            // 1. 一時的に高さを0にして scrollHeight で内容の実高さを取得（ブラウザ差を吸収）
             textarea.style.setProperty('min-height', '0', 'important');
             textarea.style.setProperty('max-height', 'none', 'important');
             textarea.style.setProperty('height', '0px', 'important');
             textarea.style.setProperty('overflow-y', 'hidden', 'important');
-            var sh = textarea.scrollHeight;
-            // 2. クランプして入力枠を広げる
-            var newHeight = Math.min(cap, Math.max(minH, sh));
-            textarea.style.setProperty('height', newHeight + 'px', 'important');
-            textarea.style.setProperty('min-height', minH + 'px', 'important');
-            textarea.style.setProperty('max-height', cap + 'px', 'important');
-            textarea.style.setProperty('overflow-y', newHeight >= cap ? 'auto' : 'hidden', 'important');
+            requestAnimationFrame(function() {
+                if (!textarea || !textarea.offsetParent) return;
+                var sh = textarea.scrollHeight;
+                var newHeight = Math.min(cap, Math.max(minH, sh));
+                textarea.style.setProperty('height', newHeight + 'px', 'important');
+                textarea.style.setProperty('min-height', minH + 'px', 'important');
+                textarea.style.setProperty('max-height', cap + 'px', 'important');
+                textarea.style.setProperty('overflow-y', newHeight >= cap ? 'auto' : 'hidden', 'important');
+            });
         }
         window.autoResizeInput = autoResizeInput;
         
