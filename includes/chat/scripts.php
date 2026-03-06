@@ -2544,7 +2544,7 @@ window.submitChatTask = async function() {
                 }
                 
                 const script = document.createElement('script');
-                script.src = 'https://meet.jit.si/external_api.js';
+                script.src = '<?= addslashes(rtrim(JITSI_BASE_URL, '/')) ?>/external_api.js';
                 script.async = true;
                 script.onload = () => {
                     jitsiApiLoaded = true;
@@ -2663,7 +2663,7 @@ window.submitChatTask = async function() {
             };
             
             try {
-                jitsiApi = new JitsiMeetExternalAPI('meet.jit.si', options);
+                jitsiApi = new JitsiMeetExternalAPI('<?= addslashes(JITSI_DOMAIN) ?>', options);
                 
                 // イベントリスナー
                 jitsiApi.addListener('participantJoined', (participant) => {

@@ -51,6 +51,8 @@ cp app.local.example.php app.local.php
 | `APP_URL` | ベースURL | "https://social9.jp" |
 | `APP_ENV` | 環境 | "production" / "development" |
 | `APP_DEBUG` | デバッグ・エラー表示 | true / false。本番では false で display_errors=0 |
+| `JITSI_DOMAIN` | Jitsi Meet のドメイン（自前サーバー時は app.local.php で上書き） | "meet.jit.si" / "meet.social9.jp" |
+| `JITSI_BASE_URL` | Jitsi のベースURL（未定義時は `https://` + JITSI_DOMAIN + `/`） | "https://meet.jit.si/" |
 | `TODAY_TOPICS_LIMIT_USER_IDS` | 今日の話題の配信対象限定（JSON配列文字列）。未定義または空で全員対象 | `'[6]'`（KENのみ）。DOCS/TODAY_TOPICS_PHASED_ROLLOUT.md |
 
 ### 主な関数

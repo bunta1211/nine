@@ -15,11 +15,11 @@
     // チャット名前空間を確認
     global.Chat = global.Chat || {};
     
-    // 内部状態
+    // 内部状態（自前 Jitsi 対応: window.__JITSI_DOMAIN を優先）
     let api = null;
     let currentRoom = null;
     let isInCall = false;
-    let domain = 'meet.jit.si';
+    let domain = (typeof window.__JITSI_DOMAIN !== 'undefined' && window.__JITSI_DOMAIN) ? window.__JITSI_DOMAIN : 'meet.jit.si';
     
     /**
      * 初期化
@@ -28,6 +28,8 @@
     function init(options = {}) {
         if (options.domain) {
             domain = options.domain;
+        } else if (typeof window.__JITSI_DOMAIN !== 'undefined' && window.__JITSI_DOMAIN) {
+            domain = window.__JITSI_DOMAIN;
         }
         
         console.log('[Call] Initialized');
@@ -162,7 +164,8 @@
         }
         
         const script = document.createElement('script');
-        script.src = `https://${domain}/external_api.js`;
+        const baseUrl = (typeof window.__JITSI_BASE_URL !== 'undefined' && window.__JITSI_BASE_URL) ? window.__JITSI_BASE_URL : 'https://meet.jit.si';
+        script.src = baseUrl.replace(/\/$/, '') + '/external_api.js';
         script.onload = callback;
         script.onerror = () => {
             console.error('[Call] Failed to load Jitsi API');

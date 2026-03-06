@@ -28,7 +28,7 @@
 | `ai-ask-fallback.php` | ask フォールバック（ai.php 500時の代替、パターンマッチのみ） | 必須 |
 | `ai-deliberation-status.php` | 熟慮モード進行状況取得（ポーリング用）。session_id でログ行を返す | 必須 |
 | `wish_extractor.php` | Wish抽出 | 必須 |
-| `calls.php` | 通話管理 | 必須 |
+| `calls.php` | 通話管理。**自前 Jitsi 対応**: `join_url` は `config/app.php` の `JITSI_BASE_URL` + `room_id` で生成。`app.local.php` で `JITSI_DOMAIN` / `JITSI_BASE_URL` を上書き可能（DOCS/PHONE_VIDEO_CALL_PLAN.md 8.5）。 | 必須 |
 | `language.php` | 言語切替 | 不要 |
 | `google-calendar.php` | Googleカレンダー連携（アカウント管理・イベント作成）。秘書が [CALENDAR_CREATE:...] を返したとき includes/chat/scripts.php の processCalendarCreateTag が create_event を呼び出し。エラー時は error_detail 付きレスポンスとサーバーログ出力 | 必須 |
 | `google-sheets-auth.php` | Googleスプレッドシート OAuth認証開始 | 不要（リダイレクト） |

@@ -206,6 +206,7 @@ chat.php (317行)
 ### チャット入力欄の自動リサイズ（長文貼り付け対策）
 
 - **scripts.php** の `window.autoResizeInput`: 長文貼り付け時に入力欄・ボタンが消えないよう、計測時も **max-height を外さず**（常に 280px を維持）`scrollHeight` を取得する。`requestAnimationFrame` 内で高さを適用し、**二重 rAF** で他ハンドラが後に書き換えても最終的に 168〜280px にクランプする。
+- **input-area-resize.js**（assets/js/chat/）: 入力欄は**下辺固定・上方向にのみ**リサイズする。
 - **scripts.php** の AI秘書用 input リスナー（4503〜4512 行）: 同一 `#messageInput` で後から上書きされないよう、`max-height: none` / `height: auto` は使わず、cap=280・minH=168 を維持して計測する。
 - **scripts.php** の送信後（6679・6702 行）: `input.style.height = 'auto'` を削除し、必ず `autoResizeInput(input)` を実行して高さを 168〜280px に確定する。
 - **assets/js/chat/utils.js** の `Chat.utils.autoResizeInput`: messages.js の送信後クリア等から呼ばれる。minH=168・maxHeight デフォルト 280 に統一し、計測時も max-height を維持する実装。
@@ -401,6 +402,8 @@ chat.php (317行)
 | `sendInviteFromAddFriendModal(contact, type, contactId)` | 連絡先タブから招待を送信 | - |
 
 ### 通話機能（Jitsi統合）
+
+- **自前 Jitsi 対応（計画書 8.5）**: ドメイン・ベースURLは `config/app.php` の `JITSI_DOMAIN` / `JITSI_BASE_URL` で設定。`chat.php` が `window.__JITSI_DOMAIN` と `window.__JITSI_BASE_URL` を head で出力し、`scripts.php`（インライン）は PHP で同定数を参照。`call.php` と `assets/js/chat/call.js`・`assets/js/chat-call.js` は `window.__JITSI_*` を優先（未設定時は meet.jit.si）。API の `join_url` は `api/calls.php` で `JITSI_BASE_URL` から生成。詳細は DOCS/PHONE_VIDEO_CALL_PLAN.md。
 
 ```
 ✅ 最適化済み（2026-01）:

@@ -60,6 +60,9 @@ define('MAX_STORAGE_ORGANIZATION', 10 * 1024 * 1024 * 1024); // 10GB
 // Jitsi Meet設定
 define('JITSI_DOMAIN', 'meet.jit.si');
 define('JITSI_APP_ID', 'social9');
+if (!defined('JITSI_BASE_URL')) {
+    define('JITSI_BASE_URL', 'https://' . JITSI_DOMAIN . '/');
+}
 
 // セッション設定（全デバイスで常時ログオン・ログアウトするまで維持）
 define('SESSION_LIFETIME', 86400 * 30); // 30日

@@ -54,3 +54,11 @@ define('FEATURE_TRANSLATION', true);
 define('FEATURE_CALLS', true);
 define('FEATURE_TASKS', true);
 define('FEATURE_AI_CHAT', true);
+
+// ============================================
+// Jitsi Meet（自前サーバー利用時）
+// ============================================
+// 自前で Jitsi を構築した場合は以下でドメインとベースURLを上書き。
+// 例: define('JITSI_DOMAIN', 'meet.social9.jp');
+// 例: define('JITSI_BASE_URL', 'https://meet.social9.jp/');
+// 未定義の場合は app.php の既定値（meet.jit.si）が使われます。

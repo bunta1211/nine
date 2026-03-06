@@ -156,8 +156,10 @@ if ($is_secretary_mode) {
     <!-- パフォーマンス最適化: preconnect（外部リソース接続を事前確立） -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://meet.jit.si">
+    <link rel="preconnect" href="https://<?= htmlspecialchars(JITSI_DOMAIN) ?>">
     <link rel="preconnect" href="https://media.giphy.com">
+    <!-- 自前 Jitsi 対応: フロントでドメイン・ベースURLを参照 -->
+    <script>window.__JITSI_DOMAIN = <?= json_encode(JITSI_DOMAIN) ?>; window.__JITSI_BASE_URL = <?= json_encode(rtrim(JITSI_BASE_URL, '/')) ?>;</script>
     
     <!-- DNS prefetch（接続頻度が低いドメイン用） -->
     <link rel="dns-prefetch" href="https://api.giphy.com">

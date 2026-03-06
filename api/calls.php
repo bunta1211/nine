@@ -155,8 +155,9 @@ switch ($action) {
             );
         }
         
-        // Jitsi Meet URL
-        $jitsi_url = "https://meet.jit.si/{$room_id}";
+        // Jitsi Meet URL（自前サーバー対応: config の JITSI_BASE_URL）
+        $jitsi_base = rtrim(JITSI_BASE_URL, '/');
+        $jitsi_url = $jitsi_base . '/' . $room_id;
         
         successResponse([
             'call_id' => (int)$call_id,
@@ -199,7 +200,8 @@ switch ($action) {
                 ->execute([$call_id]);
         }
         
-        $jitsi_url = "https://meet.jit.si/{$call['room_id']}";
+        $jitsi_base = rtrim(JITSI_BASE_URL, '/');
+        $jitsi_url = $jitsi_base . '/' . $call['room_id'];
         
         successResponse([
             'call_id' => (int)$call_id,

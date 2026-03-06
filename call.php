@@ -396,7 +396,7 @@ $members = $stmt->fetchAll();
         </div>
     </div>
     
-    <script src="https://meet.jit.si/external_api.js"></script>
+    <script src="<?= htmlspecialchars(rtrim(JITSI_BASE_URL, '/') . '/external_api.js') ?>"></script>
     <script>
         const roomName = '<?= $room_name ?>';
         const displayName = '<?= addslashes($display_name) ?>';
@@ -409,9 +409,9 @@ $members = $stmt->fetchAll();
         let isMuted = false;
         let isVideoOff = callType === 'audio';
         
-        // Jitsi Meet初期化
+        // Jitsi Meet初期化（自前サーバー対応: config の JITSI_DOMAIN）
         function initJitsi() {
-            const domain = 'meet.jit.si';
+            const domain = '<?= addslashes(JITSI_DOMAIN) ?>';
             const options = {
                 roomName: roomName,
                 width: '100%',

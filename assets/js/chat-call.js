@@ -19,7 +19,7 @@ let isScreenSharing = false;
 let localStream = null;
 let jitsiApiLoaded = false;
 
-// Jitsi API を遅延読み込み（初期表示高速化）
+// Jitsi API を遅延読み込み（自前 Jitsi 対応: window.__JITSI_BASE_URL を優先）
 function loadJitsiApi() {
     return new Promise((resolve, reject) => {
         if (window.JitsiMeetExternalAPI) {
@@ -29,7 +29,8 @@ function loadJitsiApi() {
         }
         
         const script = document.createElement('script');
-        script.src = 'https://meet.jit.si/external_api.js';
+        const baseUrl = (typeof window.__JITSI_BASE_URL !== 'undefined' && window.__JITSI_BASE_URL) ? window.__JITSI_BASE_URL : 'https://meet.jit.si';
+        script.src = baseUrl.replace(/\/$/, '') + '/external_api.js';
         script.async = true;
         script.onload = () => {
             jitsiApiLoaded = true;
@@ -256,7 +257,8 @@ async function initJitsiMeet(roomName, startWithVideo) {
     };
     
     try {
-        jitsiApi = new JitsiMeetExternalAPI('meet.jit.si', options);
+        const jitsiDomain = (typeof window.__JITSI_DOMAIN !== 'undefined' && window.__JITSI_DOMAIN) ? window.__JITSI_DOMAIN : 'meet.jit.si';
+        jitsiApi = new JitsiMeetExternalAPI(jitsiDomain, options);
         
         // イベントリスナー
         jitsiApi.addListener('participantJoined', (participant) => {
