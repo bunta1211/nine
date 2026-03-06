@@ -42,7 +42,8 @@
 }
 
 .gif-picker__search:focus {
-    border-color: var(--dt-input-focus-border, #3b82f6);
+    border-color: var(--dt-input-focus-border, #6b7280);
+    box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25));
 }
 
 .gif-picker__search::placeholder {

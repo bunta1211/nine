@@ -28,7 +28,7 @@ assets/css/
 | `panel-resize.css` | 左右パネルリサイズハンドル | chat.php |
 | `panel-panels-unified.css` | パネル間空間の統一・page-chatレイアウト。上パネル共有4ページ（settings/design/tasks/notifications）の `body padding-top` と `.main-container` も管理 | chat.php, settings.php, design.php, tasks.php, notifications.php |
 | `chat-new.css` | 新コンポーネント分離CSS | chat.php |
-| `tokens/base.css` | CSS変数・デザイントークン | chat-new.css |
+| `tokens/base.css` | CSS変数・デザイントークン（`--dt-focus-ring` 等）。フォーカスリングは `var(--dt-input-focus-border)` を参照 | chat-new.css |
 | `layout/main-container.css` | メインコンテナレイアウト | chat-new.css |
 | `layout/header.css` | ヘッダー（上パネル）構造・ドロップダウン共通定義（`.user-dropdown`, `.language-dropdown`, `.task-dropdown-menu`, `.notification-dropdown`）。立体ニューモーフィズム・メタリック。`--dt-header-*` トークン使用。`.top-panel a.top-btn` でタスク/メモ・通知リンクの見た目統一（text-decoration: none; color: #555）。上パネル共有4ページで共通利用 | chat-new.css, settings.php, design.php, tasks.php, notifications.php |
 | `layout/sidebar.css` | 左パネル（サイドバー） | chat-new.css |
@@ -54,7 +54,7 @@ assets/css/
 | `admin-ai-safety.css` | AI安全通報管理ページ（`aisf-*` プレフィクス。統計カード・通報リスト・詳細モーダル・質問フォーム） | admin/ai_safety_reports.php |
 | `secretary-rightpanel.css` | AI秘書（AIクローン）専用右パネル（訓練言語・判断材料ツリー・会話記憶・自動返信統計・アイテム編集モーダル） | chat.php |
 | `ai-reply-suggest.css` | AIクローン返信提案カードUI（提案ボタン・ローディング・**To行**（.ai-reply-suggest-to-row / .ai-reply-suggest-to-btn）・テキストエリア・送信/閉じる・送信完了）。モバイル: body.ai-reply-suggest-open で入力欄・input-show-btn 非表示、textarea は max-height+overflow-y でスクロール可能、.ai-reply-suggest-overlay で固定オーバーレイ表示 | chat.php |
-| `storage.css` | 共有フォルダUI（エクスプローラー風一覧、**表示切替** テキストリスト/画像サムネイルグリッド `.sv-grid-mode`・`.sv-file-card-grid`、プレビュー、共有モーダル、容量バー） | chat.php |
+| `storage.css` | 共有フォルダUI（エクスプローラー風一覧、**表示切替** テキストリスト/画像サムネイルグリッド `.sv-grid-mode`・`.sv-file-card-grid`、プレビュー、共有モーダル、容量バー）。色は `--dt-accent` / `--dt-input-focus-border` / `--dt-btn-primary-bg` でデザイン統一 | chat.php |
 
 ## 移行状況
 

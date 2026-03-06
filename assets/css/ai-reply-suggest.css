@@ -106,8 +106,8 @@
     min-height: 60px;
 }
 .ai-reply-suggest-textarea:focus {
-    border-color: var(--dt-primary, #9b8ec4);
-    box-shadow: 0 0 0 2px rgba(155, 142, 196, .15);
+    border-color: var(--dt-input-focus-border, var(--dt-primary, #9b8ec4));
+    box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25));
 }
 
 .ai-reply-suggest-actions {

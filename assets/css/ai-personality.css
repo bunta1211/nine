@@ -105,8 +105,8 @@
 }
 .ai-personality-input:focus {
     outline: none;
-    border-color: var(--dt-primary, #7c6bc4);
-    box-shadow: 0 0 0 2px rgba(124,107,196,0.15);
+    border-color: var(--dt-input-focus-border, var(--dt-primary, #7c6bc4));
+    box-shadow: 0 0 0 2px var(--dt-input-focus-border, rgba(107, 114, 128, 0.25));
 }
 .ai-personality-char-count {
     text-align: right;

@@ -188,6 +188,9 @@
     --dt-input-placeholder: var(--text-muted);
     --dt-input-border: var(--border);
     --dt-input-focus-border: var(--primary);
+
+    /* フォーカスリング（キーボード操作時の視認性・a11y） */
+    --dt-focus-ring: 0 0 0 2px var(--dt-input-focus-border);
     
     /* メッセージ */
     --dt-msg-self-bg: rgba(255,255,255,0.95);
