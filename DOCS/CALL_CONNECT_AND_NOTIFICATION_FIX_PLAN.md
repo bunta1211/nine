@@ -96,6 +96,8 @@ sequenceDiagram
 | 発信者が leave せずに抜け、call が ringing のまま残る | endCall および beforeunload で leave を必ず呼ぶ。currentCallId を保持して leave に渡す。 |
 | 会議が「モデレーター待ち」で開始されない | 発信者のみ startConference: true を送る（済）。自前 Jitsi で everyoneIsModerator 等を設定。 |
 | 発信者が先にタブを閉じ、着信者が join したときには誰もいない | leave を呼べば call は ended になり、着信者は get_active で当該通話を取得しなくなる。新たに発信し直せばよい。 |
+| コンソールに net::ERR_FAILED が出る | Network タブで失敗しているリソースの URL を確認する。meet.jit.si または WebRTC がファイアウォール等でブロックされていないか、別ネットで試す。詳細は [CALL_VERIFICATION_AND_TROUBLESHOOTING.md](CALL_VERIFICATION_AND_TROUBLESHOOTING.md) を参照。 |
+| speaker-selection / RECORDING OFF SOUND 等のコンソールエラー | Jitsi/ブラウザの互換による警告のことが多い。まずは「私はホストです」の実施と Network の確認を優先する。詳細は [CALL_VERIFICATION_AND_TROUBLESHOOTING.md](CALL_VERIFICATION_AND_TROUBLESHOOTING.md) を参照。 |
 | 相手パネルで Jitsi iframe が mousedown を奪い、パネルが動かせない | 相手パネル用のドラッグハンドル（ラベル「相手」または専用バー）を設け、その要素でのみドラッグを開始する。 |
 | 画面サイズが固定で変更しづらい | 各パネルにリサイズハンドルを付け、ドラッグで大きさを変更可能にする。 |
 
