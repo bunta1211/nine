@@ -11,7 +11,7 @@
 |------|----------------------------|
 | 「通話に参加しています」のまま繋がらない | スピナーが続き、相手の映像が表示されない。タイマー 00:00 のまま。 |
 | **net::ERR_FAILED** | DevTools Console に `Failed to load resource: net::ERR_FAILED`。**どの URL が失敗しているかは Console だけでは分からない**ため、Network タブで失敗したリクエストの URL を確認する。 |
-| **chrome-extension://invalid/ の net::ERR_FAILED** | 失敗しているリソースが `chrome-extension://invalid/:1` の場合。**ブラウザまたは拡張機能（例: DevTools の AI 機能）が無効な拡張 URL を読もうとして出るもので、アプリ・Jitsi の通話とは無関係**。通話が繋がらない原因としては無視してよい。気になる場合はシークレットウィンドウや拡張無効で試す。 |
+| **chrome-extension://invalid/ の net::ERR_FAILED** | 失敗しているリソースが `chrome-extension://invalid/:1` の場合。スタックトレースに `checkChromeExtensionsInstalled.web.ts` と出ることがあるが、**このファイルは Social9 のコードではなく、Chrome や Jitsi 側の拡張チェック**。ブラウザまたは Jitsi が拡張の有無を参照して出るもので、アプリ・通話の原因ではない。無視してよい。気になる場合はシークレットウィンドウや拡張無効で試す。 |
 | **Unrecognized feature: 'speaker-selection'** | `external_api.is:364`。Jitsi がブラウザに speaker-selection を要求しているが、未対応・未認識。 |
 | **RECORDING OFF SOUND** | `[app:sounds] PLAY SOUND: no sound found for id: RECORDING OFF SOUND`。音声アセット不足。 |
 | **web-hid non-compliant** | `[app:web-hid] sendDeviceReport: There are currently non-compliant conditions`。デバイス／HID の条件が非準拠。 |
@@ -25,7 +25,7 @@
 ### 2.1 ネットワーク・リソース（net::ERR_FAILED の正体）
 
 - **目的**: どの URL が `net::ERR_FAILED` で失敗しているかを特定する。
-- **重要**: 失敗している URL が **`chrome-extension://invalid/`** のときは、ブラウザや DevTools（例: Console Insights / AI assistance）が無効な拡張を参照して出るエラーであり、**通話の原因ではない**。無視してよい。
+- **重要**: 失敗している URL が **`chrome-extension://invalid/`** のときは、ブラウザや Jitsi（拡張チェック）が無効な拡張を参照して出るエラーであり、**通話の原因ではない**。無視してよい。コンソールの説明で `checkChromeExtensionsInstalled.web.ts` と出ても、このファイルは Social9 には含まれておらず、Chrome または Jitsi 側のコードである。
 - **手順**:
   1. call.php を開き、DevTools の **Network** タブを開いた状態で通話を開始する。
   2. ステータスが "Failed" または "(failed)" のリクエストを記録する（URL・種類・Initiator）。
