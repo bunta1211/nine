@@ -407,6 +407,7 @@ chat.php (317行)
 - **自前 Jitsi 対応（計画書 8.5）**: ドメイン・ベースURLは `config/app.php` の `JITSI_DOMAIN` / `JITSI_BASE_URL` で設定。`chat.php` が `window.__JITSI_DOMAIN` と `window.__JITSI_BASE_URL` を head で出力し、`scripts.php`（インライン）は PHP で同定数を参照。`call.php` と `assets/js/chat/call.js`・`assets/js/chat-call.js` は `window.__JITSI_*` を優先（未設定時は meet.jit.si）。API の `join_url` は `api/calls.php` で `JITSI_BASE_URL` から生成。詳細は DOCS/PHONE_VIDEO_CALL_PLAN.md。
 - **会議開始・二重表示の防止**: 発信者のみ `showCallUIAndStartJitsi(..., true)`（isInitiator=true）で Jitsi に `startConference: true` を渡し、着信で「出る」のときは `false`。これで「モデレーター待ち」で双方が止まるのを防ぐ。2画面レイアウトでは「自分」パネルにローカルカメラ、「相手」パネルに Jitsi を表示。Jitsi は `disableSelfView: true` と `filmstrip.disabled: true` で自分を非表示にし、相手のみ表示する。
 - **終了時の leave 必呼び出し（重複通知防止）**: 通話終了時・タブ閉じ時に相手へ同じ着信が何度も表示されないよう、`currentCallId` を保持し、`endCall()` および `handleBeforeUnload` で `api/calls.php?action=leave` を必ず呼ぶ。詳細は DOCS/CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md。
+- **meet.jit.si 暫定案内**: 通話が繋がらない場合の暫定として、相手パネル下に「接続しない場合は、画面内の『私はホストです』を押してください」を表示（`.call-jitsi-host-hint`）。確実に繋ぐには自前 Jitsi で会議即開始設定を実施すること（DOCS/通話が繋がらない原因特定と接続計画）。
 
 ```
 ✅ 最適化済み（2026-01）:

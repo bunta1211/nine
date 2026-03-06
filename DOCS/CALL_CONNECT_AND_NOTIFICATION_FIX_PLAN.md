@@ -10,6 +10,8 @@
 
 ## 2. 接続を「様々な角度から」検証する項目
 
+**通信が繋がらない主因**: meet.jit.si（公開サーバー）では、iframe 経由の configOverwrite.startConference が**尊重されず**、会議が「モデレーター待ち」のまま開始されないことがある。アプリ側では発信者に startConference: true を送っているが、サーバー側で効かないため、確実に繋ぐには**自前 Jitsi を構築し、サーバー側 config で会議即開始（everyoneIsModerator 等）を設定すること**が必須。詳しくは [PHONE_VIDEO_CALL_PLAN.md](DOCS/PHONE_VIDEO_CALL_PLAN.md) 8.2-B・8.6 を参照。
+
 ### 2.1 同線の一意性（同じルームに必ず入る）
 
 | 検証項目 | 現状 | リスクと対策 |

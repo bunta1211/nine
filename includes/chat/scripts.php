@@ -2500,6 +2500,7 @@ window.submitChatTask = async function() {
                     <div class="call-panel-circle call-panel-circle-remote">
                         <div id="jitsiContainer" class="call-jitsi-wrap"></div>
                     </div>
+                    <p class="call-jitsi-host-hint">接続しない場合は、画面内の「私はホストです」を押してください。</p>
                 </div>
             `;
             videoContainer.appendChild(twoPanels);
