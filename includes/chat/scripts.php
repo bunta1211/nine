@@ -4501,15 +4501,18 @@ window.submitChatTask = async function() {
                         }
                     });
                     input.addEventListener('input', function() {
-                        var cap = 180;
+                        var cap = 280;
+                        var minH = 168;
                         this.style.setProperty('min-height', '0px', 'important');
-                        this.style.setProperty('max-height', 'none', 'important');
-                        this.style.setProperty('height', 'auto', 'important');
-                        var sh = this.scrollHeight;
-                        var h = Math.min(sh, cap);
-                        this.style.setProperty('height', h + 'px', 'important');
                         this.style.setProperty('max-height', cap + 'px', 'important');
-                        this.style.setProperty('min-height', '0px', 'important');
+                        this.style.setProperty('height', '0px', 'important');
+                        this.style.setProperty('overflow-y', 'hidden', 'important');
+                        var sh = this.scrollHeight;
+                        var h = Math.min(cap, Math.max(minH, sh));
+                        this.style.setProperty('height', h + 'px', 'important');
+                        this.style.setProperty('min-height', minH + 'px', 'important');
+                        this.style.setProperty('max-height', cap + 'px', 'important');
+                        this.style.setProperty('overflow-y', h >= cap ? 'auto' : 'hidden', 'important');
                     });
                 }
                 // AI用⊕は openUnifiedAttachFilePicker({ imageOnly: true }) に統一（onclick で呼び出し）。aiFileInput は後方互換のため残す。
@@ -6677,7 +6680,7 @@ window.submitChatTask = async function() {
                 if (pending && pending.conversation_id && content) {
                     window.__pendingSendToGroup = null;
                     input.value = '';
-                    input.style.height = 'auto';
+                    if (typeof autoResizeInput === 'function') autoResizeInput(input);
                     var payload = { action: 'send', conversation_id: parseInt(pending.conversation_id, 10), content: content };
                     if (Array.isArray(pending.mention_ids) && pending.mention_ids.length > 0) {
                         payload.mention_ids = pending.mention_ids;
@@ -6699,7 +6702,7 @@ window.submitChatTask = async function() {
                     return;
                 }
                 input.value = '';
-                input.style.height = 'auto';
+                if (typeof autoResizeInput === 'function') autoResizeInput(input);
                 // ユーザー発言から秘書の名前を検出して即時保存（AIタグに頼らないフォールバック）
                 const extractedName = extractSecretaryNameFromUserMessage(content);
                 if (extractedName && typeof processSecretaryNameTag === 'function') {
@@ -7781,6 +7784,15 @@ window.submitChatTask = async function() {
                 textarea.style.setProperty('min-height', minH + 'px', 'important');
                 textarea.style.setProperty('max-height', cap + 'px', 'important');
                 textarea.style.setProperty('overflow-y', newHeight >= cap ? 'auto' : 'hidden', 'important');
+                requestAnimationFrame(function() {
+                    if (!textarea || !textarea.offsetParent) return;
+                    var sh2 = textarea.scrollHeight;
+                    var finalHeight = Math.min(cap, Math.max(minH, sh2));
+                    textarea.style.setProperty('height', finalHeight + 'px', 'important');
+                    textarea.style.setProperty('min-height', minH + 'px', 'important');
+                    textarea.style.setProperty('max-height', cap + 'px', 'important');
+                    textarea.style.setProperty('overflow-y', finalHeight >= cap ? 'auto' : 'hidden', 'important');
+                });
             });
         }
         window.autoResizeInput = autoResizeInput;

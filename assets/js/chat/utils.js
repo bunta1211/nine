@@ -46,8 +46,8 @@
      */
     function autoResizeInput(textarea, maxHeight) {
         if (!textarea) return;
-        if (maxHeight == null) maxHeight = 300;
-        var minH = 52;
+        if (maxHeight == null) maxHeight = 280;
+        var minH = 168;
         textarea.style.setProperty('min-height', '0px', 'important');
         textarea.style.setProperty('max-height', maxHeight + 'px', 'important');
         textarea.style.setProperty('height', '0px', 'important');

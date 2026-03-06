@@ -205,8 +205,10 @@ chat.php (317行)
 
 ### チャット入力欄の自動リサイズ（長文貼り付け対策）
 
-- **scripts.php** の `window.autoResizeInput`: 長文貼り付け時に入力欄・ボタンが消えないよう、計測時も **max-height を外さず**（常に 280px を維持）`scrollHeight` を取得する。`requestAnimationFrame` 内で高さを適用。
-- **assets/js/chat/utils.js** の `Chat.utils.autoResizeInput`: messages.js の送信後クリア等から呼ばれる。上記と同様に計測時も max-height（引数 maxHeight、未指定時 300px）を維持し、`height: 0` + `overflow-y: hidden` で scrollHeight を取得する実装に統一済み。
+- **scripts.php** の `window.autoResizeInput`: 長文貼り付け時に入力欄・ボタンが消えないよう、計測時も **max-height を外さず**（常に 280px を維持）`scrollHeight` を取得する。`requestAnimationFrame` 内で高さを適用し、**二重 rAF** で他ハンドラが後に書き換えても最終的に 168〜280px にクランプする。
+- **scripts.php** の AI秘書用 input リスナー（4503〜4512 行）: 同一 `#messageInput` で後から上書きされないよう、`max-height: none` / `height: auto` は使わず、cap=280・minH=168 を維持して計測する。
+- **scripts.php** の送信後（6679・6702 行）: `input.style.height = 'auto'` を削除し、必ず `autoResizeInput(input)` を実行して高さを 168〜280px に確定する。
+- **assets/js/chat/utils.js** の `Chat.utils.autoResizeInput`: messages.js の送信後クリア等から呼ばれる。minH=168・maxHeight デフォルト 280 に統一し、計測時も max-height を維持する実装。
 - 編集文・send-to-group 表示時は、`messageInput.style.height = 'auto'` は行わず `autoResizeInput` のみで高さを設定する。
 
 ### 最適化済みの項目
