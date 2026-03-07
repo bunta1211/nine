@@ -398,12 +398,46 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
             background: rgba(34, 197, 94, 0.2);
             border: 1px solid rgba(74, 222, 128, 0.5);
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.5;
             text-align: center;
             display: none;
         }
         .connecting-overlay .call-start-meeting-hint.visible { display: block; }
+        .connecting-overlay .call-start-meeting-hint .call-hint-label {
+            display: block;
+            font-size: 12px;
+            opacity: 0.95;
+            margin-bottom: 6px;
+        }
+        .connecting-overlay .call-connection-checklist {
+            margin-top: 10px;
+            font-size: 13px;
+            text-align: left;
+            padding-left: 1em;
+        }
+        .connecting-overlay .call-connection-checklist ul { margin: 4px 0 0 0; padding-left: 1.2em; }
+        .connecting-overlay .call-debug-toggle { margin-top: 10px; }
+        .connecting-overlay .call-debug-toggle button {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .connecting-overlay .call-debug-content {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            font-size: 11px;
+            text-align: left;
+            display: none;
+        }
+        .connecting-overlay .call-debug-content.visible { display: block; }
+        .connecting-overlay .call-dev-note { font-size: 11px; opacity: 0.9; margin-top: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <?= generateDesignCSS($designSettings) ?>
@@ -456,10 +490,20 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
                     <div class="spinner"></div>
                     <h3>接続中...</h3>
                     <p style="opacity: 0.7; margin-top: 8px;">通話に参加しています</p>
-                    <p class="call-start-meeting-hint" id="callStartMeetingHint">発信者の方: Jitsi の画面の<strong>中央や下部にある青い「ミーティングに参加」ボタン</strong>を押すと通話が始まります。「私はホストです」の表示がなくても、同じボタンを押してください。</p>
+                    <p class="call-start-meeting-hint" id="callStartMeetingHint"><span class="call-hint-label">最初にやること</span>Jitsi の画面の<strong>中央や下部にある青い「ミーティングに参加」ボタン</strong>を押すと通話が始まります。「私はホストです」の表示がなくても、同じボタンを押してください。</p>
                     <div class="connection-failure-reason" id="connectionFailureReason">
                         <p id="connectionFailureText"></p>
+                        <div class="call-connection-checklist" id="callConnectionChecklist" style="display:none;">
+                            <strong>接続チェックリスト（発信者の方）</strong>
+                            <ul>
+                                <li>青い「ミーティングに参加」ボタンを押しましたか？</li>
+                                <li>まだなら、Jitsi 画面の中央・下部を確認してください。</li>
+                            </ul>
+                        </div>
                         <p class="call-console-note">※コンソールに「chrome-extension」や「net::ERR_FAILED」と出ても、通話には影響ありません。</p>
+                        <p class="call-dev-note" id="callDevNote" style="display:none;"></p>
+                        <div class="call-debug-toggle"><button type="button" id="callDebugToggle">詳細を表示</button></div>
+                        <div class="call-debug-content" id="callDebugContent"></div>
                         <p style="margin-top: 8px;"><a href="help/call-troubleshooting.php" target="_blank" rel="noopener">通話で困ったとき（ヘルプ）</a></p>
                     </div>
                 </div>
@@ -522,6 +566,7 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
         const conversationId = <?= (int)$conversation_id ?>;
         const callId = <?= (int)$call_id_param ?>; // leave API 用（0の場合はレガシー c= のみなので leave しない）
         const isInitiator = <?= $is_initiator ? 'true' : 'false' ?>;
+        const jitsiDomain = '<?= addslashes(JITSI_DOMAIN) ?>';
         const apiCallsBase = (function(){
             const a = document.createElement('a');
             a.href = window.location.href;
@@ -551,6 +596,13 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
             var reasonEl = document.getElementById('connectionFailureReason');
             if (textEl) textEl.textContent = text;
             if (reasonEl) reasonEl.classList.add('visible');
+            var checklistEl = document.getElementById('callConnectionChecklist');
+            if (checklistEl && isInitiator) checklistEl.style.display = 'block';
+            var devNoteEl = document.getElementById('callDevNote');
+            if (devNoteEl) {
+                devNoteEl.style.display = 'block';
+                devNoteEl.textContent = '開発者向け: 繋がらない場合はブラウザの Network タブで、meet.jit.si や social9.jp への Failed リクエストがないか確認してください。';
+            }
         }
         
         // Jitsi Meet初期化（自前サーバー対応: config の JITSI_DOMAIN）
@@ -751,6 +803,22 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
             }
             window.connectionFailureTimeout = null;
         }, 15000);
+        // 詳細表示トグル（Jitsi ドメイン・room_id 等）
+        (function() {
+            var btn = document.getElementById('callDebugToggle');
+            var content = document.getElementById('callDebugContent');
+            if (!btn || !content) return;
+            btn.addEventListener('click', function() {
+                if (content.classList.contains('visible')) {
+                    content.classList.remove('visible');
+                    btn.textContent = '詳細を表示';
+                } else {
+                    content.innerHTML = 'Jitsi ドメイン: ' + jitsiDomain + '<br>room_id: ' + roomName + '<br>external_api.js: ' + (typeof JitsiMeetExternalAPI !== 'undefined' ? '読み込み済み' : '未読み込み');
+                    content.classList.add('visible');
+                    btn.textContent = '詳細を閉じる';
+                }
+            });
+        })();
     </script>
 </body>
 </html>
