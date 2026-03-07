@@ -70,7 +70,7 @@ if (isLoggedIn()) {
     </ul>
 
     <div class="help-warn">
-        確実に繋がるようにするには、サービス側で自前の通話サーバー（Jitsi）を導入し、会議が自動で開始される設定にすることが推奨されています。くわしくは運営にお問い合わせください。
+        確実に繋がるようにするには、サービス側で自前の通話サーバー（Jitsi）を導入し、会議が自動で開始される設定にすることが推奨されています。手順の概要は DOCS 内の <strong>JITSI_SELFHOST_QUICKSTART.md</strong> を参照するか、運営にお問い合わせください。
     </div>
 
     <a href="../chat.php" class="back-link">← チャットに戻る</a>
