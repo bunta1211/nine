@@ -38,8 +38,9 @@ $is_secretary_mode = isset($_GET['secretary']) && $_GET['secretary'] === '1';
 $is_mobile_request = is_mobile_request();
 
 // URLパラメータがない場合、セッションから復元してリダイレクト（秘書モード・モバイルの場合は除く）
-// モバイルでは会話未指定のままグループ一覧を表示するためリダイレクトしない
-if (!$selected_conversation_id && !$is_secretary_mode && !$is_mobile_request && isset($_SESSION['last_conversation_id'])) {
+// 組織フィルタ指定時はリダイレクトしない（A組織を開いた状態をリロードで維持するため）
+$has_filter_param = isset($_GET['filter']) && preg_match('/^(all|unread|group|dm|org-\d+)$/', (string)$_GET['filter']);
+if (!$selected_conversation_id && !$is_secretary_mode && !$is_mobile_request && isset($_SESSION['last_conversation_id']) && !$has_filter_param) {
     header('Location: chat.php?c=' . (int)$_SESSION['last_conversation_id']);
     exit;
 }
@@ -55,7 +56,11 @@ if ($selected_conversation_id) {
     if (!$stmt->fetch()) {
         unset($_SESSION['last_conversation_id']);
         $selected_conversation_id = null;
-        header('Location: chat.php');
+        $redirectUrl = 'chat.php';
+        if (isset($_GET['filter']) && preg_match('/^(all|unread|group|dm|org-\d+)$/', (string)$_GET['filter'])) {
+            $redirectUrl .= '?filter=' . urlencode((string)$_GET['filter']);
+        }
+        header('Location: ' . $redirectUrl);
         exit;
     }
     $_SESSION['last_conversation_id'] = $selected_conversation_id;
@@ -111,6 +116,14 @@ $convData = getSelectedConversationData($pdo, $user_id, $selected_conversation_i
 $selected_conversation = $convData['conversation'];
 $messages = $convData['messages'];
 $members = $convData['members'];
+
+// 左パネルフィルタの初期値（リロードで組織を維持するため。URLのfilter > 選択会話の組織）
+$initial_left_panel_filter = 'all';
+if (isset($_GET['filter']) && preg_match('/^(all|unread|group|dm|org-\d+)$/', (string)$_GET['filter'])) {
+    $initial_left_panel_filter = (string)$_GET['filter'];
+} elseif (!empty($selected_conversation['organization_id'])) {
+    $initial_left_panel_filter = 'org-' . (int)$selected_conversation['organization_id'];
+}
 
 // 秘書モード時: 強制リロードでも選択が消えないようDBの値をページに埋め込む
 $ai_prefill = null;
@@ -301,7 +314,7 @@ if ($is_secretary_mode) {
         $topbar_mobile_title = $ai_prefill['name'];
     }
 ?>
-<body class="page-chat style-<?= htmlspecialchars($effectiveStyle) ?>" data-theme="<?= htmlspecialchars($themeId) ?>" data-style="<?= htmlspecialchars($effectiveStyle) ?>" data-bg-style="" data-bg-design="" data-display-name="<?= htmlspecialchars($display_name) ?>" data-user-id="<?= (int)$user_id ?>" data-bg-light="0" data-mobile-list-first="<?= ($is_mobile_request && !$selected_conversation_id) ? '1' : '0' ?>" data-has-conversation="<?= $selected_conversation_id ? '1' : '0' ?>">
+<body class="page-chat style-<?= htmlspecialchars($effectiveStyle) ?>" data-theme="<?= htmlspecialchars($themeId) ?>" data-style="<?= htmlspecialchars($effectiveStyle) ?>" data-bg-style="" data-bg-design="" data-display-name="<?= htmlspecialchars($display_name) ?>" data-user-id="<?= (int)$user_id ?>" data-bg-light="0" data-mobile-list-first="<?= ($is_mobile_request && !$selected_conversation_id) ? '1' : '0' ?>" data-has-conversation="<?= $selected_conversation_id ? '1' : '0' ?>" data-initial-left-panel-filter="<?= htmlspecialchars($initial_left_panel_filter) ?>">
 <script>(function(){if(window.innerWidth<=768){if(typeof history!=='undefined'){try{history.scrollRestoration='manual';}catch(e){}}if(document.body.getAttribute('data-has-conversation')==='0'){document.body.setAttribute('data-mobile-list-first','1');}}})();</script>
     
     <!-- スクリーンリーダー用h1 -->

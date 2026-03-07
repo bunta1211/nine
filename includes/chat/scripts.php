@@ -7555,11 +7555,18 @@ window.submitChatTask = async function() {
         let contextTargetConvId = null;
         let contextTargetConvEl = null;
         
-        // グループ作成モーダルを開く（グループタブをデフォルトで選択。現在開いている会話が組織付きグループならその組織を初期選択）
+        // グループ作成モーダルを開く（グループタブをデフォルトで選択。現在の組織フィルタまたは開いている会話の組織を初期選択）
         function openCreateGroupModal() {
-            var convId = typeof conversationId !== 'undefined' ? conversationId : (window.currentConversationId || null);
-            var activeItem = convId ? document.querySelector('.conv-item[data-conv-id="' + convId + '"]') : document.querySelector('.conv-item.active');
-            var orgId = (activeItem && activeItem.getAttribute('data-organization-id')) ? activeItem.getAttribute('data-organization-id').trim() : '';
+            var orgId = '';
+            var filter = window.currentLeftPanelFilter || '';
+            if (filter.indexOf('org-') === 0) {
+                orgId = filter.replace('org-', '').trim();
+            }
+            if (!orgId) {
+                var convId = typeof conversationId !== 'undefined' ? conversationId : (window.currentConversationId || null);
+                var activeItem = convId ? document.querySelector('.conv-item[data-conv-id="' + convId + '"]') : document.querySelector('.conv-item.active');
+                orgId = (activeItem && activeItem.getAttribute('data-organization-id')) ? activeItem.getAttribute('data-organization-id').trim() : '';
+            }
             var sel = document.getElementById('newConversationOrganizationId');
             if (sel && orgId !== '') {
                 if (sel.querySelector('option[value="' + orgId + '"]')) {
@@ -10595,7 +10602,13 @@ window.submitChatTask = async function() {
         }
         
         // 左パネルフィルタ（単一選択: すべて/未読/グループ/友達/組織のいずれか1つのみ）
-        window.currentLeftPanelFilter = 'all';
+        // リロードで組織を維持: body の data-initial-left-panel-filter または URL の filter を優先
+        var initialFilter = (document.body && document.body.getAttribute('data-initial-left-panel-filter')) || '';
+        if (initialFilter && /^(all|unread|group|dm|org-\d+)$/.test(initialFilter)) {
+            window.currentLeftPanelFilter = initialFilter;
+        } else {
+            window.currentLeftPanelFilter = 'all';
+        }
         
         // 会話リストにフィルタを適用（filter: all | unread | group | dm | org-5）
         function applyLeftPanelFilter(filter) {
@@ -10740,6 +10753,11 @@ window.submitChatTask = async function() {
                     if (trigger) trigger.setAttribute('aria-label', this.textContent.trim());
                     closeDropdown();
                     applyLeftPanelFilter(filter);
+                    try {
+                        var u = new URL(window.location.href);
+                        u.searchParams.set('filter', filter);
+                        window.history.replaceState({}, '', u.toString());
+                    } catch (e) {}
                     if (filter === 'dm' && typeof loadFriendsList === 'function') loadFriendsList();
             });
         });
@@ -10842,8 +10860,13 @@ window.submitChatTask = async function() {
                     body: JSON.stringify(payload)
                 });
                 const data = await response.json();
-                if (data.success) location.href = '?c=' + data.conversation_id;
-                else alert(data.message || 'エラー');
+                if (data.success) {
+                    var targetUrl = '?c=' + data.conversation_id;
+                    if (payload.organization_id) targetUrl += '&filter=org-' + payload.organization_id;
+                    location.href = targetUrl;
+                } else {
+                    alert(data.message || 'エラー');
+                }
             } catch (e) { alert('<?= $currentLang === 'en' ? 'Creation failed' : ($currentLang === 'zh' ? '创建失败' : '作成失敗') ?>'); }
         }
         
