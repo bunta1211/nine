@@ -314,7 +314,7 @@ if ($is_secretary_mode) {
         $topbar_mobile_title = $ai_prefill['name'];
     }
 ?>
-<body class="page-chat style-<?= htmlspecialchars($effectiveStyle) ?>" data-theme="<?= htmlspecialchars($themeId) ?>" data-style="<?= htmlspecialchars($effectiveStyle) ?>" data-bg-style="" data-bg-design="" data-display-name="<?= htmlspecialchars($display_name) ?>" data-user-id="<?= (int)$user_id ?>" data-bg-light="0" data-mobile-list-first="<?= ($is_mobile_request && !$selected_conversation_id) ? '1' : '0' ?>" data-has-conversation="<?= $selected_conversation_id ? '1' : '0' ?>" data-initial-left-panel-filter="<?= htmlspecialchars($initial_left_panel_filter) ?>">
+<body class="page-chat style-<?= htmlspecialchars($effectiveStyle) ?>" data-theme="<?= htmlspecialchars($themeId) ?>" data-style="<?= htmlspecialchars($effectiveStyle) ?>" data-bg-style="" data-bg-design="" data-display-name="<?= htmlspecialchars($display_name) ?>" data-user-id="<?= (int)$user_id ?>" data-user-auth-level="<?= (int)($user['auth_level'] ?? 0) ?>" data-bg-light="0" data-mobile-list-first="<?= ($is_mobile_request && !$selected_conversation_id) ? '1' : '0' ?>" data-has-conversation="<?= $selected_conversation_id ? '1' : '0' ?>" data-initial-left-panel-filter="<?= htmlspecialchars($initial_left_panel_filter) ?>">
 <script>(function(){if(window.innerWidth<=768){if(typeof history!=='undefined'){try{history.scrollRestoration='manual';}catch(e){}}if(document.body.getAttribute('data-has-conversation')==='0'){document.body.setAttribute('data-mobile-list-first','1');}}})();</script>
     
     <!-- スクリーンリーダー用h1 -->

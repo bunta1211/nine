@@ -412,6 +412,14 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <!-- 本人確認未済時: 既存のグループをこの組織に追加 -->
+                    <div class="form-group chat-add-group-clone-from" id="chatAddGroupCloneFromWrap" style="display:none;">
+                        <label><?= $currentLang === 'en' ? 'Add existing group to this organization' : ($currentLang === 'zh' ? '将现有群组添加到此组织' : '既存のグループをこの組織に追加') ?></label>
+                        <p class="form-hint"><?= $currentLang === 'en' ? 'If you are an admin of a group in another organization, you can add it here without identity verification.' : ($currentLang === 'zh' ? '如果您是其他组织中某群组的管理员，可在此添加而无需身份验证。' : '他の組織で管理者のグループがあれば、本人確認なしでこの組織に同じ名前のグループを作成できます。') ?></p>
+                        <select id="newConversationCloneFromId" aria-label="<?= $currentLang === 'en' ? 'Select existing group' : ($currentLang === 'zh' ? '选择现有群组' : '既存のグループを選択') ?>">
+                            <option value="">— <?= $currentLang === 'en' ? 'Select' : ($currentLang === 'zh' ? '选择' : '選択') ?> —</option>
+                        </select>
+                    </div>
                     <!-- 多言語グループ名入力 -->
                     <div class="i18n-input-group">
                         <div class="form-group i18n-field">

@@ -130,7 +130,30 @@ switch ($action) {
         
         successResponse(['conversations' => $conversations]);
         break;
-        
+    
+    case 'list_my_admin_groups':
+        // 本人確認未済で組織ルームを作る際の「既存のグループをこの組織に追加」用。自分が管理者のグループ一覧を返す
+        $hasNameI18n = false;
+        try {
+            $col = $pdo->query("SHOW COLUMNS FROM conversations LIKE 'name_en'")->fetch();
+            $hasNameI18n = ($col !== false);
+        } catch (Throwable $e) {}
+        $nameCols = $hasNameI18n ? 'c.name, c.name_en, c.name_zh' : 'c.name, NULL as name_en, NULL as name_zh';
+        $stmt = $pdo->prepare("
+            SELECT c.id, " . $nameCols . "
+            FROM conversations c
+            INNER JOIN conversation_members cm ON c.id = cm.conversation_id AND cm.user_id = ? AND cm.left_at IS NULL AND cm.role = 'admin'
+            WHERE c.type = 'group'
+            ORDER BY c.name
+        ");
+        $stmt->execute([$user_id]);
+        $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($groups as &$g) {
+            $g['id'] = (int)$g['id'];
+        }
+        successResponse(['groups' => $groups]);
+        break;
+    
     case 'list_with_unread':
         // ポーリング用：未読数と時刻表示を含む軽量版リスト（アイコン表示用のカラムも取得）
         $stmt = $pdo->prepare("
@@ -412,11 +435,31 @@ switch ($action) {
                 errorResponse('グループ名が必要です');
             }
             
-            // 組織紐付けの場合、本人確認が必要
+            // 組織紐付けの場合、本人確認が必要（既存グループを組織に追加する場合は不要）
             if ($organization_id) {
-                $auth_level = $_SESSION['auth_level'] ?? 0;
-                if ($auth_level < AUTH_LEVEL_IDENTITY) {
-                    errorResponse('組織ルームを作成するには本人確認が必要です', 403);
+                $clone_from_conversation_id = isset($input['clone_from_conversation_id']) ? (int)$input['clone_from_conversation_id'] : null;
+                $allow_via_clone = false;
+                if ($clone_from_conversation_id > 0) {
+                    $stmt = $pdo->prepare("
+                        SELECT c.id, c.type, c.name, c.name_en, c.name_zh, cm.role
+                        FROM conversations c
+                        INNER JOIN conversation_members cm ON cm.conversation_id = c.id AND cm.user_id = ? AND cm.left_at IS NULL
+                        WHERE c.id = ? AND c.type = 'group'
+                    ");
+                    $stmt->execute([$user_id, $clone_from_conversation_id]);
+                    $source = $stmt->fetch(PDO::FETCH_ASSOC);
+                    if ($source && $source['role'] === 'admin') {
+                        $allow_via_clone = true;
+                        $name = $source['name'] ?? $name;
+                        $name_en = !empty(trim($source['name_en'] ?? '')) ? trim($source['name_en']) : $name_en;
+                        $name_zh = !empty(trim($source['name_zh'] ?? '')) ? trim($source['name_zh']) : $name_zh;
+                    }
+                }
+                if (!$allow_via_clone) {
+                    $auth_level = $_SESSION['auth_level'] ?? 0;
+                    if ($auth_level < AUTH_LEVEL_IDENTITY) {
+                        errorResponse('組織ルームを作成するには本人確認が必要です', 403);
+                    }
                 }
                 
                 // 組織のメンバーか確認

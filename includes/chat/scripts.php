@@ -7575,7 +7575,95 @@ window.submitChatTask = async function() {
             }
             openModal('newConversationModal');
             switchConversationType('group');
+            if (typeof updateChatAddGroupCloneFromVisibility === 'function') updateChatAddGroupCloneFromVisibility();
         }
+        
+        // 本人確認未済時: 組織選択で「既存のグループをこの組織に追加」を表示し、管理者のグループ一覧をAPIで取得してセレクトに詰める
+        function updateChatAddGroupCloneFromVisibility() {
+            var wrap = document.getElementById('chatAddGroupCloneFromWrap');
+            var orgSel = document.getElementById('newConversationOrganizationId');
+            var cloneSel = document.getElementById('newConversationCloneFromId');
+            if (!wrap || !orgSel || !cloneSel) return;
+            var authLevel = parseInt(document.body.getAttribute('data-user-auth-level') || '0', 10);
+            var hasOrg = (orgSel.value !== '' && orgSel.value !== '0');
+            if (authLevel >= 3 || !hasOrg) {
+                wrap.style.display = 'none';
+                cloneSel.value = '';
+                return;
+            }
+            wrap.style.display = '';
+            cloneSel.innerHTML = '<option value="">— <?= $currentLang === 'en' ? 'Select' : ($currentLang === 'zh' ? '选择' : '選択') ?> —</option>';
+            cloneSel.disabled = true;
+            fetch((window.__CHAT_API_BASE||'')+'api/conversations.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list_my_admin_groups' }) })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success && data.groups && data.groups.length) {
+                        var hint = document.getElementById('chatAddGroupCloneFromHint');
+                        if (hint) hint.remove();
+                        data.groups.forEach(function(g) {
+                            var opt = document.createElement('option');
+                            opt.value = g.id;
+                            opt.textContent = (g.name || '').trim() || ('ID ' + g.id);
+                            opt.setAttribute('data-name', g.name || '');
+                            opt.setAttribute('data-name-en', g.name_en || '');
+                            opt.setAttribute('data-name-zh', g.name_zh || '');
+                            cloneSel.appendChild(opt);
+                        });
+                    } else {
+                        var hint = document.getElementById('chatAddGroupCloneFromHint');
+                        if (!hint) {
+                            hint = document.createElement('p');
+                            hint.id = 'chatAddGroupCloneFromHint';
+                            hint.className = 'form-hint';
+                            hint.style.marginTop = '6px';
+                            hint.style.color = 'var(--text-muted, #6b7280)';
+                            cloneSel.parentNode.appendChild(hint);
+                        }
+                        hint.textContent = '<?= $currentLang === 'en' ? 'You have no groups where you are admin. Complete identity verification to create a new organization room, or create a group (without organization) first and become its admin.' : ($currentLang === 'zh' ? '您没有作为管理员的群组。请完成身份验证以创建新组织房间，或先创建群组（无组织）并成为其管理员。' : '管理者のグループがありません。本人確認を完了して組織ルームを新規作成するか、先に組織なしでグループを作成して管理者になってください。') ?>';
+                    }
+                    cloneSel.disabled = false;
+                })
+                .catch(function() { cloneSel.disabled = false; });
+        }
+        
+        function onNewConversationCloneFromChange() {
+            var cloneSel = document.getElementById('newConversationCloneFromId');
+            var nameEl = document.getElementById('groupName');
+            var nameEnEl = document.getElementById('groupNameEn');
+            var nameZhEl = document.getElementById('groupNameZh');
+            if (!cloneSel || !nameEl) return;
+            var opt = cloneSel.options[cloneSel.selectedIndex];
+            if (opt && opt.value) {
+                nameEl.value = (opt.getAttribute('data-name') || opt.textContent || '').trim();
+                if (nameEnEl) nameEnEl.value = (opt.getAttribute('data-name-en') || '').trim();
+                if (nameZhEl) nameZhEl.value = (opt.getAttribute('data-name-zh') || '').trim();
+                // 元グループのメンバーを招待対象にし、同じ組織の新ルームに追加できるようにする
+                var convId = parseInt(opt.value, 10);
+                var myId = parseInt(document.body.getAttribute('data-user-id') || '0', 10);
+                fetch((window.__CHAT_API_BASE||'')+'api/conversations.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'get_members', conversation_id: convId }) })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.success && data.members && data.members.length) {
+                            selectedUsers = data.members.filter(function(m) { return m.id !== myId; }).map(function(m) { return m.id; });
+                            document.querySelectorAll('#groupUserList .user-item').forEach(function(item) {
+                                var uid = parseInt(item.dataset.userId || '0', 10);
+                                item.classList.toggle('selected', selectedUsers.indexOf(uid) !== -1);
+                            });
+                        }
+                    })
+                    .catch(function() {});
+            } else {
+                selectedUsers = [];
+                document.querySelectorAll('#groupUserList .user-item').forEach(function(item) { item.classList.remove('selected'); });
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var o = document.getElementById('newConversationOrganizationId');
+            if (o) o.addEventListener('change', function() { if (typeof updateChatAddGroupCloneFromVisibility === 'function') updateChatAddGroupCloneFromVisibility(); });
+            var c = document.getElementById('newConversationCloneFromId');
+            if (c) c.addEventListener('change', function() { if (typeof onNewConversationCloneFromChange === 'function') onNewConversationCloneFromChange(); });
+        });
         
         // グループ右クリックメニューを表示
         function showConvContextMenu(e, el) {
@@ -10852,6 +10940,14 @@ window.submitChatTask = async function() {
                 payload.name_zh = nameZh || null;
                 const orgEl = document.getElementById('newConversationOrganizationId');
                 if (orgEl && orgEl.value !== '') payload.organization_id = parseInt(orgEl.value, 10);
+                const cloneEl = document.getElementById('newConversationCloneFromId');
+                if (cloneEl && cloneEl.value !== '') payload.clone_from_conversation_id = parseInt(cloneEl.value, 10);
+                // 本人確認未済で組織を選んでいる場合は「既存のグループをこの組織に追加」の選択を必須にする
+                var authLevel = parseInt(document.body.getAttribute('data-user-auth-level') || '0', 10);
+                if (payload.organization_id && authLevel < 3 && !payload.clone_from_conversation_id) {
+                    alert('<?= $currentLang === 'en' ? 'Identity verification is required to create a new organization room. Please select an existing group you administer under "Add existing group to this organization" to add it to this organization without verification.' : ($currentLang === 'zh' ? '创建新组织房间需要身份验证。请从「将现有群组添加到此组织」中选择您管理的现有群组，即可在未验证的情况下添加到本组织。' : '組織ルームを新規作成するには本人確認が必要です。本人確認がまだの場合は「既存のグループをこの組織に追加」で、ご自身が管理者のグループを選択してください。') ?>');
+                    return;
+                }
             }
             try {
                 const response = await fetch((window.__CHAT_API_BASE||'')+'api/conversations.php', {
