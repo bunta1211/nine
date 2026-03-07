@@ -3,7 +3,8 @@
 通話が「通話に参加しています」のまま繋がらない場合の検証手順と原因の切り分けをまとめる。  
 関連: [CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md](CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md)、[PHONE_VIDEO_CALL_PLAN.md](PHONE_VIDEO_CALL_PLAN.md)。
 
-**画面上の案内**: call.php では、繋がらない場合に **原因表示**（Jitsi の errorOccurred および 15 秒タイムアウト時の一般的な案内）と **ヘルプリンク**（`help/call-troubleshooting.php`）を表示する。あわせて **発信者**には 3 秒後に「Jitsi の中央や下部の青い『ミーティングに参加』ボタンを押す」案内（緑の枠）を表示し、meet.jit.si 利用時も一通話で繋がるようにしている（「私はホストです」が表示されない環境でも同じボタンで開始できる旨を案内）。恒久対策は自前 Jitsi（[PHONE_VIDEO_CALL_PLAN.md](PHONE_VIDEO_CALL_PLAN.md) 8.2-B・8.6 参照）。
+**画面上の案内**: call.php では、繋がらない場合に **原因表示**（Jitsi の errorOccurred および 15 秒タイムアウト時の一般的な案内）と **ヘルプリンク**（`help/call-troubleshooting.php`）を表示する。あわせて **発信者**には 3 秒後に「Jitsi の中央や下部の青い『ミーティングに参加』ボタンを押す」案内（緑の枠）を表示し、meet.jit.si 利用時も一通話で繋がるようにしている（「私はホストです」が表示されない環境でも同じボタンで開始できる旨を案内）。恒久対策は自前 Jitsi（[PHONE_VIDEO_CALL_PLAN.md](PHONE_VIDEO_CALL_PLAN.md) 8.2-B・8.6 参照）。  
+また、Jitsi/Chrome が `chrome-extension://invalid/` を参照して出す **net::ERR_FAILED** は通話と無関係なため、call.php では `console.error` / `console.warn` をラップして当該メッセージをコンソールに出さないようにし、原因表示エリアに「コンソールに chrome-extension の表示が出ても通話に影響しない」旨の注記を表示している。
 
 ## 1. 現象の整理（コンソール・画面の手がかり）
 

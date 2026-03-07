@@ -382,6 +382,11 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
             display: none;
         }
         .connecting-overlay .connection-failure-reason.visible { display: block; }
+        .connecting-overlay .connection-failure-reason .call-console-note {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
         .connecting-overlay .connection-failure-reason a {
             color: #93c5fd;
             text-decoration: underline;
@@ -404,6 +409,30 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
     <?= generateDesignCSS($designSettings) ?>
 </head>
 <body class="style-<?= htmlspecialchars(function_exists('getEffectiveStyleId') ? getEffectiveStyleId($designSettings['ui_style'] ?? DESIGN_DEFAULT_STYLE) : ($designSettings['ui_style'] ?? DESIGN_DEFAULT_STYLE)) ?>" data-theme="<?= htmlspecialchars($designSettings['theme'] ?? DESIGN_DEFAULT_THEME) ?>">
+    <!-- Jitsi/Chrome の chrome-extension://invalid/ による net::ERR_FAILED をコンソールに表示しない（通話無関係のため） -->
+    <script>
+(function(){
+        var origError = console.error;
+        var origWarn = console.warn;
+        function shouldSuppress(msg) {
+            return /chrome-extension:\/\/invalid|Failed to load resource:.*chrome-extension/i.test(msg);
+        }
+        if (typeof origError === 'function') {
+            console.error = function() {
+                var msg = Array.prototype.slice.call(arguments).join(' ');
+                if (shouldSuppress(msg)) return;
+                return origError.apply(console, arguments);
+            };
+        }
+        if (typeof origWarn === 'function') {
+            console.warn = function() {
+                var msg = Array.prototype.slice.call(arguments).join(' ');
+                if (shouldSuppress(msg)) return;
+                return origWarn.apply(console, arguments);
+            };
+        }
+})();
+    </script>
     <div class="call-container">
         <header class="call-header">
             <div class="call-info">
@@ -430,6 +459,7 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
                     <p class="call-start-meeting-hint" id="callStartMeetingHint">発信者の方: Jitsi の画面の<strong>中央や下部にある青い「ミーティングに参加」ボタン</strong>を押すと通話が始まります。「私はホストです」の表示がなくても、同じボタンを押してください。</p>
                     <div class="connection-failure-reason" id="connectionFailureReason">
                         <p id="connectionFailureText"></p>
+                        <p class="call-console-note">※コンソールに「chrome-extension」や「net::ERR_FAILED」と出ても、通話には影響ありません。</p>
                         <p style="margin-top: 8px;"><a href="help/call-troubleshooting.php" target="_blank" rel="noopener">通話で困ったとき（ヘルプ）</a></p>
                     </div>
                 </div>
