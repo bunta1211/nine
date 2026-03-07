@@ -124,32 +124,24 @@
     
     /* 左パネル - テーマの背景色を使用 */
     aside.left-panel {
-        background: var(--theme-panel-bg, rgba(255,255,255,0.97)) !important;
-        -webkit-backdrop-filter: none !important;
-        backdrop-filter: none !important;
+        background: var(--dt-left-bg, #ffffff) !important;
     }
     
     /* 左パネルが開いているとき（携帯版は常に視認性を確保） */
     aside.left-panel.mobile-open {
-        background: var(--dt-left-bg, rgba(255, 255, 255, 0.98)) !important;
+        background: var(--dt-left-bg, #ffffff) !important;
         color: var(--dt-text-primary, #1e293b) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        backdrop-filter: blur(12px) !important;
     }
 
     /* 右パネル - テーマの背景色を使用 */
     aside.right-panel {
-        background: var(--theme-right-panel-bg, var(--theme-panel-bg, rgba(255,255,255,0.97))) !important;
-        -webkit-backdrop-filter: none !important;
-        backdrop-filter: none !important;
+        background: var(--dt-right-bg, #ffffff) !important;
     }
     
     /* 右パネルが開いているとき（携帯版は常に視認性を確保） */
     aside.right-panel.mobile-open {
-        background: var(--dt-right-bg, rgba(255, 255, 255, 0.98)) !important;
+        background: var(--dt-right-bg, #ffffff) !important;
         color: var(--dt-text-primary, #1e293b) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        backdrop-filter: blur(12px) !important;
     }
     
     /* ========================================
@@ -236,7 +228,6 @@
 
     aside.left-panel .conv-item.active {
         background: var(--theme-accent-dark, #047857) !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     aside.left-panel .conv-item.active,
@@ -248,7 +239,6 @@
     aside.left-panel .conv-item.active .conv-preview,
     aside.left-panel .conv-item.active .conv-member-count {
         color: #ffffff !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     aside.left-panel .conv-item:not(.active):hover,
@@ -283,10 +273,10 @@
 
     /* 右パネルのセクションタイトル */
     aside.right-panel .section-title {
-        color: var(--theme-text-muted, #64748b) !important;
-        font-size: 12px !important;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        color: var(--dt-text-muted, #64748b) !important;
+        font-size: 13px !important;
+        text-transform: none;
+        letter-spacing: normal;
     }
 
     /* モバイル用閉じるボタン */
@@ -299,17 +289,15 @@
     /* 未選択時の中央パネルメッセージ */
     .center-panel .no-conversation,
     .center-panel .empty-chat {
-        background: rgba(30, 30, 40, 0.85);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-radius: 20px;
+        background: var(--dt-center-bg, #f8f9fa);
+        border-radius: 16px;
         padding: 30px;
         margin: 20px;
     }
 
     .center-panel .no-conversation *,
     .center-panel .empty-chat * {
-        color: rgba(255, 255, 255, 0.9) !important;
+        color: var(--dt-text-muted, #666) !important;
     }
 
     /* ========== 上パネル（ヘッダー） ========== */
@@ -320,7 +308,7 @@
         right: 0;
         height: var(--mobile-header-height);
         border-radius: 0;
-        padding: 0 8px;
+        padding: 0 12px;
         z-index: 1000;
     }
 
@@ -417,6 +405,17 @@
         margin: 0 !important;
         border: none !important;
     }
+    /* PC装飾用の::beforeをモバイルで非表示 */
+    .center-panel::before {
+        display: none !important;
+    }
+    /* モバイルではネイティブスクロールバーを使用 */
+    .messages-area::-webkit-scrollbar,
+    .left-panel::-webkit-scrollbar,
+    .right-panel::-webkit-scrollbar {
+        display: none;
+    }
+
     body.page-chat .center-panel .messages-area,
     body.page-chat .center-panel #messagesArea {
         flex: 1 1 0% !important;
@@ -442,28 +441,28 @@
     /* ========== 左パネル（グループ一覧） ========== */
     aside.left-panel {
         position: fixed !important;
-        left: -100vw !important;
+        left: 0 !important;
         top: var(--mobile-header-height) !important;
         width: 100vw !important;
         max-width: 100vw !important;
         height: calc(100vh - var(--mobile-header-height)) !important;
         z-index: 100 !important;
-        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         border-radius: 0 !important;
         box-shadow: none !important;
-        /* テーマの背景色を使用 */
-        background: var(--theme-panel-bg, rgba(255,255,255,0.97)) !important;
+        background: var(--dt-left-bg, #ffffff) !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
+        will-change: transform;
     }
 
     aside.left-panel.mobile-open {
-        left: 0 !important;
+        transform: translateX(0) !important;
     }
 
-    /* 携帯で会話未選択時: 左パネル（会話一覧）を全面表示し、中央パネルは完全に隠す */
     body.page-chat[data-mobile-list-first="1"][data-has-conversation="0"] aside.left-panel {
-        left: 0 !important;
+        transform: translateX(0) !important;
         z-index: 50 !important;
     }
     body.page-chat[data-mobile-list-first="1"][data-has-conversation="0"] .center-panel {
@@ -530,7 +529,7 @@
     }
     .center-panel-start-menu-item:active {
         background: #e4e4e4;
-        transform: scale(0.98);
+        transform: scale(0.95);
     }
 
     /* 左パネルヘッダー */
@@ -653,8 +652,8 @@
     }
 
     .mobile-form-close {
-        width: 28px !important;
-        height: 28px !important;
+        width: 44px !important;
+        height: 44px !important;
         border: none !important;
         border-radius: 50% !important;
         background: var(--theme-hover-bg, rgba(0, 0, 0, 0.05)) !important;
@@ -1008,7 +1007,6 @@
     aside.left-panel .filter-tabs button.active {
         background: var(--theme-accent-dark, #047857) !important;
         color: #ffffff !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     /* 左パネル フィルター（すべて ▼）モバイル */
@@ -1110,8 +1108,8 @@
 
     .conv-item .conv-name,
     .conv-item .name {
-        font-size: 14px;
-        color: var(--theme-text, #1e293b);
+        font-size: 16px;
+        color: var(--dt-text-primary, #1e293b);
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
@@ -1182,11 +1180,16 @@
         padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
     }
 
-    /* メッセージカード */
     .message-card {
-        max-width: 85%;
-        padding: 10px 12px;
-        font-size: 14px;
+        max-width: 75%;
+        padding: 8px 12px;
+        font-size: 15px;
+        line-height: 1.35;
+        margin-bottom: 2px;
+    }
+    .message-card + .message-card:not(.own) + .message-card:not(.own),
+    .message-card.own + .message-card.own {
+        margin-top: 1px;
     }
 
     .message-card .sender-name {
@@ -1205,22 +1208,17 @@
         left: 0;
         right: 0;
         padding: 8px;
-        background: var(--theme-panel-bg, rgba(255, 255, 255, 0.95));
-        backdrop-filter: blur(10px);
-        border-top: 1px solid var(--border);
+        background: var(--dt-center-input-bg, #ffffff);
+        border-top: 1px solid var(--dt-input-border, #e5e7eb);
         z-index: 800;
         border-radius: 0;
-        /* スクロール時のアニメーション用 */
-        transition: transform 0.2s ease-out, opacity 0.2s ease-out;
-        will-change: transform, opacity;
     }
 
-    /* 解決シート（CHAT_LAYOUT_OVERLAP_AND_BLANK_FIX）に合わせ body.page-chat で上書き。携帯は入力欄を左右ギリギリまで・フォント小さく・キーボードと接着 */
     body.page-chat .input-area {
-        padding-left: 4px !important;
-        padding-right: 4px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
         padding-top: 6px !important;
-        padding-bottom: env(safe-area-inset-bottom, 0px) !important; /* 余白なしでキーボードに接着 */
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
     }
     body.page-chat .input-container {
         padding: 0 !important;
@@ -1228,8 +1226,8 @@
         max-width: none !important;
     }
     body.page-chat .input-toolbar {
-        padding-left: 2px !important;
-        padding-right: 2px !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
         padding-top: 4px !important;
         padding-bottom: 4px !important;
         margin: 0 !important;
@@ -1289,7 +1287,7 @@
         font-size: 16px !important;
         line-height: 1.4 !important;
         min-height: 44px !important;
-        max-height: 200px !important;
+        max-height: 150px !important;
         width: 100% !important;
         max-width: none !important;
         box-sizing: border-box !important;
@@ -1373,24 +1371,25 @@
     /* ========== 右パネル（設定） ========== */
     aside.right-panel {
         position: fixed !important;
-        right: -100vw !important;
+        right: 0 !important;
         top: var(--mobile-header-height) !important;
         width: 100vw !important;
         max-width: 100vw !important;
         height: calc(100vh - var(--mobile-header-height)) !important;
         z-index: 100 !important;
-        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transform: translateX(100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         border-radius: 0 !important;
         box-shadow: none !important;
-        display: block !important; /* 1024px以下で非表示になるのを上書き */
-        /* テーマの背景色を使用 */
-        background: var(--theme-panel-bg, rgba(255,255,255,0.97)) !important;
+        display: block !important;
+        background: var(--dt-right-bg, #ffffff) !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
+        will-change: transform;
     }
 
     aside.right-panel.mobile-open {
-        right: 0 !important;
+        transform: translateX(0) !important;
     }
     
     /* 右パネルヘッダー */
@@ -1488,7 +1487,7 @@
         left: 0 !important;
         right: 0 !important;
         bottom: 0 !important;
-        background: #000 !important; /* 完全な黒 */
+        background: rgba(0, 0, 0, 0.4) !important;
         z-index: 90 !important;
         opacity: 0;
         transition: opacity 0.3s;
@@ -1522,8 +1521,8 @@
         top: 8px;
         right: 8px;
         z-index: 10;
-        width: 32px;
-        height: 32px;
+        width: 44px;
+        height: 44px;
         border: none;
         background: var(--dt-bg-secondary, rgba(0,0,0,0.06));
         color: var(--dt-text-secondary, #64748b);
@@ -1590,8 +1589,8 @@
     /* ========== 自動翻訳表示（モバイル） ========== */
     .message-card.showing-translation::before,
     .message-card.showing-original::before {
-        font-size: 8px;
-        padding: 1px 4px;
+        font-size: 11px;
+        padding: 2px 6px;
         top: 2px;
         right: 8px;
     }
@@ -1619,9 +1618,8 @@
         display: none !important;
     }
 
-    /* メッセージカードをコンパクトに */
     .message-card {
-        padding: 10px 14px !important;
+        padding: 8px 12px !important;
     }
 
     .message-card .message-footer {
@@ -1702,11 +1700,8 @@
         right: 0;
         padding: 8px 12px;
         padding-bottom: env(safe-area-inset-bottom, 0px); /* 余白なしでキーボードに接着（iPhoneノッチは safe-area のみ） */
-        background: var(--theme-panel-bg, rgba(255, 255, 255, 0.98));
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        background: var(--dt-center-input-bg, #ffffff);
+        border-top: 1px solid var(--dt-input-border, #e5e7eb);
         z-index: 800;
     }
 
@@ -1806,10 +1801,8 @@
         justify-content: flex-start !important;
         padding: 4px 12px !important;
         margin: 3px 6px !important;
-        background: var(--theme-panel-bg, rgba(255, 255, 255, 0.95)) !important;
-        backdrop-filter: blur(10px) !important;
-        -webkit-backdrop-filter: blur(10px) !important;
-        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        background: var(--dt-center-bg, #ffffff) !important;
+        border: 1px solid var(--dt-input-border, #e5e7eb) !important;
         border-radius: 20px !important;
         min-height: 0 !important;
         height: 28px !important;
@@ -1936,7 +1929,7 @@
     .no-conversation-icon {
         font-size: 48px;
         margin-bottom: 16px;
-        opacity: 0.5;
+        opacity: 0.6;
     }
 
     .no-conversation-text {
@@ -1989,9 +1982,8 @@
         max-width: 100vw;
     }
 
-    /* メッセージをさらに大きく */
     .message-card {
-        max-width: 90%;
+        max-width: 80%;
     }
 
     /* 入力欄をさらに調整 */
@@ -2446,15 +2438,16 @@
         display: none !important;
     }
     .conv-item {
-        padding: 10px;
-        border-radius: 10px;
-        margin-bottom: 4px;
+        padding: 12px 16px;
+        border-radius: 0;
+        margin-bottom: 0;
+        border-bottom: 1px solid var(--dt-input-border, #f0f0f0);
         transition: background 0.15s;
-        background: var(--theme-card-bg, rgba(255,255,255,0.9));
-        color: var(--theme-text, #1e293b);
+        background: transparent;
+        color: var(--dt-text-primary, #1e293b);
         display: flex !important;
-        align-items: flex-start !important;
-        gap: 10px;
+        align-items: center !important;
+        gap: 12px;
         width: 100% !important;
         min-width: 0;
         box-sizing: border-box;
@@ -2466,25 +2459,27 @@
 
     
     .conv-item.active {
-        background: var(--theme-accent-dark, #047857) !important;
+        background: var(--dt-accent, #047857) !important;
         color: #ffffff !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     .conv-item.active .conv-name,
     .conv-item.active .conv-time,
     .conv-item.active .conv-member-count,
     .conv-item.active .conv-preview {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    .conv-item.active .conv-name {
         color: #ffffff !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     .conv-item .conv-avatar {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        font-size: 16px;
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        font-size: 18px;
         flex-shrink: 0;
+        border-radius: 50%;
     }
 
     /* 携帯版: 左パネルではグループ名にアイコンを表示（中央パネルは .chat-header-icon で別途非表示） */
@@ -2506,14 +2501,14 @@
     }
 
     .conv-item .conv-name {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 500;
-        color: var(--theme-text, #1e293b);
+        color: var(--dt-text-primary, #1e293b);
         text-align: left;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        line-height: 1.4;
+        line-height: 1.3;
         display: block !important;
     }
 
@@ -2534,8 +2529,8 @@
     }
 
     .conv-item .conv-time {
-        font-size: 10px;
-        color: var(--theme-text-muted, #64748b);
+        font-size: 12px;
+        color: var(--dt-text-muted, #64748b);
         flex-shrink: 0;
     }
 
@@ -2578,14 +2573,15 @@
 
     /* ========== メッセージカードの調整 ========== */
     .message-card {
-        margin-bottom: 8px;
-        padding: 12px 14px;
-        border-radius: 16px;
-        max-width: 85%;
+        margin-bottom: 2px;
+        padding: 8px 12px;
+        border-radius: 18px;
+        max-width: 75%;
+        line-height: 1.35;
     }
 
     .message-card.own {
-        border-radius: 16px 16px 4px 16px;
+        border-radius: 18px 18px 6px 18px;
     }
 
     .message-card:not(.own) {
@@ -2728,9 +2724,9 @@
     }
 
     .empty-chat-icon {
-        font-size: 64px;
+        font-size: 56px;
         margin-bottom: 16px;
-        opacity: 0.3;
+        opacity: 0.6;
     }
 
     .empty-chat-text {
@@ -2772,7 +2768,8 @@
     /* ボタンのアクティブ状態 */
     button:active,
     .btn:active {
-        transform: scale(0.98);
+        transform: scale(0.95);
+        opacity: 0.8;
     }
 
     /* ========== スクロール関連 ========== */
@@ -2994,8 +2991,8 @@
     }
 
     .line-menu-label {
-        font-size: 10px;
-        color: #555;
+        font-size: 12px;
+        color: var(--dt-text-primary, #333);
         font-weight: 500;
         white-space: nowrap;
     }
@@ -3279,16 +3276,17 @@
         height: 44px !important;
     }
 
-    /* FABメインボタン（グリッドアイコン） */
+    /* FABメインボタン */
     .fab-main {
-        background: #f0f0f0 !important;
-        color: #333 !important;
+        background: var(--dt-accent, #047857) !important;
+        color: #ffffff !important;
         font-size: 20px !important;
-        box-shadow: none !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
         position: relative !important;
         z-index: 1000 !important;
         visibility: visible !important;
         opacity: 1 !important;
+        border-radius: 50% !important;
     }
 
     .fab-main .fab-main-icon {
@@ -3411,10 +3409,10 @@
     .fab-menu,
     .top-panel .fab-container .fab-menu {
         position: fixed !important;
-        left: 50% !important;
-        top: 50% !important;
-        right: auto !important;
-        bottom: auto !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        top: auto !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: stretch !important;
@@ -3422,14 +3420,15 @@
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
-        transform: translate(-50%, -50%) scale(0.95);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        padding: 12px !important;
-        background: #fff !important;
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s, visibility 0.2s;
+        padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+        background: var(--dt-left-bg, #ffffff) !important;
         border: none !important;
-        border-radius: 16px !important;
-        max-height: calc(100vh - 80px);
+        border-radius: 16px 16px 0 0 !important;
+        max-height: 70vh;
         overflow-y: auto;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.12) !important;
         box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15) !important;
         z-index: 1001 !important;
         min-width: 240px;
@@ -3439,7 +3438,7 @@
         opacity: 1;
         visibility: visible;
         pointer-events: auto;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translateY(0);
     }
 
     .fab-menu-item {
@@ -3509,13 +3508,13 @@
     }
 
     .fab-btn {
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        min-height: 36px !important;
-        border-radius: 10px !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        border-radius: 12px !important;
         border: none !important;
-        background: #e4e4e4 !important;
+        background: var(--dt-btn-secondary-bg, #f0f0f0) !important;
         box-shadow: none !important;
         cursor: pointer !important;
         display: flex !important;
@@ -3760,11 +3759,11 @@
     body.page-chat .center-panel .input-area .input-row .input-wrapper #messageInput,
     body.page-chat .center-panel .input-area .input-row .input-wrapper textarea.message-input,
     body.page-chat .center-panel .input-area .input-row .input-wrapper textarea {
-        max-height: 200px !important;
+        max-height: 150px !important;
         min-height: 44px !important;
     }
     #messageInput {
-        max-height: 200px !important;
+        max-height: 150px !important;
         min-height: 44px !important;
     }
     /* 入力欄を上に広げたとき: PCと同じ（ボタン行と入力欄が一体で動き、余白は入力欄に） */
