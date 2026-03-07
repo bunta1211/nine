@@ -2631,7 +2631,7 @@ window.submitChatTask = async function() {
             console.log('[AI Secretary] Selected');
 
             // 既に開いている場合は二重実行を防ぐ
-            if (isAISecretaryActive && document.getElementById('aiTranscribeBar')) {
+            if (isAISecretaryActive && document.getElementById('aiMicBtn')) {
                 console.log('[AI Secretary] Already active, skipping');
                 return;
             }
@@ -3557,11 +3557,11 @@ window.submitChatTask = async function() {
         }
         
         // AIメッセージエリアを表示（履歴読み込み完了まで待つ）
-        // 他会話から戻った場合は center-panel がグループ用のため #aiTranscribeBar が無い → 必ずAI用パネルを再構築する
+        // 他会話から戻った場合は center-panel がグループ用のため AI用入力欄が無い → 必ずAI用パネルを再構築する
         async function showAIMessages() {
             const centerPanel = document.querySelector('.center-panel');
             if (!centerPanel) return;
-            const hasAIPanel = document.getElementById('aiTranscribeBar') && document.getElementById('aiAlwaysOnBtn');
+            const hasAIPanel = document.getElementById('aiMicBtn');
             let container = document.getElementById('messagesArea');
             
             // AI用パネルが無い場合（初回 or 他会話から戻った直後）は必ず作成する
@@ -3590,17 +3590,13 @@ window.submitChatTask = async function() {
                                     <button class="toolbar-btn gif-btn" disabled style="opacity:0.5">GIF</button>
                                     <button class="toolbar-btn call-toolbar-btn" disabled style="opacity:0.5"><span class="btn-icon">☎</span></button>
                                     <button class="toolbar-btn attach-btn ai-attach-btn" type="button" onclick="document.getElementById('aiFileInput').click()" title="ファイルを添付"><span class="btn-icon">⊕</span></button>
-                                    <button class="toolbar-btn attach-btn ai-always-on-btn" type="button" id="aiAlwaysOnBtn" title="常時起動で音声指示（名前～指示～実行）" aria-label="常時起動">常時起動</button>
+                                    <button type="button" class="toolbar-btn mic-btn" id="aiMicBtn" title="音声入力" aria-label="音声入力"><span class="btn-icon btn-icon-mic" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg></span></button>
                                     <input type="file" id="aiFileInput" accept=".txt,.md,.csv,.tsv,.json,.xml,.html,.css,.js,.py,.java,.sql,.yaml,.yml,.log,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp" style="display:none;" aria-label="AI秘書にファイルを添付" onchange="handleAIFileAttach(this)">
                                 </div>
                                 <div class="input-toolbar-right">
                                     <label class="enter-send-label"><input type="checkbox" id="aiEnterSendCheck" checked> Enterで送信</label>
                                     <button type="button" class="toolbar-toggle-btn" onclick="toggleInputArea && toggleInputArea()" title="入力欄を非表示" aria-label="入力欄を非表示">☰</button>
                                 </div>
-                            </div>
-                            <div class="ai-transcribe-bar" id="aiTranscribeBar" style="display:none;" role="status" aria-live="polite">
-                                <span class="ai-transcribe-bar-label" id="aiTranscribeBarLabel">常時起動中</span>
-                                <button type="button" class="ai-transcribe-bar-stop" id="aiTranscribeBarStop">停止</button>
                             </div>
                             <div class="input-row">
                                 <div class="input-wrapper">
@@ -3651,8 +3647,8 @@ window.submitChatTask = async function() {
                         this.value = '';
                     };
                 }
-                // AI秘書 常時起動UI：グローバル __aiAlwaysOn に接続（共通の wireAlwaysOnUI でグループ・AI両方対応）
-                if (typeof wireAlwaysOnUI === 'function') wireAlwaysOnUI();
+                // AI秘書用マイクは共通の音声入力ロジックで接続（chatMicBtn / aiMicBtn 両方対応）
+                if (typeof wireChatMicUI === 'function') wireChatMicUI();
             }
             if (typeof window.initInputAreaResize === 'function') window.initInputAreaResize();
             
@@ -3709,15 +3705,6 @@ window.submitChatTask = async function() {
             const welcomeCard = document.getElementById('aiWelcomeCard');
             if (welcomeCard && !container.querySelector('.message-card') && welcomeText) {
                 welcomeText.innerHTML = `こんにちは！私は<strong>${aiSecretaryName || 'あなたの秘書'}</strong>です。<br>Social9の使い方や機能について、何でもお気軽にご質問ください。`;
-            }
-            
-            // 常時起動表示の同期（履歴描画後・他会話から戻った直後に確実にバーとボタンを表示）
-            var g = window.__aiAlwaysOn;
-            if (g && typeof g.syncPanelUI === 'function') {
-                g.syncPanelUI();
-                setTimeout(g.syncPanelUI.bind(g), 500);
-                setTimeout(g.syncPanelUI.bind(g), 1000);
-                setTimeout(g.syncPanelUI.bind(g), 1500);
             }
             
             // リマインダー通知をチェック
@@ -4813,341 +4800,8 @@ window.submitChatTask = async function() {
         window.selectInitialCharacter = selectInitialCharacter;
         window.isAISecretaryActive = function() { return isAISecretaryActive; };
         
-        // 常時起動グローバル（AIパネル外でも維持・localStorage永続化）
+        // TTS読み上げ（AIメッセージの「読み上げ」ボタン用。常時起動は削除済み）
         (function() {
-            var STORAGE_KEY = 'aiAlwaysOn';
-            var TRIGGER_WORDS = ['実行', 'お願いします', 'お願い', '頼みます', '頼む'];
-            var recognition = null;
-            var active = false;
-            var transcriptParts = [];
-            var interim = '';
-            var onTranscriptUpdate = null;
-            var lastInstructions = [];
-            var MAX_VOICE_CONTEXT = 3;
-            var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            function getSecretaryName() {
-                try {
-                    return localStorage.getItem('aiSecretaryName') || 'あなたの秘書';
-                } catch (e) {
-                    return 'あなたの秘書';
-                }
-            }
-            function getTranscript() {
-                return (transcriptParts.join(' ') + ' ' + interim).trim();
-            }
-            function clearBuffer() {
-                transcriptParts = [];
-                interim = '';
-            }
-            function tryDetectAndExecute(full) {
-                if (!full) return false;
-                var name = getSecretaryName().trim();
-                if (!name) return false;
-                var text = full.trim();
-                var nameIdx = text.indexOf(name);
-                if (nameIdx === -1) return false;
-                var rest = text.slice(nameIdx + name.length);
-                var triggerIdx = -1;
-                for (var i = 0; i < TRIGGER_WORDS.length; i++) {
-                    var idx = rest.indexOf(TRIGGER_WORDS[i]);
-                    if (idx !== -1 && (triggerIdx === -1 || idx < triggerIdx)) triggerIdx = idx;
-                }
-                if (triggerIdx === -1) return false;
-                var instruction = rest.slice(0, triggerIdx).replace(/^[、\s]+|[、\s]+$/g, '').trim();
-                if (!instruction) return false;
-                var resetPhrases = ['以上', 'おしまい', '次は別の話', '次は別', '切り替え'];
-                for (var j = 0; j < resetPhrases.length; j++) {
-                    if (instruction === resetPhrases[j] || instruction.indexOf(resetPhrases[j]) === 0) {
-                        lastInstructions = [];
-                        if (onTranscriptUpdate) onTranscriptUpdate('');
-                        return true;
-                    }
-                }
-                executeVoiceCommandViaLLM(full, instruction);
-                return true;
-            }
-            // 「実行」検出時: 発話全文をLLMで解釈し、意図に応じたアクションを実行。解釈できなければ従来の exec(instruction) にフォールバック
-            function executeVoiceCommandViaLLM(fullTranscript, fallbackInstruction) {
-                var groupNames = [];
-                try {
-                    var items = document.querySelectorAll('.conv-item[data-conv-id]');
-                    for (var i = 0; i < items.length; i++) {
-                        if (items[i].classList.contains('ai-secretary')) continue;
-                        var n = items[i].getAttribute('data-conv-name');
-                        if (n && n.trim()) groupNames.push(n.trim());
-                        var nameEl = items[i].querySelector('.conv-name-text') || items[i].querySelector('.conv-name');
-                        if (nameEl && nameEl.textContent) {
-                            var t = nameEl.textContent.trim().replace(/\s*\(\d+\)\s*$/, '').trim();
-                            if (t && groupNames.indexOf(t) === -1) groupNames.push(t);
-                        }
-                    }
-                } catch (e) {}
-                fetch((window.__CHAT_API_BASE||'')+'api/ai.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'execute_voice_command', full_transcript: fullTranscript.trim(), group_names: groupNames })
-                }).then(function(r) {
-                    if (!r.ok) return null;
-                    return r.json().catch(function() { return null; });
-                }).then(function(data) {
-                    if (data && data.detected && data.action) {
-                        if (data.action === 'send_to_group' && data.content) {
-                            var convId = (data.conversation_id != null && data.conversation_id !== '') ? parseInt(data.conversation_id, 10) : null;
-                            var groupName = data.group_name || '';
-                            var mentionIds = Array.isArray(data.mention_ids) ? data.mention_ids.map(function(id) { return parseInt(id, 10); }).filter(function(id) { return !isNaN(id) && id > 0; }) : [];
-                            if (!convId) {
-                                sendToGroup(groupName, data.content, fullTranscript, null, mentionIds);
-                                return;
-                            }
-                            window.__pendingSendToGroup = { conversation_id: convId, group_name: groupName, mention_ids: mentionIds };
-                            var inp = document.getElementById('messageInput');
-                            if (inp) {
-                                inp.value = data.content;
-                                inp.dispatchEvent(new Event('input', { bubbles: true }));
-                            }
-                            if (typeof showAIToast === 'function') showAIToast('送信先: ' + groupName + (mentionIds.length ? '（宛先: ' + mentionIds.length + '名）' : '') + '。内容を確認・編集して送信ボタンで送信してください');
-                            return;
-                        }
-                        if (data.action === 'add_memo' && data.content) {
-                            fetch((window.__CHAT_API_BASE||'')+'api/tasks.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ action: 'create', type: 'memo', content: data.content, title: data.content.length > 50 ? data.content.slice(0, 50) : data.content })
-                            }).then(function(r) { return r.json(); }).then(function(res) {
-                                if (res && res.success && typeof showAIToast === 'function') showAIToast('メモを追加しました');
-                                else if (typeof showAIToast === 'function') showAIToast(res && res.message ? res.message : 'メモの追加に失敗しました');
-                            }).catch(function() { if (typeof showAIToast === 'function') showAIToast('メモの追加に失敗しました'); });
-                            return;
-                        }
-                        if (data.action === 'add_task' && data.title) {
-                            var title = data.title;
-                            var desc = data.description || title;
-                            fetch((window.__CHAT_API_BASE||'')+'api/tasks.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ action: 'create', title: title.length > 100 ? title.slice(0, 100) + '...' : title, description: desc, post_to_chat: false })
-                            }).then(function(r) { return r.json(); }).then(function(res) {
-                                if (res && (res.task_ids && res.task_ids.length || res.task) && typeof showAIToast === 'function') showAIToast('タスクを追加しました');
-                                else if (typeof showAIToast === 'function') showAIToast(res && res.error ? res.error : 'タスクの追加に失敗しました');
-                            }).catch(function() { if (typeof showAIToast === 'function') showAIToast('タスクの追加に失敗しました'); });
-                            return;
-                        }
-                        if (data.action === 'chat' && data.message) {
-                            var inp = document.getElementById('messageInput');
-                            if (inp && typeof sendMessage === 'function') {
-                                inp.value = data.message;
-                                inp.dispatchEvent(new Event('input', { bubbles: true }));
-                                sendMessage();
-                            } else if (typeof sendAIMessage === 'function') {
-                                sendAIMessage(data.message);
-                            } else {
-                                exec(fallbackInstruction);
-                            }
-                            return;
-                        }
-                    }
-                    exec(fallbackInstruction);
-                }).catch(function() {
-                    exec(fallbackInstruction);
-                });
-            }
-            function matchName(part, name) {
-                if (!name || !part) return false;
-                var p = part.trim();
-                var n = String(name).trim();
-                if (p === n) return true;
-                if (n.indexOf(p) !== -1 || p.indexOf(n) !== -1) return true;
-                return false;
-            }
-            function getConversationIdByName(namePart) {
-                if (!namePart || typeof document.querySelectorAll !== 'function') return null;
-                var part = namePart.trim();
-                if (!part) return null;
-                var items = document.querySelectorAll('.conv-item[data-conv-id]');
-                for (var i = 0; i < items.length; i++) {
-                    var el = items[i];
-                    if (el.classList.contains('ai-secretary')) continue;
-                    var id = el.getAttribute('data-conv-id');
-                    var dataName = el.getAttribute('data-conv-name');
-                    var dataNameEn = el.getAttribute('data-conv-name-en');
-                    var dataNameZh = el.getAttribute('data-conv-name-zh');
-                    if (matchName(part, dataName) || matchName(part, dataNameEn) || matchName(part, dataNameZh)) return id;
-                    var nameEl = el.querySelector('.conv-name-text') || el.querySelector('.conv-name');
-                    var name = (nameEl && nameEl.textContent) ? nameEl.textContent.trim() : '';
-                    if (matchName(part, name)) return id;
-                }
-                return null;
-            }
-            function sendToGroup(groupName, content, instruction, conversationIdFromApi, mentionIds) {
-                var convId = conversationIdFromApi || getConversationIdByName(groupName);
-                if (!content) return false;
-                if (!convId) {
-                    if (typeof showAIToast === 'function') showAIToast(groupName + ' が見つかりません。左のリストに表示されている名前で指定してください。');
-                    return false;
-                }
-                var payload = { action: 'send', conversation_id: parseInt(convId, 10), content: content };
-                if (Array.isArray(mentionIds) && mentionIds.length > 0) {
-                    payload.mention_ids = mentionIds;
-                }
-                fetch((window.__CHAT_API_BASE||'')+'api/messages.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }).then(function(r) { return r.json(); }).then(function(data) {
-                    if (data && (data.success || data.message_id)) {
-                        if (typeof showAIToast === 'function') showAIToast((groupName || 'グループ') + 'に送信しました');
-                    } else {
-                        var errMsg = (data && data.error) ? data.error : (data && data.message) ? data.message : '送信に失敗しました';
-                        if (typeof showAIToast === 'function') showAIToast(errMsg);
-                    }
-                }).catch(function(err) {
-                    if (typeof showAIToast === 'function') showAIToast('送信に失敗しました');
-                });
-                return true;
-            }
-            // 他会話への送信指示をパース（音声・テキスト両方で利用）。{ groupName, content } または null
-            function parseSendToGroupInstruction(instruction) {
-                if (!instruction || typeof instruction !== 'string') return null;
-                var t = instruction.trim();
-                var replyMatch = t.match(/(.+?)(に|へ)返信[、\s]*(?:宛先[^\s、]+[、\s]*)?内容[、\s]*(.+)/);
-                if (replyMatch) return { groupName: replyMatch[1].trim(), content: replyMatch[3].trim() };
-                var sendQuoted = t.match(/(.+?)(に|へ)[「'"]([^」'"]+)[」'"].*?(?:送信|返信|送って|送信して|送ってください)/);
-                if (sendQuoted) return { groupName: sendQuoted[1].trim(), content: sendQuoted[3].trim() };
-                var sendUnquoted = t.match(/(.+?)(に|へ)\s*([^を]+?)\s+(?:を|と(いう)?(?:メッセージ)?)\s*(?:送信|送って|送信して|送ってください)/);
-                if (sendUnquoted) return { groupName: sendUnquoted[1].trim(), content: sendUnquoted[2].trim() };
-                // 「という」の口語「っていう」にも対応（例: おはようございますっていうメッセージを送信して）
-                var sendToiu = t.match(/(.+?)(に|へ)\s*(.+?)\s+(という|っていう)メッセージを\s*(?:送信|送って|送信して|送信してください|送ってください)/);
-                if (sendToiu) return { groupName: sendToiu[1].trim(), content: sendToiu[2].trim() };
-                var sendKudasai = t.match(/(.+?)(に|へ)\s*(.+?)\s*(?:を|と(いう)?(?:メッセージ)?)\s*送って(ください)?/);
-                if (sendKudasai) return { groupName: sendKudasai[1].trim(), content: sendKudasai[2].trim() };
-                return null;
-            }
-            // テキスト送信時に「XXにYY送信」なら他会話に送り、true を返す。未マッチ時は false
-            function trySendToGroup(instruction) {
-                var parsed = parseSendToGroupInstruction(instruction);
-                if (!parsed || !parsed.groupName || !parsed.content) return false;
-                var c = parsed.content.trim();
-                if (c.length <= 1 && /^[にへをと]$/.test(c)) return false;
-                return sendToGroup(parsed.groupName, parsed.content, instruction);
-            }
-            // AIで意図解釈して他会話に送信。送信したら true、しなければ false（Promise）
-            // バックエンドが会話一覧をDBから取得するため group_names は空でも可。conversation_id が返れば確実に送信
-            function interpretAndSendToGroup(message) {
-                var groupNames = [];
-                try {
-                    var items = document.querySelectorAll('.conv-item[data-conv-id]');
-                    for (var i = 0; i < items.length; i++) {
-                        if (items[i].classList.contains('ai-secretary')) continue;
-                        var n = items[i].getAttribute('data-conv-name');
-                        if (n && n.trim()) groupNames.push(n.trim());
-                        var nameEl = items[i].querySelector('.conv-name-text') || items[i].querySelector('.conv-name');
-                        if (nameEl && nameEl.textContent) {
-                            var t = nameEl.textContent.trim().replace(/\s*\(\d+\)\s*$/, '').trim();
-                            if (t && groupNames.indexOf(t) === -1) groupNames.push(t);
-                        }
-                    }
-                } catch (e) {}
-                if (!message || message.trim() === '') return Promise.resolve(false);
-                return fetch((window.__CHAT_API_BASE||'')+'api/ai.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'interpret_send_to_group', message: message.trim(), group_names: groupNames })
-                }).then(function(r) {
-                    if (!r.ok) return null;
-                    return r.json().catch(function() { return null; });
-                }).then(function(data) {
-                    if (!data || !data.detected || !data.content) return false;
-                    var groupName = (data.group_name != null) ? String(data.group_name).trim() : '';
-                    var content = String(data.content).trim();
-                    if (!content) return false;
-                    var convId = (data.conversation_id != null && data.conversation_id !== '') ? parseInt(data.conversation_id, 10) : null;
-                    if (convId > 0) {
-                        sendToGroup(groupName, content, message, convId);
-                        return true;
-                    }
-                    if (groupName) {
-                        return sendToGroup(groupName, content, message, null);
-                    }
-                    return false;
-                }).catch(function() { return false; });
-            }
-            function exec(instruction) {
-                var isAI = typeof isAISecretaryActive === 'function' && isAISecretaryActive();
-                var payload = { action: 'ask', question: instruction, language: 'ja' };
-                if (lastInstructions.length) payload.voice_context = lastInstructions.slice(-MAX_VOICE_CONTEXT).join('\n');
-                lastInstructions.push(instruction);
-                if (lastInstructions.length > MAX_VOICE_CONTEXT) lastInstructions.shift();
-                var parsed = parseSendToGroupInstruction(instruction);
-                if (parsed && parsed.groupName && parsed.content && sendToGroup(parsed.groupName, parsed.content, instruction)) return;
-                var memoMatch = instruction.match(/^(?:メモして|メモ|記録して)[、\s]*(.+)$/);
-                if (memoMatch && memoMatch[1]) {
-                    var memoContent = memoMatch[1].trim();
-                    if (memoContent) {
-                        fetch((window.__CHAT_API_BASE||'')+'api/tasks.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'create', type: 'memo', content: memoContent, title: memoContent.length > 50 ? memoContent.slice(0, 50) : memoContent })
-                        }).then(function(r) { return r.json(); }).then(function(data) {
-                            if (data && data.success) {
-                                if (typeof showAIToast === 'function') showAIToast('メモを追加しました');
-                            } else {
-                                if (typeof showAIToast === 'function') showAIToast(data && data.error ? data.error : 'メモの追加に失敗しました');
-                            }
-                        }).catch(function() {
-                            if (typeof showAIToast === 'function') showAIToast('メモの追加に失敗しました');
-                        });
-                        return;
-                    }
-                }
-                var taskMatch = instruction.match(/^(?:タスクに追加|タスク|やること)[、\s]*(.+)$/);
-                if (taskMatch && taskMatch[1]) {
-                    var taskContent = taskMatch[1].trim();
-                    if (taskContent) {
-                        fetch((window.__CHAT_API_BASE||'')+'api/tasks.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'create', title: taskContent.length > 100 ? taskContent.slice(0, 100) + '...' : taskContent, description: taskContent, post_to_chat: false })
-                        }).then(function(r) { return r.json(); }).then(function(data) {
-                            if (data && (data.task_ids && data.task_ids.length || data.task)) {
-                                if (typeof showAIToast === 'function') showAIToast('タスクを追加しました');
-                            } else {
-                                if (typeof showAIToast === 'function') showAIToast(data && data.error ? data.error : 'タスクの追加に失敗しました');
-                            }
-                        }).catch(function() {
-                            if (typeof showAIToast === 'function') showAIToast('タスクの追加に失敗しました');
-                        });
-                        return;
-                    }
-                }
-                if (isAI) {
-                    var inp = document.getElementById('messageInput');
-                    if (inp && typeof sendMessage === 'function') {
-                        inp.value = instruction;
-                        inp.dispatchEvent(new Event('input', { bubbles: true }));
-                        sendMessage();
-                    } else if (typeof sendAIMessage === 'function') {
-                        sendAIMessage(instruction);
-                    }
-                } else {
-                    fetch((window.__CHAT_API_BASE||'')+'api/ai.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    }).then(function(r) { return r.json(); }).then(function(data) {
-                        if (data && data.answer) {
-                            try { window.__aiVoiceHistoryDirty = true; } catch (e) {}
-                            if (typeof window.__aiAlwaysOnTTS === 'function') {
-                                var t = String(data.answer);
-                                if (t.length > 500) t = t.slice(0, 497) + '...';
-                                window.__aiAlwaysOnTTS(t);
-                            }
-                        }
-                        if (typeof showAIToast === 'function') showAIToast('指示を実行しました');
-                    }).catch(function() {
-                        if (typeof showAIToast === 'function') showAIToast('指示の送信に失敗しました');
-                    });
-                }
-            }
             function ttsSpeak(text) {
                 if (!text || typeof window.speechSynthesis === 'undefined') return;
                 try {
@@ -5159,248 +4813,7 @@ window.submitChatTask = async function() {
                 } catch (e) { console.warn('TTS error:', e); }
             }
             window.__aiAlwaysOnTTS = ttsSpeak;
-            function attachRecognitionHandlers(rec) {
-                rec.onresult = function(e) {
-                    for (var i = e.resultIndex; i < e.results.length; i++) {
-                        var r = e.results[i];
-                        var t = (r[0] && r[0].transcript) ? r[0].transcript.trim() : '';
-                        if (r.isFinal && t) {
-                            transcriptParts.push(t);
-                            interim = '';
-                            var full = getTranscript();
-                            if (tryDetectAndExecute(full)) {
-                                clearBuffer();
-                                if (onTranscriptUpdate) onTranscriptUpdate('');
-                                return;
-                            }
-                        } else {
-                            interim = t;
-                        }
-                        var txt = getTranscript();
-                        if (onTranscriptUpdate) onTranscriptUpdate(txt);
-                        else {
-                            var inp = document.getElementById('messageInput');
-                            if (inp && inp.getAttribute('data-ai-mode') === 'true') {
-                                inp.value = txt;
-                                inp.dispatchEvent(new Event('input', { bubbles: true }));
-                            }
-                        }
-                    }
-                    var txt2 = getTranscript();
-                    if (onTranscriptUpdate) onTranscriptUpdate(txt2);
-                    else {
-                        var inp2 = document.getElementById('messageInput');
-                        if (inp2 && inp2.getAttribute('data-ai-mode') === 'true') {
-                            inp2.value = txt2;
-                            inp2.dispatchEvent(new Event('input', { bubbles: true }));
-                        }
-                    }
-                };
-                rec.onerror = function(e) {
-                    if (e.error === 'aborted') return;
-                    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-                        active = false;
-                        try { localStorage.setItem(STORAGE_KEY, '0'); } catch (e2) {}
-                        if (onTranscriptUpdate) onTranscriptUpdate('');
-                        if (typeof showAIToast === 'function') showAIToast('マイクの使用が許可されていません。ブラウザの設定でマイクを許可してください。');
-                        else console.warn('Speech recognition: microphone not allowed');
-                        return;
-                    }
-                    if (e.error === 'audio-capture') {
-                        active = false;
-                        try { localStorage.setItem(STORAGE_KEY, '0'); } catch (e2) {}
-                        if (typeof showAIToast === 'function') showAIToast('マイクにアクセスできません。マイクが接続されているか確認してください。');
-                        else console.warn('Speech recognition: no microphone');
-                        return;
-                    }
-                    if (e.error === 'network') {
-                        if (typeof showAIToast === 'function') showAIToast('音声認識はネットワーク接続が必要です。');
-                    }
-                    console.warn('Speech recognition error:', e.error);
-                };
-                rec.onend = function() {
-                    if (!active) return;
-                    var recRef = recognition;
-                    setTimeout(function() {
-                        if (!active) return;
-                        try {
-                            if (recRef && recRef === recognition) {
-                                recognition.start();
-                            }
-                        } catch (err) {
-                            try {
-                                recognition = new SpeechRecognition();
-                                recognition.lang = 'ja-JP';
-                                recognition.continuous = true;
-                                recognition.interimResults = true;
-                                attachRecognitionHandlers(recognition);
-                                recognition.start();
-                            } catch (err2) {
-                                console.warn('Speech recognition restart failed:', err2);
-                            }
-                        }
-                    }, 250);
-                };
-            }
-            function start() {
-                if (!SpeechRecognition) return false;
-                if (active) return true;
-                if (!recognition) {
-                    recognition = new SpeechRecognition();
-                    recognition.lang = 'ja-JP';
-                    recognition.continuous = true;
-                    recognition.interimResults = true;
-                    attachRecognitionHandlers(recognition);
-                }
-                function doStartRecognition() {
-                    try {
-                        clearBuffer();
-                        recognition.start();
-                        active = true;
-                        try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
-                        return true;
-                    } catch (err) {
-                        console.warn('Speech recognition start failed:', err);
-                        return false;
-                    }
-                }
-                var nav = typeof navigator !== 'undefined' && navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function';
-                if (nav) {
-                    return new Promise(function(resolve) {
-                        navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
-                            stream.getTracks().forEach(function(t) { t.stop(); });
-                            resolve(doStartRecognition());
-                        }).catch(function() {
-                            if (typeof showAIToast === 'function') showAIToast('マイクの使用が許可されていません。ブラウザでマイクを許可してください。');
-                            resolve(false);
-                        });
-                    });
-                }
-                return doStartRecognition();
-            }
-            function stop(onStoppedWithTranscript) {
-                if (!active) {
-                    if (onStoppedWithTranscript) onStoppedWithTranscript('');
-                    return;
-                }
-                var transcript = getTranscript();
-                clearBuffer();
-                active = false;
-                if (recognition) try { recognition.stop(); } catch (e) {}
-                try { localStorage.setItem(STORAGE_KEY, '0'); } catch (e) {}
-                if (onTranscriptUpdate) onTranscriptUpdate('');
-                if (onStoppedWithTranscript) onStoppedWithTranscript(transcript);
-            }
-            function isActive() { return active; }
-            function syncPanelUI() {
-                if (!isActive()) return;
-                var bar = document.getElementById('aiTranscribeBar');
-                var btn = document.getElementById('aiAlwaysOnBtn');
-                if (bar) bar.style.display = 'flex';
-                if (btn) {
-                    btn.textContent = '停止';
-                    btn.classList.add('ai-always-on-active');
-                    btn.title = 'クリックで停止';
-                }
-            }
-            window.__aiAlwaysOn = {
-                start: start,
-                stop: stop,
-                isActive: isActive,
-                getTranscript: getTranscript,
-                setOnTranscriptUpdate: function(fn) { onTranscriptUpdate = fn; },
-                syncPanelUI: syncPanelUI,
-                trySendToGroup: trySendToGroup,
-                interpretAndSendToGroup: interpretAndSendToGroup,
-                supported: !!SpeechRecognition
-            };
-            if (typeof localStorage !== 'undefined' && localStorage.getItem(STORAGE_KEY) === '1') {
-                setTimeout(function() {
-                    var r = start();
-                    if (r && typeof r.then === 'function') {
-                        r.then(function(ok) { if (ok && syncPanelUI) syncPanelUI(); });
-                    } else if (r && syncPanelUI) {
-                        syncPanelUI();
-                    }
-                }, 500);
-            }
         })();
-        
-        // 常時起動UIの接続（グループチャット・AI秘書のどちらの入力欄からもON/OFF可能）
-        function wireAlwaysOnUI() {
-            var alwaysOnBtn = document.getElementById('aiAlwaysOnBtn');
-            var msgInput = document.getElementById('messageInput');
-            var transcribeBar = document.getElementById('aiTranscribeBar');
-            var transcribeStopBtn = document.getElementById('aiTranscribeBarStop');
-            if (!alwaysOnBtn || !msgInput) return;
-            if (alwaysOnBtn.getAttribute('data-always-on-wired') === '1') return;
-            var g = window.__aiAlwaysOn;
-            if (!g || !g.supported) {
-                alwaysOnBtn.disabled = true;
-                alwaysOnBtn.title = 'お使いのブラウザでは音声入力に対応していません';
-                alwaysOnBtn.style.opacity = '0.5';
-                return;
-            }
-            alwaysOnBtn.setAttribute('data-always-on-wired', '1');
-            function updateUIFull() {
-                var bar = document.getElementById('aiTranscribeBar');
-                var btn = document.getElementById('aiAlwaysOnBtn');
-                if (!btn) return;
-                var on = g.isActive();
-                if (bar) bar.style.display = on ? 'flex' : 'none';
-                btn.textContent = on ? '停止' : '常時起動';
-                btn.classList.toggle('ai-always-on-active', on);
-                btn.title = on ? 'クリックで停止' : '常時起動で音声指示（名前～指示～実行）';
-            }
-            g.setOnTranscriptUpdate(function(text) {
-                var inp = document.getElementById('messageInput');
-                if (inp && inp.getAttribute('data-ai-mode') === 'true') {
-                    inp.value = text || '';
-                    inp.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            });
-            if (g.isActive()) {
-                updateUIFull();
-                if (msgInput && g.getTranscript) msgInput.value = g.getTranscript();
-                setTimeout(updateUIFull, 0);
-                setTimeout(function() { updateUIFull(); var el = document.getElementById('messageInput'); if (el && g.isActive() && g.getTranscript) el.value = g.getTranscript(); }, 100);
-            }
-            function doStop() {
-                g.stop(function(transcript) {
-                    var inp = document.getElementById('messageInput');
-                    if (transcript && inp && typeof sendMessage === 'function') {
-                        inp.value = transcript;
-                        inp.dispatchEvent(new Event('input', { bubbles: true }));
-                        sendMessage();
-                    }
-                    updateUIFull();
-                });
-            }
-            function doStart() {
-                var result = g.start();
-                function applyResult(ok) {
-                    if (ok) updateUIFull();
-                    else {
-                        if (typeof showAIToast === 'function') showAIToast('音声認識を開始できませんでした');
-                        else alert('音声認識を開始できませんでした');
-                    }
-                }
-                if (result && typeof result.then === 'function') result.then(applyResult);
-                else applyResult(result);
-            }
-            if (transcribeStopBtn) transcribeStopBtn.addEventListener('click', doStop);
-            alwaysOnBtn.addEventListener('click', function() {
-                if (g.isActive()) doStop();
-                else doStart();
-            });
-            updateUIFull();
-        }
-        window.wireAlwaysOnUI = wireAlwaysOnUI;
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', wireAlwaysOnUI);
-        } else {
-            wireAlwaysOnUI();
-        }
         
         // アバタークリックでキャラクター変更を開く（サイドバー・ヘッダー・メッセージ内の秘書アバター）
         document.addEventListener('click', function(e) {
@@ -5835,14 +5248,6 @@ window.submitChatTask = async function() {
                 const extractedName = extractSecretaryNameFromUserMessage(content);
                 if (extractedName && typeof processSecretaryNameTag === 'function') {
                     processSecretaryNameTag(extractedName);
-                }
-                // 他会話送信: まずAIで意図解釈、未検出時は正規表現で送信
-                var sentToGroup = false;
-                if (window.__aiAlwaysOn && typeof window.__aiAlwaysOn.interpretAndSendToGroup === 'function') {
-                    sentToGroup = await window.__aiAlwaysOn.interpretAndSendToGroup(content);
-                }
-                if (!sentToGroup && window.__aiAlwaysOn && typeof window.__aiAlwaysOn.trySendToGroup === 'function') {
-                    window.__aiAlwaysOn.trySendToGroup(content);
                 }
                 await sendAIMessage(content);
                 return;
@@ -6935,11 +6340,11 @@ window.submitChatTask = async function() {
             }
         });
         
-        // チャット入力欄マイク：音声入力（Web Speech API）
+        // チャット入力欄マイク：音声入力（Web Speech API）。グループ・AI秘書の両方で同じマイクボタンを使用
         (function() {
             var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            var micBtn = null;
-            var messageInput = null;
+            var currentMicBtn = null;
+            var messageInputRef = null;
             var recognition = null;
             var isListening = false;
             var lastProcessedResultIndex = -1;
@@ -6953,21 +6358,21 @@ window.submitChatTask = async function() {
             }
             function setListening(flag) {
                 isListening = !!flag;
-                if (micBtn) {
+                var btn = currentMicBtn;
+                if (btn) {
                     if (isListening) {
-                        micBtn.classList.add('chat-mic-listening');
-                        micBtn.title = '音声入力中（クリックで停止）';
-                        micBtn.setAttribute('aria-label', '音声入力中（クリックで停止）');
+                        btn.classList.add('chat-mic-listening');
+                        btn.title = '音声入力中（クリックで停止）';
+                        btn.setAttribute('aria-label', '音声入力中（クリックで停止）');
                     } else {
-                        micBtn.classList.remove('chat-mic-listening');
-                        micBtn.title = '音声入力';
-                        micBtn.setAttribute('aria-label', '音声入力');
+                        btn.classList.remove('chat-mic-listening');
+                        btn.title = '音声入力';
+                        btn.setAttribute('aria-label', '音声入力');
                     }
                 }
             }
             function startListening() {
-                if (!messageInput || !recognition) return;
-                if (messageInput.getAttribute('data-ai-mode') === 'true') return;
+                if (!messageInputRef || !recognition) return;
                 lastProcessedResultIndex = -1;
                 lastAppendedTranscript = '';
                 try {
@@ -6986,54 +6391,70 @@ window.submitChatTask = async function() {
                 try { recognition.stop(); } catch (e) {}
                 setListening(false);
             }
-            document.addEventListener('DOMContentLoaded', function() {
-                micBtn = document.getElementById('chatMicBtn');
-                messageInput = document.getElementById('messageInput');
-                if (!micBtn || !messageInput) return;
+            function bindMicButton(btn) {
+                if (!btn || btn.getAttribute('data-mic-wired') === '1') return;
+                btn.setAttribute('data-mic-wired', '1');
                 if (!SpeechRecognition) {
-                    micBtn.disabled = true;
-                    micBtn.title = '音声入力はこのブラウザでは利用できません';
+                    btn.disabled = true;
+                    btn.title = '音声入力はこのブラウザでは利用できません';
                     return;
                 }
-                recognition = new SpeechRecognition();
-                recognition.onresult = function(e) {
-                    for (var i = lastProcessedResultIndex + 1; i < e.results.length; i++) {
-                        var result = e.results[i];
-                        if (!result.isFinal || !result[0] || !result[0].transcript) continue;
-                        var transcript = result[0].transcript;
-                        transcript = transcript.replace(/\sまる\s/g, '。').replace(/\sまる$/g, '。').replace(/^まる\s/g, '。').replace(/^まる$/g, '。');
-                        transcript = transcript.replace(/\sてん\s/g, '、').replace(/\sてん$/g, '、').replace(/^てん\s/g, '、').replace(/^てん$/g, '、');
-                        var t = transcript.trim();
-                        if (t === lastAppendedTranscript) continue;
-                        lastAppendedTranscript = t;
-                        lastProcessedResultIndex = i;
-                        var cur = messageInput.value || '';
-                        var sep = (cur.length > 0 && cur.slice(-1) !== '\n') ? ' ' : '';
-                        messageInput.value = cur + sep + transcript;
-                        if (typeof autoResizeInput === 'function') autoResizeInput(messageInput);
-                    }
-                };
-                recognition.onend = function() {
-                    setListening(false);
-                };
-                recognition.onerror = function(e) {
-                    if (e.error === 'not-allowed' || e.error === 'audio-capture') {
-                        if (typeof showAIToast === 'function') showAIToast('マイクの使用が許可されていません');
-                        else alert('マイクの使用が許可されていません');
-                    } else if (e.error === 'network') {
-                        if (typeof showAIToast === 'function') showAIToast('音声認識はネットワーク接続が必要です');
-                        else alert('音声認識はネットワーク接続が必要です');
-                    }
-                    setListening(false);
-                };
-                micBtn.addEventListener('click', function() {
-                    if (micBtn.disabled) return;
+                if (!recognition) {
+                    recognition = new SpeechRecognition();
+                    recognition.onresult = function(e) {
+                        for (var i = lastProcessedResultIndex + 1; i < e.results.length; i++) {
+                            var result = e.results[i];
+                            if (!result.isFinal || !result[0] || !result[0].transcript) continue;
+                            var transcript = result[0].transcript;
+                            transcript = transcript.replace(/\sまる\s/g, '。').replace(/\sまる$/g, '。').replace(/^まる\s/g, '。').replace(/^まる$/g, '。');
+                            transcript = transcript.replace(/\sてん\s/g, '、').replace(/\sてん$/g, '、').replace(/^てん\s/g, '、').replace(/^てん$/g, '、');
+                            var t = transcript.trim();
+                            if (t === lastAppendedTranscript) continue;
+                            lastAppendedTranscript = t;
+                            lastProcessedResultIndex = i;
+                            var inp = messageInputRef;
+                            if (!inp) return;
+                            var cur = inp.value || '';
+                            var sep = (cur.length > 0 && cur.slice(-1) !== '\n') ? ' ' : '';
+                            inp.value = cur + sep + transcript;
+                            if (typeof autoResizeInput === 'function') autoResizeInput(inp);
+                        }
+                    };
+                    recognition.onend = function() {
+                        setListening(false);
+                    };
+                    recognition.onerror = function(e) {
+                        if (e.error === 'not-allowed' || e.error === 'audio-capture') {
+                            if (typeof showAIToast === 'function') showAIToast('マイクの使用が許可されていません');
+                            else alert('マイクの使用が許可されていません');
+                        } else if (e.error === 'network') {
+                            if (typeof showAIToast === 'function') showAIToast('音声認識はネットワーク接続が必要です');
+                            else alert('音声認識はネットワーク接続が必要です');
+                        }
+                        setListening(false);
+                    };
+                }
+                btn.addEventListener('click', function() {
+                    if (btn.disabled) return;
+                    messageInputRef = document.getElementById('messageInput');
+                    if (!messageInputRef) return;
+                    currentMicBtn = btn;
                     if (isListening) {
                         stopListening();
                     } else {
                         startListening();
                     }
                 });
+            }
+            function wireChatMicUI() {
+                var chatMic = document.getElementById('chatMicBtn');
+                var aiMic = document.getElementById('aiMicBtn');
+                if (chatMic) bindMicButton(chatMic);
+                if (aiMic) bindMicButton(aiMic);
+            }
+            window.wireChatMicUI = wireChatMicUI;
+            document.addEventListener('DOMContentLoaded', function() {
+                wireChatMicUI();
             });
         })();
         

@@ -1104,7 +1104,6 @@ if ($is_secretary_mode) {
                             <button class="toolbar-btn gif-btn" title="絵文字・GIF" onclick="toggleEmojiPicker()">GIF</button>
                             <button class="toolbar-btn call-toolbar-btn" title="通話" onclick="openCallMenu(event)"><span class="btn-icon">☎</span></button>
                             <button type="button" class="toolbar-btn attach-btn" id="mainAttachBtn" title="ファイル・写真添付" aria-label="ファイル・写真添付"><span class="btn-icon">⊕</span></button>
-                            <button type="button" class="toolbar-btn attach-btn ai-always-on-btn" id="aiAlwaysOnBtn" title="常時起動で音声指示（名前～指示～実行）" aria-label="常時起動">常時起動</button>
                             <button type="button" class="toolbar-btn mic-btn" id="chatMicBtn" title="音声入力" aria-label="音声入力"><span class="btn-icon btn-icon-mic" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg></span></button>
                         </div>
                         <div class="input-toolbar-right">
@@ -1114,10 +1113,6 @@ if ($is_secretary_mode) {
                             <button class="toolbar-toggle-btn" onclick="toggleInputArea()" title="入力欄を非表示">☰</button>
                             <button class="input-send-btn theme-action-btn" onclick="sendMessage()" title="送信" aria-label="送信">➤</button>
                         </div>
-                    </div>
-                    <div class="ai-transcribe-bar" id="aiTranscribeBar" style="display:none;" role="status" aria-live="polite">
-                        <span class="ai-transcribe-bar-label" id="aiTranscribeBarLabel">常時起動中</span>
-                        <button type="button" class="ai-transcribe-bar-stop" id="aiTranscribeBarStop">停止</button>
                     </div>
                     <div class="input-row">
                         <div class="input-wrapper">

@@ -24,7 +24,7 @@ assets/css/
 | ファイル | 役割 | 読込み元 |
 |---------|------|---------|
 | `chat-main.css` | チャット画面メインスタイル（レガシー）。メッセージカード・conv-avatar は標準デザイン（DOCS/STANDARD_DESIGN_SPEC.md）に準拠。会話リストのAI秘書を最上部固定（order: -9999）。左パネル会話リストは `.conversation-list` に `min-height: 0` を指定し「他○件を表示」展開時に下にスクロール可能にしている。右パネル概要欄は保存後も表示を左上揃え（`.overview-body-readonly` に `display:flex; justify-content:flex-start; align-items:flex-start`）。右パネル概要欄のリンク（`.overview-link`）は :link/:visited/:hover/:active/:focus でアクティブ表示（改善提案 ID:5）。**朝のニュース動画**: `.ai-morning-news-embed`（16:9・max-width 560px）、`.ai-morning-news-video-list`／`.ai-morning-news-video-item`／`-active`、`.ai-morning-news-greeting`／`.ai-morning-news-no-videos` | chat.php |
-| `ai-voice-input.css` | AI秘書ツールバー・常時起動ボタン・入力行（送信ボタン右配置をグループチャットと統一） | chat.php |
+| `ai-voice-input.css` | AI秘書ツールバー・マイクボタン・入力行（送信ボタン右配置をグループチャットと統一）。常時起動は削除済み | chat.php |
 | `panel-resize.css` | 左右パネルリサイズハンドル | chat.php |
 | `panel-panels-unified.css` | パネル間空間の統一・page-chatレイアウト。上パネル共有4ページ（settings/design/tasks/notifications）の `body padding-top` と `.main-container` も管理 | chat.php, settings.php, design.php, tasks.php, notifications.php |
 | `chat-new.css` | 新コンポーネント分離CSS | chat.php |

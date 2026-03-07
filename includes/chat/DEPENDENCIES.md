@@ -260,22 +260,10 @@ chat.php (317行)
    - 履歴読み込み失敗時: showAIHistoryLoadError() で「履歴を読み込めませんでした。🔄で再読み込み」を表示。loadAIHistory() は成功/失敗を返し、reloadAIHistory でトースト表示を切り替え
    - 会話履歴クリア: clearAIHistory() の確認メッセージを「本当にすべての会話履歴を削除しますか？この操作は取り消せません。」に強化（誤削除防止）
 
-✅ AI秘書パネル・常時起動表示の強固化（他会話から戻ったとき）
-   - showAIMessages() は「messagesArea が無い」だけでなく「AI用パネルが無い」（#aiTranscribeBar / #aiAlwaysOnBtn が無い）場合も center-panel をAI用に再構築する。他会話表示時はグループ用の center-panel になるため、AI秘書に戻った際に必ずパネル差し替えが走る
+✅ AI秘書パネル・入力欄（常時起動は削除済み・マイクのみ）
+   - showAIMessages() は「messagesArea が無い」だけでなく「AI用パネルが無い」（#aiMicBtn が無い）場合も center-panel をAI用に再構築する。他会話表示時はグループ用の center-panel になるため、AI秘書に戻った際に必ずパネル差し替えが走る
    - **1回タップ/クリックで開く**: selectAISecretary() の先頭で、fetch 前に同期的に center-panel を「読み込み中...」表示に差し替え、携帯時はここで closeMobileLeftPanel() を実行。その後 await fetch → showAIMessages() で本表示。sidebar の AI 秘書アイテムは onclick で event.stopPropagation(); event.preventDefault(); を付与しタップが他で消費されないようにする
-   - 常時起動の表示同期: `window.__aiAlwaysOn.syncPanelUI()` でバー・ボタンを「常時起動中」に合わせる。loadAIHistory() 完了後に即時・500ms・1000ms・1500ms で呼び出し、履歴描画後も表示が消えないようにする
-   - 依存: 常時起動の状態は __aiAlwaysOn（と localStorage）のみが保持。表示は showAIMessages() で作る DOM（#aiTranscribeBar, #aiAlwaysOnBtn）に syncPanelUI で反映。**グループチャットの入力欄**（chat.php）にも常時起動ボタン・バーを配置し、`wireAlwaysOnUI()` で DOM 読込時および AI パネル表示時に接続するため、どの会話表示中でも ON/OFF 可能
-   - 常時起動の音声拾い改善: 開始前に navigator.mediaDevices.getUserMedia({ audio: true }) でマイク許可を取得。onerror で not-allowed / audio-capture 時にトースト表示・停止。onend 再起動は 250ms 遅延し、start() 失敗時は SpeechRecognition インスタンスを再生成して再開。start() が Promise を返す場合に doStart/自動再開で .then して UI 同期
-   - 常時起動「実行」時のLLM解釈: キーワード「実行」検出時に発話全文を api/ai.php action=execute_voice_command に送り、高度なLLMで意図を判定。返却アクション（send_to_group / add_memo / add_task / chat）に応じて実行。解釈できなければ従来の exec(instruction) にフォールバック。executeVoiceCommandViaLLM(fullTranscript, fallbackInstruction)
-   - 送信文の編集フロー: send_to_group 時はLLMが「どんな文章をどのグループに送るか」を考え、content を挨拶・敬語・宛名を整えた送信用文として返す。フロントは即送信せず __pendingSendToGroup をセットし、編集済み文を入力欄に表示。ユーザーが内容を確認・編集して送信ボタンで送信。sendMessage() 内で __pendingSendToGroup があればその conversation_id に送り、未設定時は従来のAI秘書送信
-   - To（宛先）機能: execute_voice_command で send_to_group 時に LLM が to_recipient_names（例: なおちゃん宛）を返す。API側で当該会話のメンバー（display_name）と照合し mention_ids に解決。フロントは sendToGroup(..., mentionIds) および __pendingSendToGroup.mention_ids で api/messages.php の mention_ids に渡し、To付きで送信
-
-✅ AI秘書から他会話へのメッセージ送信（2026-02）
-   - 指示例: 「事務局におはようございますというメッセージを送って」「〇〇に「本文」送信」等。音声（常時起動の exec）とテキスト送信（sendMessage）の両方で検出
-   - **AI解釈優先**: sendMessage() で AI秘書モード時、まず interpretAndSendToGroup(content) が api/ai.php action=interpret_send_to_group を呼ぶ。バックエンドは参加会話をDBから取得し、Gemini で「送信意図・送信先・本文」を判定。detected かつ group_name/content があれば conversation_id も返却（DBの名前→id マップで解決）。フロントは conversation_id があればそれで api/messages.php に送信し、なければ getConversationIdByName で送信。未検出時は trySendToGroup(content)（正規表現）にフォールバック
-   - parseSendToGroupInstruction(): 返信・「」付き送信・「YYを送信」・「YYという/っていうメッセージを送って」をパース。trySendToGroup() で __aiAlwaysOn から公開
-   - 実際の送信は api/messages.php action=send（conversation_id は interpret_send_to_group の返却値、または getConversationIdByName でサイドバーの data-conv-id / data-conv-name から取得）
-   - 依存: sidebar.php の data-conv-name（会話名）、api/ai.php interpret_send_to_group（Gemini）、api/messages.php send
+   - **音声入力**: グループチャットと同様のマイクボタン（#chatMicBtn / #aiMicBtn）を共通の音声入力ロジック（wireChatMicUI）で接続。AI秘書パネル表示時に wireChatMicUI() を呼び出し #aiMicBtn をバインドする
 
 ✅ 改善提案記録（improvement_reports）- 聞き取り確認フロー（v2026.02.27.2）
    - **フロー**: ユーザーが改善希望・不具合を報告 → AI秘書が場所・現状・望ましい状態を聞き取り → 「こういう改善希望でよかったでしょうか？」と確認 → ユーザーが肯定 → AI秘書が `[IMPROVEMENT_CONFIRMED]` タグを出力 → フロントエンドが検出し、直近の会話コンテキスト（最大12件のメッセージ）を `api/ai.php action=extract_improvement_report` に送信 → Geminiが改善計画を含む構造化データを生成 → `improvement_reports` テーブルに保存。

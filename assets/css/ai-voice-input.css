@@ -1,87 +1,27 @@
 /**
- * AI秘書 常時起動ボタン（マイク廃止・常時起動/停止のみ）
- * 角を丸めた長方形・4文字程度・ホバー時は色変化なし
- * chat-main の .input-toolbar-left .toolbar-btn（36px・border-radius:50%）を上書き
+ * AI秘書 入力ツールバー・マイクボタン・入力行（送信ボタン右配置をグループチャットと統一）
+ * 常時起動は削除済み。グループチャットと同じマイクボタンのみ。
  */
-.input-area .input-toolbar-left .toolbar-btn.ai-always-on-btn,
-.input-area .toolbar-btn.ai-always-on-btn {
-    width: 5.2em !important;
-    min-width: 5.2em !important;
-    max-width: 5.2em !important;
-    height: 36px !important;
-    font-size: 12px;
-    padding: 0 10px !important;
-    white-space: nowrap;
-    box-sizing: border-box;
-    text-align: center;
-    border-radius: 8px !important;
-}
-.input-area .input-toolbar-left .toolbar-btn.ai-always-on-btn:hover,
-.input-area .input-toolbar-left .toolbar-btn.ai-always-on-btn:focus,
-.input-area .toolbar-btn.ai-always-on-btn:hover,
-.input-area .toolbar-btn.ai-always-on-btn:focus {
-    background: var(--theme-btn-primary, var(--theme-accent, #6b7280)) !important;
-    color: var(--theme-btn-text, #ffffff) !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    filter: none !important;
-    transform: none !important;
-}
-.input-area .input-toolbar-left .toolbar-btn.ai-always-on-btn.ai-always-on-active,
-.input-area .toolbar-btn.ai-always-on-btn.ai-always-on-active {
-    background: rgba(220, 53, 69, 0.2) !important;
-    color: #c92a2a;
-    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.35);
-}
-.input-area .input-toolbar-left .toolbar-btn.ai-always-on-btn.ai-always-on-active:hover,
-.input-area .input-toolbar-left .toolbar-btn.ai-always-on-btn.ai-always-on-active:focus,
-.input-area .toolbar-btn.ai-always-on-btn.ai-always-on-active:hover,
-.input-area .toolbar-btn.ai-always-on-btn.ai-always-on-active:focus {
-    background: rgba(220, 53, 69, 0.2) !important;
-    color: #c92a2a;
-    filter: none !important;
-    transform: none !important;
-}
-.input-area .toolbar-btn.ai-always-on-btn:disabled {
-    cursor: not-allowed;
-}
-
-/* 文字起こし中バー（マイク開始時に表示） */
-.ai-transcribe-bar {
+/* AI秘書の入力行: 他グループチャットと同様に送信ボタンを右側に配置 */
+.input-area:has(#aiMicBtn) .input-row,
+.input-area:has(.message-input[data-ai-mode="true"]) .input-row {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 8px 16px;
-    margin: 0 16px 4px;
-    background: var(--dt-center-input-bg, #f1f5f9);
-    border: 1px solid var(--theme-input-border, rgba(0, 0, 0, 0.12));
-    border-radius: var(--ui-input-radius, 12px);
-    font-size: 13px;
+    flex-direction: row;
+    align-items: stretch;
 }
-.ai-transcribe-bar-label {
-    color: var(--theme-btn-primary, var(--theme-accent, #6b7280));
-    font-weight: 600;
+.input-area:has(#aiMicBtn) .input-row .input-wrapper,
+.input-area:has(.message-input[data-ai-mode="true"]) .input-row .input-wrapper {
+    flex: 1;
+    min-width: 0;
+    order: 1;
 }
-.ai-transcribe-bar-stop {
-    padding: 6px 14px;
-    border-radius: 8px;
-    border: none;
-    background: var(--theme-btn-primary, var(--theme-accent, #6b7280));
-    color: var(--theme-btn-text, #fff);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: filter 0.2s, transform 0.2s;
-}
-.ai-transcribe-bar-stop:hover {
-    filter: brightness(1.1);
-    transform: scale(1.02);
-}
-.ai-transcribe-bar-stop:active {
-    transform: scale(0.98);
+.input-area:has(#aiMicBtn) .input-row .input-send-btn,
+.input-area:has(.message-input[data-ai-mode="true"]) .input-row .input-send-btn {
+    flex-shrink: 0;
+    order: 2;
 }
 
-/* AIメッセージの読み上げボタン（フェーズ9 TTS） */
+/* AIメッセージの読み上げボタン（TTS） */
 .ai-msg-read-aloud-btn {
     margin-left: 8px;
     padding: 2px 8px;
@@ -98,23 +38,4 @@
 }
 .ai-msg-read-aloud-btn:active {
     transform: scale(0.96);
-}
-
-/* AI秘書の入力行: 他グループチャットと同様に送信ボタンを右側に配置 */
-.input-area:has(.ai-always-on-btn) .input-row,
-.input-area:has(#aiTranscribeBar) .input-row {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-}
-.input-area:has(.ai-always-on-btn) .input-row .input-wrapper,
-.input-area:has(#aiTranscribeBar) .input-row .input-wrapper {
-    flex: 1;
-    min-width: 0;
-    order: 1;
-}
-.input-area:has(.ai-always-on-btn) .input-row .input-send-btn,
-.input-area:has(#aiTranscribeBar) .input-row .input-send-btn {
-    flex-shrink: 0;
-    order: 2;
 }
