@@ -87,7 +87,7 @@ require_once __DIR__ . '/../includes/api-bootstrap.php';
 | `remove_reaction` | フロント reactions.js 用。unreact と同一処理。削除後の `reactions` 一覧を返す | POST |
 | `unreact` | リアクション削除 | POST |
 | `poll` | ポーリング用。last_id を after_id に変換し get と同一処理 | GET |
-| `search` | グローバル検索（メッセージ・ユーザー・グループ横断。15歳未満除外、is_friend/is_pending付与、phone検索対応、所属会話のみ） | GET |
+| `search` | グローバル検索（メッセージ・ユーザー・グループ横断。**個人**のユーザー検索はメール@または携帯10桁以上のときのみヒット。15歳未満除外、is_friend/is_pending付与、phone検索対応、所属会話のみ） | GET |
 
 ### 依存関係
 

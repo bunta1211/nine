@@ -105,6 +105,9 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$conversation_id]);
 $members = $stmt->fetchAll();
+
+// 発信者かどうか（meet.jit.si では発信者が「ミーティングを開始」を押すと繋がる）
+$is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_id'] === (int)$user_id;
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -176,23 +179,6 @@ $members = $stmt->fetchAll();
         #jitsiContainer {
             width: 100%;
             height: 100%;
-        }
-        
-        /* meet.jit.si 暫定案内（通話専用ページでも同一文言を表示） */
-        .call-jitsi-host-hint {
-            position: absolute;
-            bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            margin: 0;
-            padding: 6px 12px;
-            font-size: 12px;
-            line-height: 1.3;
-            color: rgba(255, 255, 255, 0.9);
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 4px;
-            pointer-events: none;
-            z-index: 10;
         }
         
         .call-controls {
@@ -364,6 +350,16 @@ $members = $stmt->fetchAll();
             z-index: 100;
         }
         .connecting-overlay.hidden { display: none; }
+        .connecting-overlay .connecting-overlay-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-height: 100%;
+            overflow-y: auto;
+            padding: 16px;
+            width: 100%;
+        }
         .connecting-overlay .spinner {
             width: 60px;
             height: 60px;
@@ -373,11 +369,104 @@ $members = $stmt->fetchAll();
             animation: spin 1s linear infinite;
             margin-bottom: 20px;
         }
+        .connecting-overlay .connection-failure-reason {
+            margin-top: 16px;
+            padding: 12px 20px;
+            max-width: 90%;
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid rgba(248, 113, 113, 0.5);
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: center;
+            display: none;
+        }
+        .connecting-overlay .connection-failure-reason.visible { display: block; }
+        .connecting-overlay .connection-failure-reason .call-console-note {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+        .connecting-overlay .connection-failure-reason a {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+        .connecting-overlay .call-start-meeting-hint {
+            margin-top: 14px;
+            padding: 10px 16px;
+            max-width: 90%;
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(74, 222, 128, 0.5);
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: center;
+            display: none;
+        }
+        .connecting-overlay .call-start-meeting-hint.visible { display: block; }
+        .connecting-overlay .call-start-meeting-hint .call-hint-label {
+            display: block;
+            font-size: 12px;
+            opacity: 0.95;
+            margin-bottom: 6px;
+        }
+        .connecting-overlay .call-connection-checklist {
+            margin-top: 10px;
+            font-size: 13px;
+            text-align: left;
+            padding-left: 1em;
+        }
+        .connecting-overlay .call-connection-checklist ul { margin: 4px 0 0 0; padding-left: 1.2em; }
+        .connecting-overlay .call-debug-toggle { margin-top: 10px; }
+        .connecting-overlay .call-debug-toggle button {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .connecting-overlay .call-debug-content {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            font-size: 11px;
+            text-align: left;
+            display: none;
+        }
+        .connecting-overlay .call-debug-content.visible { display: block; }
+        .connecting-overlay .call-dev-note { font-size: 11px; opacity: 0.9; margin-top: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <?= generateDesignCSS($designSettings) ?>
 </head>
 <body class="style-<?= htmlspecialchars(function_exists('getEffectiveStyleId') ? getEffectiveStyleId($designSettings['ui_style'] ?? DESIGN_DEFAULT_STYLE) : ($designSettings['ui_style'] ?? DESIGN_DEFAULT_STYLE)) ?>" data-theme="<?= htmlspecialchars($designSettings['theme'] ?? DESIGN_DEFAULT_THEME) ?>">
+    <!-- Jitsi/Chrome の chrome-extension://invalid/ による net::ERR_FAILED をコンソールに表示しない（通話無関係のため） -->
+    <script>
+(function(){
+        var origError = console.error;
+        var origWarn = console.warn;
+        function shouldSuppress(msg) {
+            return /chrome-extension:\/\/invalid|Failed to load resource:.*chrome-extension/i.test(msg);
+        }
+        if (typeof origError === 'function') {
+            console.error = function() {
+                var msg = Array.prototype.slice.call(arguments).join(' ');
+                if (shouldSuppress(msg)) return;
+                return origError.apply(console, arguments);
+            };
+        }
+        if (typeof origWarn === 'function') {
+            console.warn = function() {
+                var msg = Array.prototype.slice.call(arguments).join(' ');
+                if (shouldSuppress(msg)) return;
+                return origWarn.apply(console, arguments);
+            };
+        }
+})();
+    </script>
     <div class="call-container">
         <header class="call-header">
             <div class="call-info">
@@ -395,12 +484,29 @@ $members = $stmt->fetchAll();
         
         <div class="video-area">
             <div id="jitsiContainer"></div>
-            <p class="call-jitsi-host-hint">接続しない場合は、画面内の「私はホストです」を押してください。</p>
             
             <div class="connecting-overlay" id="connectingOverlay">
-                <div class="spinner"></div>
-                <h3>接続中...</h3>
-                <p style="opacity: 0.7; margin-top: 8px;">通話に参加しています</p>
+                <div class="connecting-overlay-inner">
+                    <div class="spinner"></div>
+                    <h3>接続中...</h3>
+                    <p style="opacity: 0.7; margin-top: 8px;">通話に参加しています</p>
+                    <p class="call-start-meeting-hint" id="callStartMeetingHint"><span class="call-hint-label">最初にやること</span>Jitsi の画面の<strong>中央や下部にある青い「ミーティングに参加」ボタン</strong>を押すと通話が始まります。「私はホストです」の表示がなくても、同じボタンを押してください。</p>
+                    <div class="connection-failure-reason" id="connectionFailureReason">
+                        <p id="connectionFailureText"></p>
+                        <div class="call-connection-checklist" id="callConnectionChecklist" style="display:none;">
+                            <strong>接続チェックリスト（発信者の方）</strong>
+                            <ul>
+                                <li>青い「ミーティングに参加」ボタンを押しましたか？</li>
+                                <li>まだなら、Jitsi 画面の中央・下部を確認してください。</li>
+                            </ul>
+                        </div>
+                        <p class="call-console-note">※コンソールに「chrome-extension」や「net::ERR_FAILED」と出ても、通話には影響ありません。</p>
+                        <p class="call-dev-note" id="callDevNote" style="display:none;"></p>
+                        <div class="call-debug-toggle"><button type="button" id="callDebugToggle">詳細を表示</button></div>
+                        <div class="call-debug-content" id="callDebugContent"></div>
+                        <p style="margin-top: 8px;"><a href="help/call-troubleshooting.php" target="_blank" rel="noopener">通話で困ったとき（ヘルプ）</a></p>
+                    </div>
+                </div>
             </div>
             
             <!-- 参加者サイドバー -->
@@ -459,6 +565,8 @@ $members = $stmt->fetchAll();
         const callType = '<?= addslashes($call_type) ?>';
         const conversationId = <?= (int)$conversation_id ?>;
         const callId = <?= (int)$call_id_param ?>; // leave API 用（0の場合はレガシー c= のみなので leave しない）
+        const isInitiator = <?= $is_initiator ? 'true' : 'false' ?>;
+        const jitsiDomain = '<?= addslashes(JITSI_DOMAIN) ?>';
         const apiCallsBase = (function(){
             const a = document.createElement('a');
             a.href = window.location.href;
@@ -479,6 +587,22 @@ $members = $stmt->fetchAll();
             form.append('action', 'leave');
             form.append('call_id', String(callId));
             fetch(apiCallsBase + 'api/calls.php', { method: 'POST', credentials: 'same-origin', body: form }).catch(function(){});
+        }
+        
+        function showConnectionFailure(text) {
+            var overlay = document.getElementById('connectingOverlay');
+            if (!overlay || overlay.classList.contains('hidden')) return;
+            var textEl = document.getElementById('connectionFailureText');
+            var reasonEl = document.getElementById('connectionFailureReason');
+            if (textEl) textEl.textContent = text;
+            if (reasonEl) reasonEl.classList.add('visible');
+            var checklistEl = document.getElementById('callConnectionChecklist');
+            if (checklistEl && isInitiator) checklistEl.style.display = 'block';
+            var devNoteEl = document.getElementById('callDevNote');
+            if (devNoteEl) {
+                devNoteEl.style.display = 'block';
+                devNoteEl.textContent = '開発者向け: 繋がらない場合はブラウザの Network タブで、meet.jit.si や social9.jp への Failed リクエストがないか確認してください。';
+            }
         }
         
         // Jitsi Meet初期化（自前サーバー対応: config の JITSI_DOMAIN）
@@ -522,8 +646,27 @@ $members = $stmt->fetchAll();
             
             api = new JitsiMeetExternalAPI(domain, options);
             
+            api.addListener('errorOccurred', function(data) {
+                if (data && (data.type === 'CONNECTION' || data.type === 'CONFERENCE')) {
+                    var msg = (data.message || data.name || '接続に失敗しました');
+                    showConnectionFailure('接続できませんでした: ' + msg);
+                }
+            });
+            
             api.addListener('videoConferenceJoined', () => {
                 document.getElementById('connectingOverlay').classList.add('hidden');
+                if (window.connectionFailureTimeout) {
+                    clearTimeout(window.connectionFailureTimeout);
+                    window.connectionFailureTimeout = null;
+                }
+                if (window.startMeetingHintTimeout) {
+                    clearTimeout(window.startMeetingHintTimeout);
+                    window.startMeetingHintTimeout = null;
+                }
+                var reasonEl = document.getElementById('connectionFailureReason');
+                if (reasonEl) reasonEl.classList.remove('visible');
+                var hintEl = document.getElementById('callStartMeetingHint');
+                if (hintEl) hintEl.classList.remove('visible');
                 startTimer();
                 document.getElementById('callStatus').textContent = '通話中';
                 
@@ -641,6 +784,41 @@ $members = $stmt->fetchAll();
         
         // 初期化
         initJitsi();
+        // 発信者には3秒後に「ミーティングに参加」案内を表示（meet.jit.si では会議が自動開始されないため）
+        if (isInitiator) {
+            window.startMeetingHintTimeout = setTimeout(function() {
+                var overlay = document.getElementById('connectingOverlay');
+                if (overlay && !overlay.classList.contains('hidden')) {
+                    var el = document.getElementById('callStartMeetingHint');
+                    if (el) el.classList.add('visible');
+                }
+                window.startMeetingHintTimeout = null;
+            }, 3000);
+        }
+        // 一定時間繋がらなかったら一般的な原因とヘルプリンクを表示
+        window.connectionFailureTimeout = setTimeout(function() {
+            var overlay = document.getElementById('connectingOverlay');
+            if (overlay && !overlay.classList.contains('hidden')) {
+                showConnectionFailure('接続に時間がかかっています。考えられる原因: 会議がまだ開始されていない、ネットワークの状態、ブラウザの権限など。詳しくは下のヘルプをご覧ください。');
+            }
+            window.connectionFailureTimeout = null;
+        }, 15000);
+        // 詳細表示トグル（Jitsi ドメイン・room_id 等）
+        (function() {
+            var btn = document.getElementById('callDebugToggle');
+            var content = document.getElementById('callDebugContent');
+            if (!btn || !content) return;
+            btn.addEventListener('click', function() {
+                if (content.classList.contains('visible')) {
+                    content.classList.remove('visible');
+                    btn.textContent = '詳細を表示';
+                } else {
+                    content.innerHTML = 'Jitsi ドメイン: ' + jitsiDomain + '<br>room_id: ' + roomName + '<br>external_api.js: ' + (typeof JitsiMeetExternalAPI !== 'undefined' ? '読み込み済み' : '未読み込み');
+                    content.classList.add('visible');
+                    btn.textContent = '詳細を閉じる';
+                }
+            });
+        })();
     </script>
 </body>
 </html>

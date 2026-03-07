@@ -3,7 +3,8 @@
 通話が「通話に参加しています」のまま繋がらない場合の検証手順と原因の切り分けをまとめる。  
 関連: [CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md](CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md)、[PHONE_VIDEO_CALL_PLAN.md](PHONE_VIDEO_CALL_PLAN.md)。
 
----
+**画面上の案内**: call.php では、繋がらない場合に **原因表示**（Jitsi の errorOccurred および 15 秒タイムアウト時の一般的な案内）と **ヘルプリンク**（`help/call-troubleshooting.php`）を表示する。あわせて **発信者**には 3 秒後に「Jitsi の中央や下部の青い『ミーティングに参加』ボタンを押す」案内（緑の枠）を表示し、meet.jit.si 利用時も一通話で繋がるようにしている（「私はホストです」が表示されない環境でも同じボタンで開始できる旨を案内）。恒久対策は自前 Jitsi（[PHONE_VIDEO_CALL_PLAN.md](PHONE_VIDEO_CALL_PLAN.md) 8.2-B・8.6 参照）。  
+また、Jitsi/Chrome が `chrome-extension://invalid/` を参照して出す **net::ERR_FAILED** は通話と無関係なため、call.php では `console.error` / `console.warn` をラップして当該メッセージをコンソールに出さないようにし、原因表示エリアに「コンソールに chrome-extension の表示が出ても通話に影響しない」旨の注記を表示している。
 
 ## 1. 現象の整理（コンソール・画面の手がかり）
 
@@ -11,7 +12,7 @@
 |------|----------------------------|
 | 「通話に参加しています」のまま繋がらない | スピナーが続き、相手の映像が表示されない。タイマー 00:00 のまま。 |
 | **net::ERR_FAILED** | DevTools Console に `Failed to load resource: net::ERR_FAILED`。**どの URL が失敗しているかは Console だけでは分からない**ため、Network タブで失敗したリクエストの URL を確認する。 |
-| **chrome-extension://invalid/ の net::ERR_FAILED** | 失敗しているリソースが `chrome-extension://invalid/:1` の場合。**ブラウザまたは拡張機能（例: DevTools の AI 機能）が無効な拡張 URL を読もうとして出るもので、アプリ・Jitsi の通話とは無関係**。通話が繋がらない原因としては無視してよい。気になる場合はシークレットウィンドウや拡張無効で試す。 |
+| **chrome-extension://invalid/ の net::ERR_FAILED** | 失敗しているリソースが `chrome-extension://invalid/:1` の場合。スタックトレースに `checkChromeExtensionsInstalled.web.ts` と出ることがあるが、**このファイルは Social9 のコードではなく、Chrome や Jitsi 側の拡張チェック**。ブラウザまたは Jitsi が拡張の有無を参照して出るもので、アプリ・通話の原因ではない。無視してよい。気になる場合はシークレットウィンドウや拡張無効で試す。 |
 | **Unrecognized feature: 'speaker-selection'** | `external_api.is:364`。Jitsi がブラウザに speaker-selection を要求しているが、未対応・未認識。 |
 | **RECORDING OFF SOUND** | `[app:sounds] PLAY SOUND: no sound found for id: RECORDING OFF SOUND`。音声アセット不足。 |
 | **web-hid non-compliant** | `[app:web-hid] sendDeviceReport: There are currently non-compliant conditions`。デバイス／HID の条件が非準拠。 |
@@ -25,7 +26,7 @@
 ### 2.1 ネットワーク・リソース（net::ERR_FAILED の正体）
 
 - **目的**: どの URL が `net::ERR_FAILED` で失敗しているかを特定する。
-- **重要**: 失敗している URL が **`chrome-extension://invalid/`** のときは、ブラウザや DevTools（例: Console Insights / AI assistance）が無効な拡張を参照して出るエラーであり、**通話の原因ではない**。無視してよい。
+- **重要**: 失敗している URL が **`chrome-extension://invalid/`** のときは、ブラウザや Jitsi（拡張チェック）が無効な拡張を参照して出るエラーであり、**通話の原因ではない**。無視してよい。コンソールの説明で `checkChromeExtensionsInstalled.web.ts` と出ても、このファイルは Social9 には含まれておらず、Chrome または Jitsi 側のコードである。
 - **手順**:
   1. call.php を開き、DevTools の **Network** タブを開いた状態で通話を開始する。
   2. ステータスが "Failed" または "(failed)" のリクエストを記録する（URL・種類・Initiator）。
@@ -47,9 +48,9 @@
 ### 2.3 会議開始（モデレーター待ち）
 
 - **目的**: meet.jit.si で会議が開始されず「参加しています」のまま止まっていないかを確認する。
-- **手順**:
-  1. 発信者・着信者の**両方**の画面で、Jitsi 内に「私はホストです」ボタンが出ていないか確認する。
-  2. 出ている場合、**発信者側**で「私はホストです」を押し、その後着信者が「ミーティングに参加」を押して、映像・音声が繋がるか試す。
+- **手順**（運営・サポート向け。画面上では案内しない）:
+  1. 発信者・着信者の**両方**の画面で、Jitsi 内に「私はホストです」または<strong>青い「ミーティングに参加」ボタン</strong>が出ていないか確認する。
+  2. 出ている場合、**発信者側**でそのボタン（「私はホストです」または「ミーティングに参加」）を押し、その後着信者が「ミーティングに参加」を押して、映像・音声が繋がるか試す。
   3. それでも繋がらない場合は、2.1 のネットワーク失敗（シグナリングやメディア経路の失敗）を疑う。
 - **既知**: CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md のとおり、meet.jit.si では configOverwrite.startConference が効かないため、**自前 Jitsi で会議即開始（everyoneIsModerator 等）を設定することが確実に繋ぐための前提**とされている。
 
@@ -82,8 +83,8 @@
    DevTools → Network を開き、call.php で通話を開始した状態で、ステータスが Failed のリクエストの URL を控える。  
    **失敗している URL が `chrome-extension://invalid/` だけの場合は、ブラウザ側のもので通話の原因ではないので無視してよい。**
 
-2. **発信者・着信者双方で「私はホストです」の有無を確認し、発信者で押してから参加を試す**  
-   Jitsi の画面内に「私はホストです」が出ている場合は、発信者側でクリックしてから、着信者が「ミーティングに参加」を押す。
+2. **発信者・着信者双方で「ミーティングに参加」または「私はホストです」の有無を確認し、発信者で押してから参加を試す**（運営・サポート向け。画面上では案内しない）  
+   Jitsi の画面内に<strong>青い「ミーティングに参加」</strong>や「私はホストです」が出ている場合は、発信者側でクリックしてから、着信者が「ミーティングに参加」を押す。
 
 3. **別ブラウザ・別ネットワークで試す**  
    別ブラウザ（Edge / Firefox）や、別ネット（スマホテザリングなど）で同じ手順を試し、再現するかどうかを確認する。
@@ -97,3 +98,4 @@
 
 - [CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md](CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md) — 繋がらない主因・厳命事項・実装タスク
 - [PHONE_VIDEO_CALL_PLAN.md](PHONE_VIDEO_CALL_PLAN.md) — 自前 Jitsi 構築（8.2-B）・会議即開始設定
+- **call.php の原因表示**: 繋がらない場合に Jitsi の `errorOccurred`（CONNECTION / CONFERENCE）および 15 秒タイムアウト時に、接続中オーバーレイ内で原因・案内を表示し、`help/call-troubleshooting.php` へのリンクを表示する。

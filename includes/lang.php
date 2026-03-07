@@ -1251,9 +1251,9 @@ $translations = [
     // 検索モーダル
     // ============================================
     'search_placeholder' => [
-        'ja' => 'メッセージ、ユーザー、グループを検索...',
-        'en' => 'Search messages, users, groups...',
-        'zh' => '搜索消息、用户、群组...'
+        'ja' => 'メッセージ・グループを検索。人を探す場合はメールアドレスまたは携帯番号を入力...',
+        'en' => 'Search messages, groups. To find a person, enter email or phone number...',
+        'zh' => '搜索消息、群组。找人请输入邮箱或手机号...'
     ],
     'messages' => [
         'ja' => 'メッセージ',

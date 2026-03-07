@@ -12027,11 +12027,12 @@ window.submitChatTask = async function() {
                 
                 const data = await response.json();
                 if (!data.success) {
-                    console.error('概要の保存に失敗:', data.message);
+                    const errMsg = data.message || data.error || '不明なエラー';
+                    console.error('概要の保存に失敗:', errMsg);
                     alert('<?= $currentLang === 'en' ? 'Failed to save' : ($currentLang === 'zh' ? '保存失败' : '保存に失敗しました') ?>');
                 }
             } catch (error) {
-                console.error('概要の保存エラー:', error);
+                console.error('概要の保存エラー:', error && error.message ? error.message : error);
                 alert('<?= $currentLang === 'en' ? 'Failed to save' : ($currentLang === 'zh' ? '保存失败' : '保存に失敗しました') ?>');
             }
         }

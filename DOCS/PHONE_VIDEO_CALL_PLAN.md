@@ -14,7 +14,7 @@
 | **メディア** | Jitsi Meet（meet.jit.si）をルームIDで利用。音声・ビデオ・画面共有等は **call.php 内**で実施 |
 | **チャット側UI** | `includes/chat/call-ui.php`（着信モーダル・通話メニューのみ。通話ビデオウィンドウ・コントロールバーは廃止） |
 | **着信** | Web Push ＋ ポーリング（get_active）で着信検知。着信音・バイブ・着信モーダル（出る/拒否）→「出る」で **call.php へ遷移** |
-| **通話画面** | **call.php のみ**。`call_id` で参加。Jitsi 埋め込み・「私はホストです」案内・終了時の leave 呼び出しは call.php で実施。詳細は [CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md](DOCS/CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md)。
+| **通話画面** | **call.php のみ**。`call_id` で参加。Jitsi 埋め込み・終了時の leave 呼び出し・繋がらない場合の原因表示とヘルプリンクは call.php で実施。詳細は [CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md](DOCS/CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md)。
 
 ### 1.2 現状の動作フロー
 

@@ -52,6 +52,18 @@ php assets/icons/generate-icons.php
 
 **注意**: php.ini で `extension=gd` が有効になっている必要があります。
 
+### 方法3: PowerShell（GD が使えない場合・Windows）
+
+PHP の GD が無効で `generate-icons.php` が使えない場合、Windows では PowerShell で代替生成できます。緑背景＋白い「9」のアイコンが生成されます。
+
+```powershell
+cd c:\xampp\htdocs\nine
+powershell -ExecutionPolicy Bypass -File assets/icons/generate-icons.ps1
+```
+
+生成後、`assets/icons/` にできた PNG をそのままコミットするか本番にアップロードしてください。  
+本番サーバーが Linux の場合は、ローカルまたは CI で生成した PNG を `assets/icons/` に配置してデプロイするか、本番で `php assets/icons/generate-icons.php`（GD 有効）を実行してください。
+
 ### 生成されるファイル
 
 - icon-72x72.png

@@ -408,7 +408,7 @@ chat.php (317行)
 - **会議開始・二重表示の防止**: 発信者のみ `showCallUIAndStartJitsi(..., true)`（isInitiator=true）で Jitsi に `startConference: true` を渡し、着信で「出る」のときは `false`。これで「モデレーター待ち」で双方が止まるのを防ぐ。2画面レイアウトでは「自分」パネルにローカルカメラ、「相手」パネルに Jitsi を表示。Jitsi は `disableSelfView: true` と `filmstrip.disabled: true` で自分を非表示にし、相手のみ表示する。
 - **通話は call.php に統合**: チャットでは発信（create → call.php へ遷移）・着信（join → call.php へ遷移）の入口のみ。Jitsi は call.php でのみ動作。call-ui.php は着信モーダル・通話メニューのみ（ビデオウィンドウ・コントロールバーは廃止）。
 - **終了時の leave 必呼び出し（重複通知防止）**: call.php の通話終了時・beforeunload で `api/calls.php?action=leave` を呼ぶ。詳細は DOCS/CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md。
-- **meet.jit.si 暫定案内**: 「接続しない場合は、画面内の『私はホストです』を押してください」は **call.php** の `.video-area` 内に表示。確実に繋ぐには自前 Jitsi で会議即開始設定を実施すること（DOCS/CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md）。
+- **繋がらない場合の原因表示・ヘルプ**: call.php では「私はホストです」の案内は表示しない。代わりに Jitsi の `errorOccurred`（CONNECTION/CONFERENCE）および 15 秒タイムアウト時に原因・案内を表示し、`help/call-troubleshooting.php` へのリンクを表示する。確実に繋ぐには自前 Jitsi で会議即開始設定を実施（DOCS/CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md）。
 
 ```
 ✅ 最適化済み（2026-01）:
