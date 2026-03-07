@@ -46,7 +46,7 @@ assets/css/
 | `ai-personality.css` | AI秘書 性格設定パネル・熟慮モード進行表示ボックスのスタイル | chat.php |
 | `themes/*.css` | 静的テーマCSS | 任意 |
 | `BEM-GUIDE.md` | BEM命名規則ガイド | - |
-| `chat-mobile.css` | モバイル用上書き。**v1.7.0**: スタートメニュー廃止（FABに統一）、戻るボタンで会話一覧を表示。入力欄1行デフォルト（font-size:16px でiOSズーム防止）。リアクションバッジ適正化。会話名1行省略。パネル閉じるボタン追加。z-indexを5段階（1/10/100/1000/10000）に整理。主要色をデザイントークンに移行。 | chat.php |
+| `chat-mobile.css` | モバイル用上書き。**v2.0.0**: blur全廃止(不透明背景)・text-shadow全削除・会話リストフラット化(LINE風)・パネルアニメtransform化(60fps)・入力欄スクロール非表示廃止&常時表示・メッセージバブル幅75%&line-height1.35・FABアクセントカラー&ボトムシート化・タッチターゲット44px統一・文字サイズ最低11px・z-index5段階・PC装飾(::before/scrollbar)モバイル非表示・デザイントークン移行。 | chat.php |
 | `pages-mobile.css` | 非チャットページのモバイルレイアウト。`.main-container` ルールは `:not()` で上パネル共有4ページ（settings/design/tasks/notifications）を除外。**全デバイス表示計画**: FAB に `env(safe-area-inset-bottom/right)` を追加（ノッチ・ホームインジケータ対応） | settings.php, design.php, tasks.php, notifications.php |
 | `admin.css` | 管理画面共通（組織作成ページの `.create-org-card`, `.create-org-error` 含む） | admin/*.php |
 | `admin-ai-memories.css` | AI記憶管理ページ（`aimem-*` プレフィクス。テーブル・フィルタ・モーダル・履歴表示） | admin/ai_memories.php |

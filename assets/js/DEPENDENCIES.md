@@ -7,7 +7,7 @@
 | ファイル | 役割 | 読込み元 |
 |---------|------|---------|
 | `chat.js` | チャット画面メインJS | chat.php |
-| `chat-mobile.js` | モバイル対応。**v1.7.0**: パネル閉じるボタン（`mobile-panel-close-btn`）を左右パネル上部に動的追加。z-indexを100に統一。スタートメニュー廃止に対応。パネル操作: `toggleMobileLeftPanel` / `closeMobileAllPanels` / `toggleMobileRightPanelFn` をグローバル公開。 | chat.php |
+| `chat-mobile.js` | モバイル対応。**v2.0.0**: スクロール時入力欄非表示を完全廃止(常時表示)。デッドコード削除(initMobilePagesStripScroll/ensureMobileListFirst/setTimeout11連発)。パネルtoggleをCSS classベースに変更(inline style廃止)。パネル閉じるボタン動的追加。 | chat.php |
 | `chat-call.js` | 通話機能（Jitsi統合） | chat.php（オプション） |
 | `common.js` | 共通ユーティリティ | 複数ページ |
 | `design-settings.js` | デザイン設定画面 | design.php |
