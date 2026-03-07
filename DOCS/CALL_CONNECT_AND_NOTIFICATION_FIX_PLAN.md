@@ -84,10 +84,10 @@ sequenceDiagram
 
 | 入口 | URL・ファイル | 案内の場所 |
 |------|----------------|------------|
-| **通話画面（唯一）** | `call.php?call_id=xxx`。発信時は create 後に遷移、着信時は join 後に遷移。 | `call.php` の `.video-area` 内、`#jitsiContainer` 直後に `<p class="call-jitsi-host-hint">接続しない場合は、画面内の「私はホストです」を押してください。</p>`。スタイルは `call.php` の `<style>` 内。 |
+| **通話画面（唯一）** | `call.php?call_id=xxx`。発信時は create 後に遷移、着信時は join 後に遷移。 | 画面上では「私はホストです」の案内は表示しない。繋がらない場合に **原因表示**（Jitsi の errorOccurred および 15 秒タイムアウト時の一般的な案内）と **ヘルプリンク**（`help/call-troubleshooting.php`）を表示する。 |
 | **チャット** | `chat.php`。通話メニュー（ビデオ/音声）・着信モーダル（拒否/出る）のみ。「出る」で call.php へ遷移。 | 案内は表示しない（通話は call.php で実施）。 |
 
-- **meet.jit.si 暫定案内** は **call.php のみ** に表示。確実に繋ぐには自前 Jitsi で会議即開始設定を実施すること（本ドキュメント 2.1〜2.2 および [PHONE_VIDEO_CALL_PLAN.md](DOCS/PHONE_VIDEO_CALL_PLAN.md) 8.2-B・8.6 参照）。
+- **meet.jit.si 利用時**: 画面上ではホスト案内は出さない。繋がらない場合の原因表示とヘルプ（`help/call-troubleshooting.php`）でユーザーを誘導する。確実に繋ぐには自前 Jitsi で会議即開始設定を実施すること（本ドキュメント 2.1〜2.2 および [PHONE_VIDEO_CALL_PLAN.md](DOCS/PHONE_VIDEO_CALL_PLAN.md) 8.2-B・8.6 参照）。
 
 ### 2.7 繋がらない原因の一覧と対策
 
@@ -97,7 +97,7 @@ sequenceDiagram
 | 会議が「モデレーター待ち」で開始されない | 発信者のみ startConference: true を送る（済）。自前 Jitsi で everyoneIsModerator 等を設定。 |
 | 発信者が先にタブを閉じ、着信者が join したときには誰もいない | leave を呼べば call は ended になり、着信者は get_active で当該通話を取得しなくなる。新たに発信し直せばよい。 |
 | コンソールに net::ERR_FAILED が出る | Network タブで失敗しているリソースの URL を確認する。meet.jit.si または WebRTC がファイアウォール等でブロックされていないか、別ネットで試す。詳細は [CALL_VERIFICATION_AND_TROUBLESHOOTING.md](CALL_VERIFICATION_AND_TROUBLESHOOTING.md) を参照。 |
-| speaker-selection / RECORDING OFF SOUND 等のコンソールエラー | Jitsi/ブラウザの互換による警告のことが多い。まずは「私はホストです」の実施と Network の確認を優先する。詳細は [CALL_VERIFICATION_AND_TROUBLESHOOTING.md](CALL_VERIFICATION_AND_TROUBLESHOOTING.md) を参照。 |
+| speaker-selection / RECORDING OFF SOUND 等のコンソールエラー | Jitsi/ブラウザの互換による警告のことが多い。call.php の原因表示（errorOccurred・タイムアウト）とヘルプ（help/call-troubleshooting.php）を参照。詳細は [CALL_VERIFICATION_AND_TROUBLESHOOTING.md](CALL_VERIFICATION_AND_TROUBLESHOOTING.md) を参照。 |
 | 相手パネルで Jitsi iframe が mousedown を奪い、パネルが動かせない | 相手パネル用のドラッグハンドル（ラベル「相手」または専用バー）を設け、その要素でのみドラッグを開始する。 |
 | 画面サイズが固定で変更しづらい | 各パネルにリサイズハンドルを付け、ドラッグで大きさを変更可能にする。 |
 

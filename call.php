@@ -105,9 +105,6 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$conversation_id]);
 $members = $stmt->fetchAll();
-
-// このユーザーが発信者か（会議開始ボタン「私はホストです」を押すべき人）
-$is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_id'] === (int)$user_id;
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -179,23 +176,6 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
         #jitsiContainer {
             width: 100%;
             height: 100%;
-        }
-        
-        /* meet.jit.si 暫定案内（通話専用ページでも同一文言を表示） */
-        .call-jitsi-host-hint {
-            position: absolute;
-            bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            margin: 0;
-            padding: 6px 12px;
-            font-size: 12px;
-            line-height: 1.3;
-            color: rgba(255, 255, 255, 0.9);
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 4px;
-            pointer-events: none;
-            z-index: 10;
         }
         
         .call-controls {
@@ -376,19 +356,23 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
             animation: spin 1s linear infinite;
             margin-bottom: 20px;
         }
-        .connecting-overlay .host-hint-delayed {
+        .connecting-overlay .connection-failure-reason {
             margin-top: 16px;
             padding: 12px 20px;
             max-width: 90%;
-            background: rgba(220, 38, 38, 0.25);
-            border: 1px solid rgba(248, 113, 113, 0.6);
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid rgba(248, 113, 113, 0.5);
             border-radius: 8px;
             font-size: 14px;
             line-height: 1.5;
             text-align: center;
             display: none;
         }
-        .connecting-overlay .host-hint-delayed.visible { display: block; }
+        .connecting-overlay .connection-failure-reason.visible { display: block; }
+        .connecting-overlay .connection-failure-reason a {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <?= generateDesignCSS($designSettings) ?>
@@ -411,13 +395,15 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
         
         <div class="video-area">
             <div id="jitsiContainer"></div>
-            <p class="call-jitsi-host-hint">接続しない場合は、<strong>発信者</strong>が画面内の「私はホストです」を押してください。</p>
             
             <div class="connecting-overlay" id="connectingOverlay">
                 <div class="spinner"></div>
                 <h3>接続中...</h3>
                 <p style="opacity: 0.7; margin-top: 8px;">通話に参加しています</p>
-                <p class="host-hint-delayed" id="hostHintDelayed">まだ繋がっていない場合：<strong>あなたが発信者です。</strong> 下の Jitsi 画面内に「私はホストです」ボタンが出ていたら、それを押してください。</p>
+                <div class="connection-failure-reason" id="connectionFailureReason">
+                    <p id="connectionFailureText"></p>
+                    <p style="margin-top: 8px;"><a href="help/call-troubleshooting.php" target="_blank" rel="noopener">通話で困ったとき（ヘルプ）</a></p>
+                </div>
             </div>
             
             <!-- 参加者サイドバー -->
@@ -476,7 +462,6 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
         const callType = '<?= addslashes($call_type) ?>';
         const conversationId = <?= (int)$conversation_id ?>;
         const callId = <?= (int)$call_id_param ?>; // leave API 用（0の場合はレガシー c= のみなので leave しない）
-        const isInitiator = <?= $is_initiator ? 'true' : 'false' ?>; // 発信者なら「私はホストです」を押す案内を表示
         const apiCallsBase = (function(){
             const a = document.createElement('a');
             a.href = window.location.href;
@@ -497,6 +482,15 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
             form.append('action', 'leave');
             form.append('call_id', String(callId));
             fetch(apiCallsBase + 'api/calls.php', { method: 'POST', credentials: 'same-origin', body: form }).catch(function(){});
+        }
+        
+        function showConnectionFailure(text) {
+            var overlay = document.getElementById('connectingOverlay');
+            if (!overlay || overlay.classList.contains('hidden')) return;
+            var textEl = document.getElementById('connectionFailureText');
+            var reasonEl = document.getElementById('connectionFailureReason');
+            if (textEl) textEl.textContent = text;
+            if (reasonEl) reasonEl.classList.add('visible');
         }
         
         // Jitsi Meet初期化（自前サーバー対応: config の JITSI_DOMAIN）
@@ -540,12 +534,21 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
             
             api = new JitsiMeetExternalAPI(domain, options);
             
+            api.addListener('errorOccurred', function(data) {
+                if (data && (data.type === 'CONNECTION' || data.type === 'CONFERENCE')) {
+                    var msg = (data.message || data.name || '接続に失敗しました');
+                    showConnectionFailure('接続できませんでした: ' + msg);
+                }
+            });
+            
             api.addListener('videoConferenceJoined', () => {
                 document.getElementById('connectingOverlay').classList.add('hidden');
-                if (window.hostHintTimeout) {
-                    clearTimeout(window.hostHintTimeout);
-                    window.hostHintTimeout = null;
+                if (window.connectionFailureTimeout) {
+                    clearTimeout(window.connectionFailureTimeout);
+                    window.connectionFailureTimeout = null;
                 }
+                var reasonEl = document.getElementById('connectionFailureReason');
+                if (reasonEl) reasonEl.classList.remove('visible');
                 startTimer();
                 document.getElementById('callStatus').textContent = '通話中';
                 
@@ -663,17 +666,14 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
         
         // 初期化
         initJitsi();
-        // 発信者で、一定時間繋がらなかったら「私はホストです」案内を表示（meet.jit.si では会議が開始されないことがあるため）
-        if (isInitiator) {
-            window.hostHintTimeout = setTimeout(function() {
-                const overlay = document.getElementById('connectingOverlay');
-                if (overlay && !overlay.classList.contains('hidden')) {
-                    const el = document.getElementById('hostHintDelayed');
-                    if (el) el.classList.add('visible');
-                }
-                window.hostHintTimeout = null;
-            }, 8000);
-        }
+        // 一定時間繋がらなかったら一般的な原因とヘルプリンクを表示
+        window.connectionFailureTimeout = setTimeout(function() {
+            var overlay = document.getElementById('connectingOverlay');
+            if (overlay && !overlay.classList.contains('hidden')) {
+                showConnectionFailure('接続に時間がかかっています。考えられる原因: 会議がまだ開始されていない、ネットワークの状態、ブラウザの権限など。詳しくは下のヘルプをご覧ください。');
+            }
+            window.connectionFailureTimeout = null;
+        }, 15000);
     </script>
 </body>
 </html>

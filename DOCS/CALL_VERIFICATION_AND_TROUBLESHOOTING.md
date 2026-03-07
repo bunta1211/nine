@@ -3,7 +3,7 @@
 通話が「通話に参加しています」のまま繋がらない場合の検証手順と原因の切り分けをまとめる。  
 関連: [CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md](CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md)、[PHONE_VIDEO_CALL_PLAN.md](PHONE_VIDEO_CALL_PLAN.md)。
 
----
+**画面上の案内**: call.php では「私はホストです」の案内は表示しない（LINE 風 UX）。代わりに、繋がらない場合に **原因表示**（Jitsi の errorOccurred および 15 秒タイムアウト時の一般的な案内）と **ヘルプリンク**（`help/call-troubleshooting.php`）を表示する。運営・サポート向けの暫定対処（発信者が Jitsi 内で「私はホストです」を押す手順）は以下に残す。
 
 ## 1. 現象の整理（コンソール・画面の手がかり）
 
@@ -47,7 +47,7 @@
 ### 2.3 会議開始（モデレーター待ち）
 
 - **目的**: meet.jit.si で会議が開始されず「参加しています」のまま止まっていないかを確認する。
-- **手順**:
+- **手順**（運営・サポート向け。画面上では案内しない）:
   1. 発信者・着信者の**両方**の画面で、Jitsi 内に「私はホストです」ボタンが出ていないか確認する。
   2. 出ている場合、**発信者側**で「私はホストです」を押し、その後着信者が「ミーティングに参加」を押して、映像・音声が繋がるか試す。
   3. それでも繋がらない場合は、2.1 のネットワーク失敗（シグナリングやメディア経路の失敗）を疑う。
@@ -82,7 +82,7 @@
    DevTools → Network を開き、call.php で通話を開始した状態で、ステータスが Failed のリクエストの URL を控える。  
    **失敗している URL が `chrome-extension://invalid/` だけの場合は、ブラウザ側のもので通話の原因ではないので無視してよい。**
 
-2. **発信者・着信者双方で「私はホストです」の有無を確認し、発信者で押してから参加を試す**  
+2. **発信者・着信者双方で「私はホストです」の有無を確認し、発信者で押してから参加を試す**（運営・サポート向け。画面上では案内しない）  
    Jitsi の画面内に「私はホストです」が出ている場合は、発信者側でクリックしてから、着信者が「ミーティングに参加」を押す。
 
 3. **別ブラウザ・別ネットワークで試す**  
@@ -97,3 +97,4 @@
 
 - [CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md](CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md) — 繋がらない主因・厳命事項・実装タスク
 - [PHONE_VIDEO_CALL_PLAN.md](PHONE_VIDEO_CALL_PLAN.md) — 自前 Jitsi 構築（8.2-B）・会議即開始設定
+- **call.php の原因表示**: 繋がらない場合に Jitsi の `errorOccurred`（CONNECTION / CONFERENCE）および 15 秒タイムアウト時に、接続中オーバーレイ内で原因・案内を表示し、`help/call-troubleshooting.php` へのリンクを表示する。

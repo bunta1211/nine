@@ -26,8 +26,12 @@
 nine/
 ├── ARCHITECTURE.md          ← このファイル（全体構造）
 ├── chat.php                 ← メインチャット画面
+├── call.php                 ← 通話画面（Jitsi 統合・原因表示・ヘルプリンク）
 ├── design.php               ← デザイン設定画面
 ├── index.php                ← ログイン画面
+│
+├── help/                    ← ヘルプ（ログイン不要で表示可能）
+│   └── call-troubleshooting.php  ← 通話で困ったとき（call.php の原因表示からリンク）
 │
 ├── api/                     ← REST API群
 │   └── DEPENDENCIES.md      ← API依存関係

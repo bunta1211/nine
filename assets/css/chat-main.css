@@ -4852,13 +4852,6 @@
             height: 100%;
             border: none;
         }
-        .call-jitsi-host-hint {
-            margin: 6px 0 0;
-            padding: 0 8px;
-            font-size: 12px;
-            line-height: 1.3;
-            color: var(--dt-text-muted, rgba(55, 65, 81, 0.8));
-        }
         
         /* ドラッグでないときのPC・モバイル丸サイズ（フォールバック用） */
         @media (min-width: 769px) {
