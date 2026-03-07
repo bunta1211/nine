@@ -7555,8 +7555,17 @@ window.submitChatTask = async function() {
         let contextTargetConvId = null;
         let contextTargetConvEl = null;
         
-        // グループ作成モーダルを開く（グループタブをデフォルトで選択）
+        // グループ作成モーダルを開く（グループタブをデフォルトで選択。現在開いている会話が組織付きグループならその組織を初期選択）
         function openCreateGroupModal() {
+            var convId = typeof conversationId !== 'undefined' ? conversationId : (window.currentConversationId || null);
+            var activeItem = convId ? document.querySelector('.conv-item[data-conv-id="' + convId + '"]') : document.querySelector('.conv-item.active');
+            var orgId = (activeItem && activeItem.getAttribute('data-organization-id')) ? activeItem.getAttribute('data-organization-id').trim() : '';
+            var sel = document.getElementById('newConversationOrganizationId');
+            if (sel && orgId !== '') {
+                if (sel.querySelector('option[value="' + orgId + '"]')) {
+                    sel.value = orgId;
+                }
+            }
             openModal('newConversationModal');
             switchConversationType('group');
         }

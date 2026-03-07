@@ -140,7 +140,7 @@ chat.php (317行)
 | 組織選択 | `#newConversationModal` のグループフォーム内で `#newConversationOrganizationId`。`createConversation()` で `organization_id` を `api/conversations.php` action=create に送信 |
 | 翻訳 | `lang.php` の `add_group`（ja: グループ追加, en: Add Group, zh: 添加群组） |
 
-**実装メモ**: 翻訳(lang.php)・サイドバー(sidebar.php)・モーダル組織選択(modals.php)・API送信(scripts.php createConversation)はすべて実装済み。確認時は「グループ追加」クリック→グループタブで組織を選び→作成で organization_id が送られることを確認。
+**実装メモ**: 翻訳(lang.php)・サイドバー(sidebar.php)・モーダル組織選択(modals.php)・API送信(scripts.php createConversation)はすべて実装済み。**開いている会話が組織付きグループの場合**、`openCreateGroupModal()` でその組織を `#newConversationOrganizationId` の初期値に設定する（左パネルの `.conv-item.active` または `data-conv-id` 一致要素の `data-organization-id` を参照）。確認時は「グループ追加」クリック→グループタブで組織を選び→作成で organization_id が送られることを確認。
 
 ---
 
