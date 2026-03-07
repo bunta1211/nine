@@ -1839,6 +1839,7 @@ switch ($action) {
         }
         
         $results = [];
+        $phoneDigits = preg_replace('/\D/', '', $keyword);
         
         // 現在のユーザーがシステム管理者かチェック（セッション未設定時はDBから取得）
         $current_role = $_SESSION['role'] ?? null;
@@ -1851,6 +1852,11 @@ switch ($action) {
         }
         $is_system_admin = in_array($current_role, ['system_admin', 'developer', 'org_admin', 'admin']);
         
+        // 個人のグローバル検索では「名前のみ」でユーザーを出さない。メール（@含む）または携帯番号（10桁以上）のときのみユーザー結果を返す
+        $isEmailLike = (strpos($keyword, '@') !== false);
+        $isPhoneLike = (strlen($phoneDigits) >= 10);
+        $allowPersonalUserSearch = $is_system_admin || $isEmailLike || $isPhoneLike;
+        
         // ユーザー検索（15歳未満除外、メール・携帯電話も検索対象、is_friend/is_pending 付与）
         $ageCutoff = '';
         try {
@@ -1861,7 +1867,6 @@ switch ($action) {
         } catch (Exception $e) {}
         $phoneCond = '';
         $phonePat = null;
-        $phoneDigits = preg_replace('/\D/', '', $keyword);
         try {
             $chkPhone = $pdo->query("SHOW COLUMNS FROM users LIKE 'phone'");
             if ($chkPhone && $chkPhone->rowCount() > 0 && $phoneDigits !== '') {
@@ -1891,7 +1896,7 @@ switch ($action) {
         if ($type === 'all' || $type === 'users') {
             $userResults = [];
             try {
-            if ($is_system_admin) {
+            if ($allowPersonalUserSearch && $is_system_admin) {
                 $searchPat = "%{$keyword}%";
                 $params = [$user_id, $searchPat, $searchPat];
                 if ($phonePat !== null) { $params[] = $phonePat; }
@@ -1906,7 +1911,7 @@ switch ($action) {
                 ");
                 $stmt->execute($params);
                 $userResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            } else {
+            } elseif ($allowPersonalUserSearch) {
                 // allow_member_dm カラムの有無を確認
                 $hasAllowDm = false;
                 try {
