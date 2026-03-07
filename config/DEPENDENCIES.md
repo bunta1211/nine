@@ -53,7 +53,9 @@ cp app.local.example.php app.local.php
 | `APP_DEBUG` | デバッグ・エラー表示 | true / false。本番では false で display_errors=0 |
 | `JITSI_DOMAIN` | Jitsi Meet のドメイン（自前サーバー時は app.local.php で上書き） | "meet.jit.si" / "meet.social9.jp" |
 | `JITSI_BASE_URL` | Jitsi のベースURL（未定義時は `https://` + JITSI_DOMAIN + `/`） | "https://meet.jit.si/" |
-| `TODAY_TOPICS_LIMIT_USER_IDS` | 今日の話題の配信対象限定（JSON配列文字列）。未定義または空で全員対象 | `'[6]'`（KENのみ）。DOCS/TODAY_TOPICS_PHASED_ROLLOUT.md |
+| `TODAY_TOPICS_MORNING_FIXED_USER_IDS` | 朝の今日の話題を毎朝7時に必ず配信する user_id の JSON 配列。例: KEN=6, Yusei, Naomi | `'[6]'`。Yusei・Naomi は app.local.php で追加。DOCS/TODAY_TOPICS_PHASED_ROLLOUT.md |
+| `TODAY_TOPICS_MORNING_ALSO_ACTIVE_WEEK` | true のとき、過去1週間アクティブ（last_seen が7日以内）で朝7時希望のユーザーにも配信 | `true` |
+| `TODAY_TOPICS_LIMIT_USER_IDS` | （後方互換）今日の話題の配信対象限定。朝の配信では未使用。夜の配信で使用可能 | 空または未定義。DOCS/TODAY_TOPICS_PHASED_ROLLOUT.md |
 
 ### 主な関数
 

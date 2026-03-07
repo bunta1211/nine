@@ -120,9 +120,19 @@ if (!is_dir(LOG_DIR)) {
     mkdir(LOG_DIR, 0755, true);
 }
 
-// 今日の話題：配信対象を限定（KEN のみなど）。空または未定義で全員対象。DOCS/TODAY_TOPICS_PHASED_ROLLOUT.md
+// 今日の話題：朝の配信対象。DOCS/TODAY_TOPICS_PHASED_ROLLOUT.md
+// - TODAY_TOPICS_MORNING_FIXED_USER_IDS: 毎朝7時に必ず配信する user_id の JSON 配列（例: KEN=6, Yusei, Naomi の ID を指定）
+// - TODAY_TOPICS_MORNING_ALSO_ACTIVE_WEEK: true のとき、過去1週間アクティブなユーザー（today_topics_morning_enabled=1 かつ 7時希望）にも配信
+// - 朝の配信は 7 時のみ実行（cron は 0 7 * * *）
+if (!defined('TODAY_TOPICS_MORNING_FIXED_USER_IDS')) {
+    define('TODAY_TOPICS_MORNING_FIXED_USER_IDS', '[6]'); // KEN (6)。Yusei・Naomi を追加する場合は app.local.php で [6, id_yusei, id_naomi]
+}
+if (!defined('TODAY_TOPICS_MORNING_ALSO_ACTIVE_WEEK')) {
+    define('TODAY_TOPICS_MORNING_ALSO_ACTIVE_WEEK', true); // 過去1週間アクティブなユーザーにも配信
+}
+// 後方互換: 未定義なら固定IDのみが対象だった頃の挙動に使う（空で全員）
 if (!defined('TODAY_TOPICS_LIMIT_USER_IDS')) {
-    define('TODAY_TOPICS_LIMIT_USER_IDS', '[6]'); // KEN (user_id=6) のみ。複数は [6,10] のように JSON 配列
+    define('TODAY_TOPICS_LIMIT_USER_IDS', '');
 }
 
 // 金庫暗号化用マスターキー

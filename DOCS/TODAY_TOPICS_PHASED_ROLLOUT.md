@@ -1,6 +1,17 @@
-# 今日の話題：KEN 限定で配信テストから再開する計画
+# 今日の話題：配信対象とスケジュール
 
-**目的**: データ処理が重く捌ききれていないため、まず **KEN 1 人に限定**して配信テストを行い、成功したら夜のテストへ進む。
+**目的**: 朝の「本日のニューストピックス」を、固定メンバー（KEN, Yusei, Naomi）と過去1週間アクティブなユーザーに**毎朝7時**で配信する。
+
+---
+
+## 朝の配信（毎朝7時のみ）
+
+| 項目 | 内容 |
+|------|------|
+| **実行時刻** | **毎朝 7 時のみ**。cron 例: `0 7 * * * php /var/www/html/cron/run_today_topics_morning_per_user.php ...` |
+| **対象** | (1) **固定ユーザー**: `TODAY_TOPICS_MORNING_FIXED_USER_IDS` で指定した user_id（例: KEN=6, Yusei, Naomi）。<br>(2) **過去1週間アクティブ**: `today_topics_morning_enabled = 1` かつ希望時刻 7 時で、`users.last_seen` が過去7日以内のユーザー（`TODAY_TOPICS_MORNING_ALSO_ACTIVE_WEEK` が true のとき）。 |
+| **設定** | [config/app.php](../config/app.php)。<br>・`TODAY_TOPICS_MORNING_FIXED_USER_IDS`: JSON 配列（例: `'[6]'` または `'[6, id_yusei, id_naomi]'`）。app.local.php で Yusei・Naomi の ID を追加可能。<br>・`TODAY_TOPICS_MORNING_ALSO_ACTIVE_WEEK`: `true` で「過去1週間アクティブ」を対象に含める。 |
+| **スクリプト** | [run_today_topics_morning_per_user.php](../cron/run_today_topics_morning_per_user.php) が 7 時のときだけ動作し、固定 ID とアクティブ週の user_id をマージして重複除き、各ユーザーごとに [send_today_topics_to_user.php](../cron/send_today_topics_to_user.php) を実行。 |
 
 ---
 
@@ -8,11 +19,11 @@
 
 | 項目 | 内容 |
 |------|------|
-| **対象ユーザー** | KEN（user_id=6）のみ。定数 `TODAY_TOPICS_LIMIT_USER_IDS` で制御。 |
-| **設定** | [config/app.php](config/app.php) で `TODAY_TOPICS_LIMIT_USER_IDS = '[6]'` を定義。空または未定義なら従来どおり全員対象。 |
-| **朝の配信** | [run_today_topics_morning_per_user.php](cron/run_today_topics_morning_per_user.php) が 6 時・7 時に実行する際、取得した user_id 一覧を上記定数でフィルタし、KEN のみに配信。 |
-| **夜の配信** | [today_topics_helper.php](includes/today_topics_helper.php) の `getEveningReportTargetUserIds` と `getEveningReportBulkTargetUserIds` の返却を、同じ定数でフィルタ。夜の cron でも KEN のみが対象。 |
-| **デプロイ後すぐのテスト** | [run_today_topics_test_once.php](cron/run_today_topics_test_once.php) を本番で 1 回実行すると、ニュースを取得して KEN に「本日のニューストピックス」を 1 通送信（`--force` で本日受信済みでも再送）。 |
+| **朝の配信対象** | 固定（KEN, Yusei, Naomi 等）＋過去1週間アクティブで朝7時希望のユーザー。定数 `TODAY_TOPICS_MORNING_FIXED_USER_IDS` と `TODAY_TOPICS_MORNING_ALSO_ACTIVE_WEEK` で制御。 |
+| **設定** | [config/app.php](../config/app.php) で上記定数を定義。Yusei・Naomi を追加する場合は `app.local.php` で `TODAY_TOPICS_MORNING_FIXED_USER_IDS = '[6, id_yusei, id_naomi]'` を設定。 |
+| **朝の配信** | [run_today_topics_morning_per_user.php](../cron/run_today_topics_morning_per_user.php) が **7 時のみ**実行。固定 ID とアクティブ週の user_id をマージして配信。 |
+| **夜の配信** | [today_topics_helper.php](../includes/today_topics_helper.php) の `getEveningReportTargetUserIds` と `getEveningReportBulkTargetUserIds` の返却を、従来どおり `TODAY_TOPICS_LIMIT_USER_IDS` でフィルタ可能（夜は従来仕様のまま）。 |
+| **デプロイ後すぐのテスト** | [run_today_topics_test_once.php](../cron/run_today_topics_test_once.php) を本番で 1 回実行すると、ニュースを取得して指定ユーザーに「本日のニューストピックス」を 1 通送信（`--force` で本日受信済みでも再送）。 |
 
 **デプロイ後の手順（本番サーバーで 1 回だけ）**
 
@@ -32,8 +43,8 @@ php /var/www/html/cron/run_today_topics_test_once.php
 
 ### 1.1 朝「本日のニューストピックス」の対象
 
-- **取得**: [run_today_topics_morning_per_user.php](cron/run_today_topics_morning_per_user.php) で `user_ai_settings` JOIN `users`
-- **条件**: `today_topics_morning_enabled = 1` かつ `COALESCE(today_topics_morning_hour, 7) = 現在時（6 or 7）`
+- **実行**: 毎朝 **7 時のみ**。[run_today_topics_morning_per_user.php](../cron/run_today_topics_morning_per_user.php)
+- **対象の決め方**: (1) 固定 user_id（`TODAY_TOPICS_MORNING_FIXED_USER_IDS`）(2) 過去1週間で `last_seen` があり、`user_ai_settings.today_topics_morning_enabled = 1` かつ `COALESCE(today_topics_morning_hour, 7) = 7` のユーザー。両方をマージして重複を除いた user_id に配信。
 - **並び**: `(user_id = 6) DESC, user_id ASC` で user_id=6（Ken）を先頭にしている
 
 ### 1.2 ニュース・RSS の取得範囲
@@ -61,11 +72,11 @@ php /var/www/html/cron/run_today_topics_test_once.php
 
 ---
 
-## 2. KEN 1 人限定にする
+## 2. 朝の配信対象の構成
 
-- **KEN**: コード上のコメントより `user_id = 6` を想定（本番で異なる場合は設定で変更可能にする）。
-- 朝・夜とも、**対象ユーザーを user_id = 6 のみ**に限定して動作させる。
-- **設定**: [config/app.php](../config/app.php) で `TODAY_TOPICS_LIMIT_USER_IDS = '[6]'` を定義済み。空文字または未定義にすると全員対象になる。
+- **固定ユーザー**: KEN（user_id=6）を必須とし、Yusei・Naomi の user_id を本番で確認のうえ `TODAY_TOPICS_MORNING_FIXED_USER_IDS` に追加する（例: `'[6, 10, 12]'`）。`config/app.local.php` で上書き可能。
+- **過去1週間アクティブ**: `users.last_seen` が過去7日以内で、かつ「今日の話題」朝配信を有効・7時希望にしているユーザーも対象に含める（`TODAY_TOPICS_MORNING_ALSO_ACTIVE_WEEK = true` のとき）。
+- **設定**: [config/app.php](../config/app.php) で上記定数を定義。朝の配信は 7 時のみ実行する。
 
 ---
 
@@ -95,15 +106,16 @@ php /var/www/html/cron/run_today_topics_test_once.php
 
 | 種別 | ファイル | 変更内容 |
 |------|----------|----------|
-| 定数・設定 | [config/app.php](../config/app.php) | `TODAY_TOPICS_LIMIT_USER_IDS = '[6]'` を定義（KEN のみ）。空で全員対象 |
-| 朝 | [run_today_topics_morning_per_user.php](../cron/run_today_topics_morning_per_user.php) | 対象 user_id 取得後に定数でフィルタ（実装済み） |
-| 夜 | [today_topics_helper.php](../includes/today_topics_helper.php) | `getEveningReportTargetUserIds` / `getEveningReportBulkTargetUserIds` で定数フィルタ（実装済み） |
-| デプロイ後テスト | [run_today_topics_test_once.php](../cron/run_today_topics_test_once.php) | デプロイ後に 1 回実行するとニュース取得＋KEN へ配信 |
-| 依存 | [send_today_topics_to_user.php](../cron/send_today_topics_to_user.php) | 上記テストから呼ばれるため、**本番へ必ずアップロードする** |
+| 定数・設定 | [config/app.php](../config/app.php) | `TODAY_TOPICS_MORNING_FIXED_USER_IDS`（固定ユーザー）, `TODAY_TOPICS_MORNING_ALSO_ACTIVE_WEEK`（過去1週間アクティブを含める）。Yusei・Naomi は app.local.php で追加可。 |
+| 朝 | [run_today_topics_morning_per_user.php](../cron/run_today_topics_morning_per_user.php) | **7 時のみ**実行。固定 ID ＋ 過去1週間アクティブで朝7時希望の user_id をマージして配信。 |
+| 夜 | [today_topics_helper.php](../includes/today_topics_helper.php) | `getEveningReportTargetUserIds` / `getEveningReportBulkTargetUserIds` で `TODAY_TOPICS_LIMIT_USER_IDS` フィルタ（従来どおり）。 |
+| デプロイ後テスト | [run_today_topics_test_once.php](../cron/run_today_topics_test_once.php) | デプロイ後に 1 回実行するとニュース取得＋指定ユーザーへ配信 |
+| 依存 | [send_today_topics_to_user.php](../cron/send_today_topics_to_user.php) | 上記テスト・朝 cron から呼ばれるため、**本番へ必ずアップロードする** |
 
 ---
 
 ## 5. 注意
 
-- 現行の「朝 6/7 時」「夜 16〜20 時」の cron スケジュールや、RSS・キャッシュ・`ai_conversations` への保存形式は変えず、**対象ユーザーを KEN 1 人に絞る**だけとする。
-- 配信テストが両方成功したあと、必要に応じて対象を段階的に広げる際は、このドキュメントに Step 3 以降を追記する。
+- 朝の配信は **毎朝 7 時のみ**。cron は `0 7 * * *` で設定する（6 時実行は廃止）。
+- 対象は **固定ユーザー（KEN, Yusei, Naomi 等）＋過去1週間アクティブで朝7時希望のユーザー**。Yusei・Naomi の user_id は本番で確認し、`TODAY_TOPICS_MORNING_FIXED_USER_IDS`（または app.local.php）に追加する。
+- 夜の cron スケジュールや、RSS・キャッシュ・`ai_conversations` への保存形式は従来どおり。配信対象の拡張が必要な場合はこのドキュメントを更新する。

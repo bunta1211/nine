@@ -530,14 +530,14 @@ switch ($action) {
         break;
         
     case 'update':
-        // 会話を更新
+        // 会話を更新（概要のみならメンバー誰でも可、名前・アイコン・公開設定は管理者のみ）
         $conversation_id = (int)($input['conversation_id'] ?? 0);
         
         if (!$conversation_id) {
             errorResponse('会話IDが必要です');
         }
         
-        // 管理者か確認
+        // メンバーか確認
         $stmt = $pdo->prepare("
             SELECT role FROM conversation_members
             WHERE conversation_id = ? AND user_id = ? AND left_at IS NULL
@@ -545,8 +545,8 @@ switch ($action) {
         $stmt->execute([$conversation_id, $user_id]);
         $member = $stmt->fetch();
         
-        if (!$member || $member['role'] !== 'admin') {
-            errorResponse('管理者権限が必要です', 403);
+        if (!$member) {
+            errorResponse('この会話のメンバーではありません', 403);
         }
         
         $updates = [];
@@ -587,6 +587,12 @@ switch ($action) {
         
         if (empty($updates)) {
             errorResponse('更新する項目がありません');
+        }
+        
+        // 名前・アイコン・公開設定の変更は管理者のみ。概要（description）のみの更新はメンバー誰でも可
+        $requires_admin = isset($input['name']) || array_key_exists('name_en', $input) || array_key_exists('name_zh', $input) || isset($input['icon_path']) || isset($input['is_public']);
+        if ($requires_admin && $member['role'] !== 'admin') {
+            errorResponse('管理者権限が必要です', 403);
         }
         
         $updates[] = 'updated_at = NOW()';
