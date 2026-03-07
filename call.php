@@ -350,6 +350,16 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
             z-index: 100;
         }
         .connecting-overlay.hidden { display: none; }
+        .connecting-overlay .connecting-overlay-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-height: 100%;
+            overflow-y: auto;
+            padding: 16px;
+            width: 100%;
+        }
         .connecting-overlay .spinner {
             width: 60px;
             height: 60px;
@@ -413,13 +423,15 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
             <div id="jitsiContainer"></div>
             
             <div class="connecting-overlay" id="connectingOverlay">
-                <div class="spinner"></div>
-                <h3>接続中...</h3>
-                <p style="opacity: 0.7; margin-top: 8px;">通話に参加しています</p>
-                <p class="call-start-meeting-hint" id="callStartMeetingHint">発信者の方: 下の Jitsi 画面に「<strong>ミーティングを開始</strong>」または「<strong>私はホストです</strong>」が出ていたら、それを押すと通話が繋がります。</p>
-                <div class="connection-failure-reason" id="connectionFailureReason">
-                    <p id="connectionFailureText"></p>
-                    <p style="margin-top: 8px;"><a href="help/call-troubleshooting.php" target="_blank" rel="noopener">通話で困ったとき（ヘルプ）</a></p>
+                <div class="connecting-overlay-inner">
+                    <div class="spinner"></div>
+                    <h3>接続中...</h3>
+                    <p style="opacity: 0.7; margin-top: 8px;">通話に参加しています</p>
+                    <p class="call-start-meeting-hint" id="callStartMeetingHint">発信者の方: Jitsi の画面の<strong>中央や下部にある青い「ミーティングに参加」ボタン</strong>を押すと通話が始まります。「私はホストです」の表示がなくても、同じボタンを押してください。</p>
+                    <div class="connection-failure-reason" id="connectionFailureReason">
+                        <p id="connectionFailureText"></p>
+                        <p style="margin-top: 8px;"><a href="help/call-troubleshooting.php" target="_blank" rel="noopener">通話で困ったとき（ヘルプ）</a></p>
+                    </div>
                 </div>
             </div>
             
@@ -690,7 +702,7 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
         
         // 初期化
         initJitsi();
-        // 発信者には5秒後に「ミーティングを開始」案内を表示（meet.jit.si では会議が自動開始されないため）
+        // 発信者には3秒後に「ミーティングに参加」案内を表示（meet.jit.si では会議が自動開始されないため）
         if (isInitiator) {
             window.startMeetingHintTimeout = setTimeout(function() {
                 var overlay = document.getElementById('connectingOverlay');
@@ -699,7 +711,7 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
                     if (el) el.classList.add('visible');
                 }
                 window.startMeetingHintTimeout = null;
-            }, 5000);
+            }, 3000);
         }
         // 一定時間繋がらなかったら一般的な原因とヘルプリンクを表示
         window.connectionFailureTimeout = setTimeout(function() {
