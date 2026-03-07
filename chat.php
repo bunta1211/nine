@@ -49,9 +49,11 @@ $last_read_at = null;
 $last_read_message_id = null;
 if ($selected_conversation_id) {
     // 参加していない会話のURLの場合は選択を外してリダイレクト（404/403エラー防止）
+    // 削除済み・退出済みの会話だとループするため、リダイレクト前にセッションの last_conversation_id をクリアする
     $stmt = $pdo->prepare("SELECT 1 FROM conversation_members WHERE conversation_id = ? AND user_id = ? AND left_at IS NULL");
     $stmt->execute([$selected_conversation_id, $user_id]);
     if (!$stmt->fetch()) {
+        unset($_SESSION['last_conversation_id']);
         $selected_conversation_id = null;
         header('Location: chat.php');
         exit;
