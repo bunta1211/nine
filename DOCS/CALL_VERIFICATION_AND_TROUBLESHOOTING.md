@@ -3,7 +3,7 @@
 通話が「通話に参加しています」のまま繋がらない場合の検証手順と原因の切り分けをまとめる。  
 関連: [CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md](CALL_CONNECT_AND_NOTIFICATION_FIX_PLAN.md)、[PHONE_VIDEO_CALL_PLAN.md](PHONE_VIDEO_CALL_PLAN.md)。
 
-**画面上の案内**: call.php では、繋がらない場合に **原因表示**（Jitsi の errorOccurred および 15 秒タイムアウト時の一般的な案内）と **ヘルプリンク**（`help/call-troubleshooting.php`）を表示する。あわせて **発信者**には 5 秒後に「ミーティングを開始」または「私はホストです」を押す案内（緑の枠）を表示し、meet.jit.si 利用時も一通話で繋がるようにしている。恒久対策は自前 Jitsi（[JITSI_SELFHOST_QUICKSTART.md](JITSI_SELFHOST_QUICKSTART.md) 参照）。
+**画面上の案内**: call.php では、繋がらない場合に **原因表示**（Jitsi の errorOccurred および 15 秒タイムアウト時の一般的な案内）と **ヘルプリンク**（`help/call-troubleshooting.php`）を表示する。画面上では「私はホストです」の案内は表示しない。運営・サポート向けの暫定対処（発信者が Jitsi 内で「私はホストです」を押す手順）は下記 2.3・4 に記載。恒久対策は自前 Jitsi（[PHONE_VIDEO_CALL_PLAN.md](PHONE_VIDEO_CALL_PLAN.md) 8.2-B・8.6 参照）。
 
 ## 1. 現象の整理（コンソール・画面の手がかり）
 

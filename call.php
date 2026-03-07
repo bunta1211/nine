@@ -105,9 +105,6 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$conversation_id]);
 $members = $stmt->fetchAll();
-
-// 発信者かどうか（meet.jit.si では発信者が「ミーティングを開始」を押すと繋がる）
-$is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_id'] === (int)$user_id;
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -376,19 +373,6 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
             color: #93c5fd;
             text-decoration: underline;
         }
-        .connecting-overlay .start-meeting-hint {
-            margin-top: 12px;
-            padding: 10px 16px;
-            max-width: 90%;
-            background: rgba(34, 197, 94, 0.15);
-            border: 1px solid rgba(74, 222, 128, 0.5);
-            border-radius: 8px;
-            font-size: 13px;
-            line-height: 1.5;
-            text-align: center;
-            display: none;
-        }
-        .connecting-overlay .start-meeting-hint.visible { display: block; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <?= generateDesignCSS($designSettings) ?>
@@ -416,7 +400,6 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
                 <div class="spinner"></div>
                 <h3>接続中...</h3>
                 <p style="opacity: 0.7; margin-top: 8px;">通話に参加しています</p>
-                <p class="start-meeting-hint" id="startMeetingHint">通話が繋がらない場合、下の Jitsi 画面内の「<strong>ミーティングを開始</strong>」または「<strong>私はホストです</strong>」ボタンを押してください。</p>
                 <div class="connection-failure-reason" id="connectionFailureReason">
                     <p id="connectionFailureText"></p>
                     <p style="margin-top: 8px;"><a href="help/call-troubleshooting.php" target="_blank" rel="noopener">通話で困ったとき（ヘルプ）</a></p>
@@ -479,7 +462,6 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
         const callType = '<?= addslashes($call_type) ?>';
         const conversationId = <?= (int)$conversation_id ?>;
         const callId = <?= (int)$call_id_param ?>; // leave API 用（0の場合はレガシー c= のみなので leave しない）
-        const isInitiator = <?= $is_initiator ? 'true' : 'false' ?>; // 発信者なら「ミーティングを開始」案内を表示（meet.jit.si で繋がるため）
         const apiCallsBase = (function(){
             const a = document.createElement('a');
             a.href = window.location.href;
@@ -565,14 +547,8 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
                     clearTimeout(window.connectionFailureTimeout);
                     window.connectionFailureTimeout = null;
                 }
-                if (window.startMeetingHintTimeout) {
-                    clearTimeout(window.startMeetingHintTimeout);
-                    window.startMeetingHintTimeout = null;
-                }
                 var reasonEl = document.getElementById('connectionFailureReason');
                 if (reasonEl) reasonEl.classList.remove('visible');
-                var hintEl = document.getElementById('startMeetingHint');
-                if (hintEl) hintEl.classList.remove('visible');
                 startTimer();
                 document.getElementById('callStatus').textContent = '通話中';
                 
@@ -690,17 +666,6 @@ $is_initiator = $call && isset($call['initiator_id']) && (int)$call['initiator_i
         
         // 初期化
         initJitsi();
-        // 発信者には5秒後に「ミーティングを開始」案内を表示（meet.jit.si では会議が自動開始されないため、これで繋がる）
-        if (isInitiator) {
-            window.startMeetingHintTimeout = setTimeout(function() {
-                var overlay = document.getElementById('connectingOverlay');
-                if (overlay && !overlay.classList.contains('hidden')) {
-                    var el = document.getElementById('startMeetingHint');
-                    if (el) el.classList.add('visible');
-                }
-                window.startMeetingHintTimeout = null;
-            }, 5000);
-        }
         // 一定時間繋がらなかったら一般的な原因とヘルプリンクを表示
         window.connectionFailureTimeout = setTimeout(function() {
             var overlay = document.getElementById('connectingOverlay');
