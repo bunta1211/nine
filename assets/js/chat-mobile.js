@@ -108,8 +108,6 @@
         } else {
             closeAllPanels();
             lp.classList.add('mobile-open');
-            lp.style.setProperty('left', '0', 'important');
-            lp.style.setProperty('z-index', '100', 'important');
             const overlay = mobileOverlay || document.querySelector('.mobile-overlay') || document.getElementById('mobileOverlay');
             if (overlay) { overlay.classList.add('show'); overlay.style.display = 'block'; overlay.style.opacity = '1'; }
             document.body.classList.add('mobile-panel-open');
@@ -127,9 +125,6 @@
         } else {
             closeAllPanels();
             rp.classList.add('mobile-open');
-            rp.style.setProperty('right', '0', 'important');
-            rp.style.setProperty('z-index', '100', 'important');
-            rp.style.display = 'block';
             const overlay = mobileOverlay || document.querySelector('.mobile-overlay') || document.getElementById('mobileOverlay');
             if (overlay) { overlay.classList.add('show', 'active'); overlay.style.display = 'block'; overlay.style.opacity = '1'; }
             document.body.classList.add('mobile-panel-open');
@@ -144,13 +139,9 @@
         const overlay = mobileOverlay || document.querySelector('.mobile-overlay') || document.getElementById('mobileOverlay');
         if (left) {
             left.classList.remove('mobile-open');
-            left.style.setProperty('left', '-100vw', 'important');
-            left.style.zIndex = '';
         }
         if (right) {
             right.classList.remove('mobile-open');
-            right.style.setProperty('right', '-100vw', 'important');
-            right.style.zIndex = '';
         }
         if (overlay) { overlay.classList.remove('show', 'active'); overlay.style.display = 'none'; overlay.style.opacity = '0'; }
         document.body.classList.remove('mobile-panel-open');
@@ -936,141 +927,20 @@
         }
     }
 
-    // スクロール時に入力欄を非表示にする
-    let lastScrollTop = 0;
-    let scrollTimeout = null;
-    let isInputHidden = false;
-    
-    function setupScrollHideInput() {
-        const messagesArea = document.querySelector('.messages-area');
-        const inputArea = document.querySelector('.input-area');
-        
-        if (!messagesArea || !inputArea) return;
-        
-        messagesArea.addEventListener('scroll', () => {
-            if (!isMobile()) return;
-            
-            const currentScrollTop = messagesArea.scrollTop;
-            const maxScroll = messagesArea.scrollHeight - messagesArea.clientHeight;
-            
-            // スクロール中は入力欄を非表示
-            if (!isInputHidden) {
-                inputArea.style.transform = 'translateY(100%)';
-                inputArea.style.opacity = '0';
-                inputArea.style.pointerEvents = 'none';
-                isInputHidden = true;
-                messagesArea.style.paddingBottom = '16px';
-            }
-            
-            // スクロール停止後に入力欄を表示
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                inputArea.style.transform = 'translateY(0)';
-                inputArea.style.opacity = '1';
-                inputArea.style.pointerEvents = '';
-                isInputHidden = false;
-                messagesArea.style.paddingBottom = '';
-            }, 300); // 300ms後に表示
-            
-            // 一番下までスクロールしたら即座に表示
-            if (currentScrollTop >= maxScroll - 10) {
-                clearTimeout(scrollTimeout);
-                inputArea.style.transform = 'translateY(0)';
-                inputArea.style.opacity = '1';
-                inputArea.style.pointerEvents = '';
-                isInputHidden = false;
-                messagesArea.style.paddingBottom = '';
-            }
-            
-            lastScrollTop = currentScrollTop;
-        }, { passive: true });
-        
-        // 入力欄にフォーカスしたときは常に表示
-        const messageInput = document.querySelector('.message-input');
-        if (messageInput) {
-            messageInput.addEventListener('focus', () => {
-                inputArea.style.transform = 'translateY(0)';
-                inputArea.style.opacity = '1';
-                inputArea.style.pointerEvents = '';
-                isInputHidden = false;
-            });
-        }
-    }
-
-    // Phase 3 の初期化（携帯のみ）
-    /** Phase 3.1: 携帯では会話未選択時は左パネル、会話選択時は中央パネルを表示 */
-    function initMobilePagesStripScroll() {
-        if (!isMobile()) return;
-        const main = document.getElementById('mainContainer');
-        if (!main) return;
-        const hasConversation = document.body.dataset.hasConversation === '1';
-        if (hasConversation) {
-            main.scrollLeft = window.innerWidth; /* 会話選択時は中央パネル（チャット）を表示 */
-        } else {
-            main.scrollLeft = 0; /* 会話未選択時は左パネル（グループ一覧）を表示 */
-        }
-    }
-
-    function ensureMobileListFirst() {
-        if (!isMobile()) return;
-        const main = document.getElementById('mainContainer');
-        if (!main) return;
-        const hasConversation = document.body.dataset.hasConversation === '1';
-        if (hasConversation) {
-            main.scrollLeft = window.innerWidth; /* 会話選択時は中央を維持 */
-        } else {
-            main.scrollLeft = 0; /* 会話未選択時はグループ一覧を表示 */
-        }
-    }
 
     function initPhase3() {
         if (!isMobile()) return;
-        
-        initMobilePagesStripScroll();
-        setTimeout(initMobilePagesStripScroll, 0);
-        requestAnimationFrame && requestAnimationFrame(initMobilePagesStripScroll);
-        setTimeout(initMobilePagesStripScroll, 100);
-        setTimeout(initMobilePagesStripScroll, 300);
-        setTimeout(initMobilePagesStripScroll, 800);   /* レイアウト遅延対応 */
-        setTimeout(initMobilePagesStripScroll, 1500); /* 遅い端末でグループ一覧を確実に表示 */
-        window.addEventListener('load', function() {
-            initMobilePagesStripScroll();
-            setTimeout(ensureMobileListFirst, 50);
-            setTimeout(ensureMobileListFirst, 200);
-            setTimeout(ensureMobileListFirst, 500);
-            setTimeout(ensureMobileListFirst, 1000);   /* load 後もグループ一覧を維持 */
-        });
-        window.addEventListener('pageshow', function(ev) {
-            if (isMobile()) {
-                if (ev.persisted) ensureMobileListFirst();
-                else if (document.body.dataset.hasConversation !== '1') ensureMobileListFirst(); /* アプリ復帰時も会話未選択ならグループ一覧を表示 */
-            }
-        });
-        document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'visible' && isMobile()) ensureMobileListFirst();
-        });
         addMobileAnimations();
         setupPullToRefresh();
         setupLongPress();
         setupDoubleTap();
         setupKeyboardHandling();
-        setupScrollHideInput(); // スクロール時入力欄非表示
-        
-        console.log('Phase 3 mobile features initialized');
-    }
-
-    // 携帯・PC共通: 入力欄レイアウトを適用
-    function initInputLayoutUnified() {
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            initPhase3();
-            initInputLayoutUnified(); // PCでも同じ入力欄レイアウト
-        });
+        document.addEventListener('DOMContentLoaded', initPhase3);
     } else {
         initPhase3();
-        initInputLayoutUnified();
     }
 
 })();
@@ -1417,8 +1287,6 @@
         if (lp.classList.contains('mobile-open')) return;
         if (typeof window.closeMobileAllPanels === 'function') window.closeMobileAllPanels();
         lp.classList.add('mobile-open');
-        lp.style.setProperty('left', '0', 'important');
-        lp.style.setProperty('z-index', '100', 'important');
         var ov = document.querySelector('.mobile-overlay') || document.getElementById('mobileOverlay');
         if (ov) { ov.classList.add('show'); ov.style.display = 'block'; ov.style.opacity = '1'; }
         document.body.classList.add('mobile-panel-open');
