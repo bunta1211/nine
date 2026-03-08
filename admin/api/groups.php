@@ -496,6 +496,13 @@ function getGroupDetail($pdo, $groupId) {
         $group['allow_data_send'] = (int)($group['allow_data_send'] ?? 1);
         $group['member_list_visible'] = (int)($group['member_list_visible'] ?? 1);
         $group['allow_add_contact_from_group'] = (int)($group['allow_add_contact_from_group'] ?? 1);
+    } else {
+        // カラムが無い環境でもフロントでチェックボックスを表示するためデフォルト値を返す
+        $group['is_private_group'] = 0;
+        $group['allow_member_post'] = 1;
+        $group['allow_data_send'] = 1;
+        $group['member_list_visible'] = 1;
+        $group['allow_add_contact_from_group'] = 1;
     }
     
     echo json_encode(['success' => true, 'group' => $group]);

@@ -537,11 +537,22 @@ async function openEditModal(groupId, groupName) {
     document.getElementById('editGroupName').value = groupName;
     document.getElementById('editGroupNameEn').value = '';
     document.getElementById('editGroupNameZh').value = '';
+    // 取得前にプライベート系チェックを一旦リセット（前回のグループの表示が残らないようにする）
+    const cbPrivate = document.getElementById('editGroupIsPrivate');
+    const cbPost = document.getElementById('editGroupAllowPost');
+    const cbData = document.getElementById('editGroupAllowData');
+    const cbList = document.getElementById('editGroupMemberListVisible');
+    const cbContact = document.getElementById('editGroupAllowAddContact');
+    if (cbPrivate) { cbPrivate.checked = false; }
+    if (cbPost) { cbPost.checked = true; }
+    if (cbData) { cbData.checked = true; }
+    if (cbList) { cbList.checked = true; }
+    if (cbContact) { cbContact.checked = true; }
     document.getElementById('editGroupModal').classList.add('show');
     
-    // グループの詳細を取得して多言語フィールドに設定（admin API使用）
+    // グループの詳細を取得してフォームに反映（保存した内容で表示する）
     try {
-        const response = await fetch(`/admin/api/groups.php?id=${groupId}&action=get_detail`);
+        const response = await fetch(`/admin/api/groups.php?id=${groupId}&action=get_detail&_=${Date.now()}`);
         const data = await response.json();
         
         if (data.success && data.group) {
@@ -549,35 +560,24 @@ async function openEditModal(groupId, groupName) {
             document.getElementById('editGroupName').value = group.name || '';
             document.getElementById('editGroupNameEn').value = group.name_en || '';
             document.getElementById('editGroupNameZh').value = group.name_zh || '';
-            // マスター計画 2.12: プライベートグループ設定（常に表示して設定変更可能に）
+            // プライベート設定はAPIで返却された保存値を必ず反映（数値・文字列どちらでも判定）
+            const isChecked = (v) => (v === 1 || v === '1' || v === true);
+            if (cbPrivate) cbPrivate.checked = isChecked(group.is_private_group);
+            if (cbPost) cbPost.checked = isChecked(group.allow_member_post);
+            if (cbData) cbData.checked = isChecked(group.allow_data_send);
+            if (cbList) cbList.checked = isChecked(group.member_list_visible);
+            if (cbContact) cbContact.checked = isChecked(group.allow_add_contact_from_group);
             const privateSection = document.getElementById('editGroupPrivateSection');
             const privateOpts = document.getElementById('editGroupPrivateOptions');
-            const cbPrivate = document.getElementById('editGroupIsPrivate');
-            const cbPost = document.getElementById('editGroupAllowPost');
-            const cbData = document.getElementById('editGroupAllowData');
-            const cbList = document.getElementById('editGroupMemberListVisible');
-            const cbContact = document.getElementById('editGroupAllowAddContact');
-            if (privateSection && cbPrivate) {
-                const isPrivate = (group.is_private_group === 1 || group.is_private_group === '1');
-                cbPrivate.checked = !!isPrivate;
-                const def = (v) => (v === 1 || v === '1');
-                if (cbPost) cbPost.checked = group.allow_member_post !== undefined && group.allow_member_post !== null ? def(group.allow_member_post) : true;
-                if (cbData) cbData.checked = group.allow_data_send !== undefined && group.allow_data_send !== null ? def(group.allow_data_send) : true;
-                if (cbList) cbList.checked = group.member_list_visible !== undefined && group.member_list_visible !== null ? def(group.member_list_visible) : true;
-                if (cbContact) cbContact.checked = group.allow_add_contact_from_group !== undefined && group.allow_add_contact_from_group !== null ? def(group.allow_add_contact_from_group) : true;
-                privateSection.style.display = 'block';
-                if (privateOpts) privateOpts.style.display = isPrivate ? 'block' : 'none';
-            }
+            if (privateSection) privateSection.style.display = 'block';
+            if (privateOpts) privateOpts.style.display = cbPrivate && cbPrivate.checked ? 'block' : 'none';
         }
     } catch (error) {
         console.error('グループ情報取得エラー:', error);
     }
 
-    // プライベート設定欄は編集時は常に表示（取得失敗時も表示して設定変更可能にする）
     const privateSection = document.getElementById('editGroupPrivateSection');
-    if (privateSection) {
-        privateSection.style.display = 'block';
-    }
+    if (privateSection) privateSection.style.display = 'block';
 }
 
 function closeEditModal() {
