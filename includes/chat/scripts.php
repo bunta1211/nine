@@ -1195,6 +1195,9 @@ window.submitChatTask = async function() {
                             window.applyLeftPanelFilter(window.currentLeftPanelFilter);
                         }
                         
+                        // AI秘書のサイドバー表示名を復元（ポーリング後のリスト更新で消えないように）
+                        if (typeof window.ensureAISecretarySidebarName === 'function') window.ensureAISecretarySidebarName();
+                        
                         // タスクバーのアプリバッジも更新
                         if (typeof PushNotifications !== 'undefined' && typeof PushNotifications.updateBadgeFromServer === 'function') {
                             PushNotifications.updateBadgeFromServer();
@@ -2758,10 +2761,10 @@ window.submitChatTask = async function() {
                 console.error('[AI Secretary] Settings fetch error (continuing):', e);
             }
             
-            // サイドバーの名前を更新
+            // サイドバーの名前を更新（空のときは必ず「あなたの秘書」を表示）
             try {
             const sidebarNameEl = document.querySelector('.conv-item.ai-secretary .conv-name');
-            if (sidebarNameEl) sidebarNameEl.textContent = aiSecretaryName;
+            if (sidebarNameEl) sidebarNameEl.textContent = (aiSecretaryName && aiSecretaryName.trim()) ? aiSecretaryName.trim() : (sidebarNameEl.getAttribute('data-default-name') || 'あなたの秘書');
             } catch (e) {}
             
             // 表示直前の最終復元
@@ -2949,10 +2952,10 @@ window.submitChatTask = async function() {
                     }
                     localStorage.setItem('aiSecretaryName', aiSecretaryName);
                     
-                    // サイドバーの名前を更新
+                    // サイドバーの名前を更新（空のときは必ず「あなたの秘書」を表示）
                     const sidebarName = document.querySelector('.conv-item.ai-secretary .conv-name');
                     if (sidebarName) {
-                        sidebarName.textContent = aiSecretaryName;
+                        sidebarName.textContent = (aiSecretaryName && aiSecretaryName.trim()) ? aiSecretaryName.trim() : (sidebarName.getAttribute('data-default-name') || 'あなたの秘書');
                     }
                     
                     // サイドバーのアバターを更新
@@ -2977,6 +2980,17 @@ window.submitChatTask = async function() {
                 }
             }
         }
+        
+        // AI秘書のサイドバー表示名を復元（リスト並び替え・フィルタ後などで消えないように固定）
+        function ensureAISecretarySidebarName() {
+            const sidebarNameEl = document.querySelector('.conv-item.ai-secretary .conv-name');
+            if (!sidebarNameEl) return;
+            const name = (typeof aiSecretaryName !== 'undefined' && aiSecretaryName && String(aiSecretaryName).trim())
+                ? String(aiSecretaryName).trim()
+                : (localStorage.getItem('aiSecretaryName') || sidebarNameEl.getAttribute('data-default-name') || 'あなたの秘書').trim();
+            sidebarNameEl.textContent = name || 'あなたの秘書';
+        }
+        window.ensureAISecretarySidebarName = ensureAISecretarySidebarName;
         
         // ページ読み込み時に秘書の設定を取得
         loadAISecretarySettings();
@@ -3178,7 +3192,7 @@ window.submitChatTask = async function() {
                     aiSecretaryName = name;
                     localStorage.setItem('aiSecretaryName', name);
                     const sidebarName = document.querySelector('.conv-item.ai-secretary .conv-name');
-                    if (sidebarName) sidebarName.textContent = name;
+                    if (sidebarName) sidebarName.textContent = (name && name.trim()) ? name.trim() : (sidebarName.getAttribute('data-default-name') || 'あなたの秘書');
                     if (typeof updateHeaderForAI === 'function') updateHeaderForAI();
                     showSecretaryNameConfirmation(name);
                 }
@@ -4687,7 +4701,7 @@ window.submitChatTask = async function() {
             // サイドバーの名前も更新
             const sidebarName = document.querySelector('.conv-item.ai-secretary .conv-name');
             if (sidebarName) {
-                sidebarName.textContent = aiSecretaryName;
+                sidebarName.textContent = (aiSecretaryName && aiSecretaryName.trim()) ? aiSecretaryName.trim() : (sidebarName.getAttribute('data-default-name') || 'あなたの秘書');
             }
             
             // エディターを閉じる
@@ -7768,13 +7782,18 @@ window.submitChatTask = async function() {
             var list = document.getElementById('conversationList');
             if (!list) return;
             var items = Array.from(list.querySelectorAll('.conv-item'));
+            // AI秘書は常に先頭に固定（order: -9999 と併用）。ピン留めより上に表示するため DOM でも先頭に置く
             items.sort(function(a, b) {
+                if (a.classList.contains('ai-secretary')) return -1;
+                if (b.classList.contains('ai-secretary')) return 1;
                 var pinA = a.dataset.isPinned === '1' ? 1 : 0;
                 var pinB = b.dataset.isPinned === '1' ? 1 : 0;
                 if (pinA !== pinB) return pinB - pinA;
                 return 0;
             });
             items.forEach(function(item) { list.appendChild(item); });
+            // 並び替え後にAI秘書の表示名を必ず復元（消えてしまう不具合対策）
+            if (typeof ensureAISecretarySidebarName === 'function') ensureAISecretarySidebarName();
         }
 
         // ============================================
@@ -10823,7 +10842,10 @@ window.submitChatTask = async function() {
             let visibleCount = 0;
             convList.querySelectorAll('.conv-item').forEach(item => {
                 let show = false;
-                if (filter === 'all') {
+                // AI秘書は常に表示し、グループチャット一覧の一番上に固定（設置ルール）。フィルタ種別に関係なく表示する
+                if (item.classList.contains('ai-secretary')) {
+                    show = true;
+                } else if (filter === 'all') {
                     show = true;
                 } else if (filter === 'unread') {
                     show = (parseInt(item.dataset.unread || 0, 10) > 0);
@@ -10843,6 +10865,9 @@ window.submitChatTask = async function() {
                 }
                 if (show) visibleCount++;
             });
+            
+            // 並び順を確定（AI秘書を常に先頭に）
+            if (typeof reorderConvList === 'function') reorderConvList();
             
             const isMobile = window.innerWidth <= 768;
             if (footer) {
@@ -10944,6 +10969,10 @@ window.submitChatTask = async function() {
             // 初期表示・携帯で確実にフィルタ状態を反映（dataset と conv-item-filtered-out をセット）
             applyLeftPanelFilter(window.currentLeftPanelFilter || 'all');
         })();
+        // 会話リスト読み込み後：AI秘書を常に一番上に固定（設置ルール）
+        (function ensureAISecretaryAtTop() {
+            if (typeof reorderConvList === 'function') reorderConvList();
+        })();
         
         // 会話の表示状態を更新（会話リスト内のconv-itemのみ対象）
         function updateConversationVisibility() {
@@ -10952,8 +10981,19 @@ window.submitChatTask = async function() {
             const isShowAll = convList.classList.contains('show-all');
             const isMobile = window.innerWidth <= 768;
             let visibleIndex = 0;
-            
+
             convList.querySelectorAll('.conv-item').forEach(item => {
+                // AI秘書は「すべて」「グループ」で表示するときは常に表示し、件数制限の対象外にする
+                if (item.classList.contains('ai-secretary')) {
+                    if (item.dataset.filtered !== '0') {
+                        item.classList.remove('conv-item-filtered-out');
+                        item.style.display = '';
+                    } else {
+                        item.classList.add('conv-item-filtered-out');
+                        item.style.display = 'none';
+                    }
+                    return;
+                }
                 const isFiltered = item.dataset.filtered !== '0';
                 if (!isFiltered) {
                     item.classList.add('conv-item-filtered-out');

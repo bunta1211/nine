@@ -108,7 +108,7 @@
              onclick="event.stopPropagation(); event.preventDefault(); selectAISecretary();">
             <div class="conv-avatar ai-avatar ai-secretary-avatar-clickable" title="クリックでキャラクターを変更">🤖</div>
             <div class="conv-info">
-                <div class="conv-name">あなたの秘書</div>
+                <div class="conv-name" data-default-name="あなたの秘書">あなたの秘書</div>
             </div>
         </div>
         
