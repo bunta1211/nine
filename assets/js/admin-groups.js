@@ -13,8 +13,14 @@ let allUsers = [];
 
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
-    loadGroups();
     setupEventListeners();
+    try {
+        loadGroups();
+    } catch (err) {
+        console.error('loadGroups error:', err);
+        const tbody = document.getElementById('groupsBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="loading">読み込みに失敗しました</td></tr>';
+    }
 });
 
 // イベントリスナー設定
@@ -59,16 +65,18 @@ function setupEventListeners() {
     if (addPrivateGroupForm) addPrivateGroupForm.addEventListener('submit', submitAddPrivateGroup);
 
     // CSV出力ボタン
-    document.getElementById('btnExportCsv').addEventListener('click', exportGroupsCsv);
+    const btnExportCsv = document.getElementById('btnExportCsv');
+    if (btnExportCsv) btnExportCsv.addEventListener('click', exportGroupsCsv);
 
     // 検索
-    document.getElementById('btnSearch').addEventListener('click', () => {
+    const btnSearch = document.getElementById('btnSearch');
+    if (btnSearch) btnSearch.addEventListener('click', () => {
         searchKeyword = document.getElementById('searchInput').value;
         currentPage = 1;
         loadGroups();
     });
-
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             searchKeyword = e.target.value;
             currentPage = 1;
@@ -77,25 +85,34 @@ function setupEventListeners() {
     });
 
     // グループ詳細モーダル
-    document.getElementById('btnCloseModal').addEventListener('click', closeDetailModal);
-    document.getElementById('btnCloseDetail').addEventListener('click', closeDetailModal);
-    document.getElementById('groupDetailModal').addEventListener('click', (e) => {
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnCloseDetail = document.getElementById('btnCloseDetail');
+    const groupDetailModal = document.getElementById('groupDetailModal');
+    if (btnCloseModal) btnCloseModal.addEventListener('click', closeDetailModal);
+    if (btnCloseDetail) btnCloseDetail.addEventListener('click', closeDetailModal);
+    if (groupDetailModal) groupDetailModal.addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeDetailModal();
     });
 
     // グループメンバーCSV出力
-    document.getElementById('btnExportGroupCsv').addEventListener('click', exportGroupMembersCsv);
+    const btnExportGroupCsv = document.getElementById('btnExportGroupCsv');
+    if (btnExportGroupCsv) btnExportGroupCsv.addEventListener('click', exportGroupMembersCsv);
 
     // メンバー追加ボタン
-    document.getElementById('btnAddMember').addEventListener('click', openAddMemberModal);
+    const btnAddMember = document.getElementById('btnAddMember');
+    if (btnAddMember) btnAddMember.addEventListener('click', openAddMemberModal);
 
     // グループ名編集モーダル
-    document.getElementById('btnCloseEditModal').addEventListener('click', closeEditModal);
-    document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
-    document.getElementById('editGroupModal').addEventListener('click', (e) => {
+    const btnCloseEditModal = document.getElementById('btnCloseEditModal');
+    const btnCancelEdit = document.getElementById('btnCancelEdit');
+    const editGroupModal = document.getElementById('editGroupModal');
+    const editGroupForm = document.getElementById('editGroupForm');
+    if (btnCloseEditModal) btnCloseEditModal.addEventListener('click', closeEditModal);
+    if (btnCancelEdit) btnCancelEdit.addEventListener('click', closeEditModal);
+    if (editGroupModal) editGroupModal.addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeEditModal();
     });
-    document.getElementById('editGroupForm').addEventListener('submit', saveGroupName);
+    if (editGroupForm) editGroupForm.addEventListener('submit', saveGroupName);
 
     // 編集モーダル: プライベートグループのチェックで4設定の表示を切り替え（マスター計画 2.12）
     const editGroupIsPrivate = document.getElementById('editGroupIsPrivate');
@@ -107,18 +124,26 @@ function setupEventListeners() {
     }
 
     // メンバー追加モーダル
-    document.getElementById('btnCloseAddMemberModal').addEventListener('click', closeAddMemberModal);
-    document.getElementById('btnCancelAddMember').addEventListener('click', closeAddMemberModal);
-    document.getElementById('addMemberModal').addEventListener('click', (e) => {
+    const btnCloseAddMemberModal = document.getElementById('btnCloseAddMemberModal');
+    const btnCancelAddMember = document.getElementById('btnCancelAddMember');
+    const addMemberModal = document.getElementById('addMemberModal');
+    const memberSearchInput = document.getElementById('memberSearchInput');
+    if (btnCloseAddMemberModal) btnCloseAddMemberModal.addEventListener('click', closeAddMemberModal);
+    if (btnCancelAddMember) btnCancelAddMember.addEventListener('click', closeAddMemberModal);
+    if (addMemberModal) addMemberModal.addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeAddMemberModal();
     });
-    document.getElementById('memberSearchInput').addEventListener('input', filterUserList);
+    if (memberSearchInput) memberSearchInput.addEventListener('input', filterUserList);
 
     // グループ削除モーダル
-    document.getElementById('btnCloseDeleteModal').addEventListener('click', closeDeleteModal);
-    document.getElementById('btnCancelDelete').addEventListener('click', closeDeleteModal);
-    document.getElementById('btnConfirmDelete').addEventListener('click', confirmDeleteGroup);
-    document.getElementById('deleteGroupModal').addEventListener('click', (e) => {
+    const btnCloseDeleteModal = document.getElementById('btnCloseDeleteModal');
+    const btnCancelDelete = document.getElementById('btnCancelDelete');
+    const btnConfirmDelete = document.getElementById('btnConfirmDelete');
+    const deleteGroupModal = document.getElementById('deleteGroupModal');
+    if (btnCloseDeleteModal) btnCloseDeleteModal.addEventListener('click', closeDeleteModal);
+    if (btnCancelDelete) btnCancelDelete.addEventListener('click', closeDeleteModal);
+    if (btnConfirmDelete) btnConfirmDelete.addEventListener('click', confirmDeleteGroup);
+    if (deleteGroupModal) deleteGroupModal.addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeDeleteModal();
     });
 }
@@ -171,9 +196,12 @@ function openAddPrivateGroupModal() {
     if (modal) {
         modal.classList.add('show');
         if (form) form.reset();
-        document.getElementById('newPrivateGroupName').focus();
+        const nameEl = document.getElementById('newPrivateGroupName');
+        if (nameEl) nameEl.focus();
     }
 }
+// インラインonclick・外部からの呼び出し用にグローバルに公開
+if (typeof window !== 'undefined') window.openAddPrivateGroupModal = openAddPrivateGroupModal;
 
 function closeAddPrivateGroupModal() {
     const modal = document.getElementById('addPrivateGroupModal');

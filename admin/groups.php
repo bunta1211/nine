@@ -83,7 +83,7 @@ $stats['max_members'] = (int)$stmt->fetchColumn();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle) ?> - 組織管理</title>
-    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
     <div class="admin-container">
@@ -113,7 +113,7 @@ $stats['max_members'] = (int)$stmt->fetchColumn();
                 <h2>📁 グループ一覧</h2>
                 <div class="admin-actions">
                     <button id="btnAddGroup" class="btn btn-primary">💬 グループチャットを追加</button>
-                    <button id="btnAddPrivateGroup" class="btn btn-secondary">🔒 プライベートグループを作成</button>
+                    <button id="btnAddPrivateGroup" class="btn btn-secondary" type="button" onclick="if(typeof openAddPrivateGroupModal==='function')openAddPrivateGroupModal();">🔒 プライベートグループを作成</button>
                     <button id="btnExportCsv" class="btn btn-secondary">📥 CSV出力</button>
                 </div>
             </header>
@@ -393,7 +393,7 @@ $stats['max_members'] = (int)$stmt->fetchColumn();
     
     document.addEventListener('DOMContentLoaded', loadMyOrganizations);
     </script>
-    <script src="/assets/js/admin-groups.js?v=5"></script>
+    <script src="../assets/js/admin-groups.js?v=7"></script>
 </body>
 </html>
 
