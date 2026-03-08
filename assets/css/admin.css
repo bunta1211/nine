@@ -1215,7 +1215,13 @@ body {
 /* グループ一覧: プライベートグループのインライン表示（admin-groups.js で使用） */
 .badge-private-inline {
     display: inline-block;
-    margin-right: 4px;
+    margin-right: 6px;
+    padding: 2px 8px;
+    font-size: 0.85em;
+    font-weight: 500;
+    color: #5e35b1;
+    background: #ede7f6;
+    border-radius: 4px;
     vertical-align: middle;
 }
 

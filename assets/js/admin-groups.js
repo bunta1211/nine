@@ -324,7 +324,7 @@ function renderGroups(groups) {
     tbody.innerHTML = groups.map(group => {
         const isPrivate = (group.is_private_group === 1 || group.is_private_group === '1');
         const nameCell = isPrivate
-            ? `<span class="badge-private-inline" title="プライベートグループ">🔒</span> ${escapeHtml(group.name)}`
+            ? `<span class="badge-private-inline" title="プライベートグループ">🔒 プライベート</span> ${escapeHtml(group.name)}`
             : escapeHtml(group.name);
         return `
         <tr>
@@ -549,7 +549,7 @@ async function openEditModal(groupId, groupName) {
             document.getElementById('editGroupName').value = group.name || '';
             document.getElementById('editGroupNameEn').value = group.name_en || '';
             document.getElementById('editGroupNameZh').value = group.name_zh || '';
-            // マスター計画 2.12: プライベートグループ設定
+            // マスター計画 2.12: プライベートグループ設定（常に表示して設定変更可能に）
             const privateSection = document.getElementById('editGroupPrivateSection');
             const privateOpts = document.getElementById('editGroupPrivateOptions');
             const cbPrivate = document.getElementById('editGroupIsPrivate');
@@ -560,16 +560,23 @@ async function openEditModal(groupId, groupName) {
             if (privateSection && cbPrivate) {
                 const isPrivate = (group.is_private_group === 1 || group.is_private_group === '1');
                 cbPrivate.checked = !!isPrivate;
-                if (cbPost) cbPost.checked = (group.allow_member_post === 1 || group.allow_member_post === '1');
-                if (cbData) cbData.checked = (group.allow_data_send === 1 || group.allow_data_send === '1');
-                if (cbList) cbList.checked = (group.member_list_visible === 1 || group.member_list_visible === '1');
-                if (cbContact) cbContact.checked = (group.allow_add_contact_from_group === 1 || group.allow_add_contact_from_group === '1');
-                privateSection.style.display = (group.is_private_group !== undefined && group.is_private_group !== null) ? 'block' : 'none';
+                const def = (v) => (v === 1 || v === '1');
+                if (cbPost) cbPost.checked = group.allow_member_post !== undefined && group.allow_member_post !== null ? def(group.allow_member_post) : true;
+                if (cbData) cbData.checked = group.allow_data_send !== undefined && group.allow_data_send !== null ? def(group.allow_data_send) : true;
+                if (cbList) cbList.checked = group.member_list_visible !== undefined && group.member_list_visible !== null ? def(group.member_list_visible) : true;
+                if (cbContact) cbContact.checked = group.allow_add_contact_from_group !== undefined && group.allow_add_contact_from_group !== null ? def(group.allow_add_contact_from_group) : true;
+                privateSection.style.display = 'block';
                 if (privateOpts) privateOpts.style.display = isPrivate ? 'block' : 'none';
             }
         }
     } catch (error) {
         console.error('グループ情報取得エラー:', error);
+    }
+
+    // プライベート設定欄は編集時は常に表示（取得失敗時も表示して設定変更可能にする）
+    const privateSection = document.getElementById('editGroupPrivateSection');
+    if (privateSection) {
+        privateSection.style.display = 'block';
     }
 }
 
@@ -591,9 +598,9 @@ async function saveGroupName(e) {
     }
 
     const payload = { id, name, name_en, name_zh };
-    // マスター計画 2.12: プライベート設定（API がカラム存在時のみ更新）
+    // マスター計画 2.12: プライベート設定（編集モーダルに表示されている場合は常に送信。API がカラム存在時のみ更新）
     const privateSection = document.getElementById('editGroupPrivateSection');
-    if (privateSection && privateSection.style.display !== 'none') {
+    if (privateSection && document.getElementById('editGroupIsPrivate')) {
         payload.is_private_group = document.getElementById('editGroupIsPrivate').checked ? 1 : 0;
         payload.allow_member_post = document.getElementById('editGroupAllowPost').checked ? 1 : 0;
         payload.allow_data_send = document.getElementById('editGroupAllowData').checked ? 1 : 0;
