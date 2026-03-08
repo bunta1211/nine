@@ -459,6 +459,8 @@
 
     aside.left-panel.mobile-open {
         transform: translateX(0) !important;
+        /* オーバーレイ(z-index:90)より前面にしてタップを確実に受け取る */
+        z-index: 150 !important;
     }
 
     body.page-chat[data-mobile-list-first="1"][data-has-conversation="0"] aside.left-panel {
@@ -1201,24 +1203,24 @@
         font-size: 10px;
     }
 
-    /* 入力エリア */
+    /* 入力エリア: モバイル最適化（LINE風・タッチターゲット44px） */
     .input-area {
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 8px;
+        padding: 10px 12px;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
         background: var(--dt-center-input-bg, #ffffff);
         border-top: 1px solid var(--dt-input-border, #e5e7eb);
         z-index: 800;
         border-radius: 0;
+        box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
     }
 
     body.page-chat .input-area {
-        padding-left: 8px !important;
-        padding-right: 8px !important;
-        padding-top: 6px !important;
-        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+        padding: 12px 12px !important;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
     }
     body.page-chat .input-container {
         padding: 0 !important;
@@ -1228,18 +1230,19 @@
     body.page-chat .input-toolbar {
         padding-left: 4px !important;
         padding-right: 4px !important;
-        padding-top: 4px !important;
-        padding-bottom: 4px !important;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
         margin: 0 !important;
+        gap: 8px !important;
     }
     body.page-chat .input-toolbar-left,
     body.page-chat .input-toolbar-right {
         padding: 0 !important;
-        gap: 4px !important;
+        gap: 8px !important;
     }
     body.page-chat .input-row {
-        gap: 4px !important;
-        padding: 0 !important;
+        gap: 8px !important;
+        padding: 4px 0 0 0 !important;
         margin: 0 !important;
     }
     body.page-chat .input-wrapper {
@@ -1275,15 +1278,12 @@
         border-radius: 22px;
     }
 
-    /* 携帯: 1行デフォルト・入力に応じて自動拡大（最大8行） */
+    /* 携帯: テキストエリア（角丸・背景・フォント16pxでiOS拡大防止） */
     body.page-chat #messageInput,
     body.page-chat .input-row textarea,
     body.page-chat .input-wrapper textarea,
     body.page-chat .message-input {
-        padding-left: 10px !important;
-        padding-right: 10px !important;
-        padding-top: 10px !important;
-        padding-bottom: 10px !important;
+        padding: 12px 16px !important;
         font-size: 16px !important;
         line-height: 1.4 !important;
         min-height: 44px !important;
@@ -1291,24 +1291,65 @@
         width: 100% !important;
         max-width: none !important;
         box-sizing: border-box !important;
+        border-radius: 22px !important;
+        background: var(--dt-input-bg, #f5f5f5) !important;
+        border: 1px solid var(--dt-input-border, #e5e7eb) !important;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    body.page-chat #messageInput:focus,
+    body.page-chat .input-row textarea:focus,
+    body.page-chat .input-wrapper textarea:focus,
+    body.page-chat .message-input:focus {
+        outline: none;
+        border-color: var(--dt-accent, #6b7280) !important;
+        background: var(--dt-center-input-bg, #ffffff) !important;
     }
 
-    /* 左側To・GIF・電話・添付を収納・送信と同じ40px・円形に統一 */
+    /* ========== モバイル専用: PC要素非表示（Enterで送信・収納ボタン） ========== */
+    body.page-chat .input-area .enter-send-label,
+    body.page-chat .input-area .input-toolbar-right .toolbar-toggle-btn {
+        display: none !important;
+    }
+    /* 左側To・GIF・電話・添付: 44pxタッチターゲット・円形統一（Apple HIG準拠） */
     body.page-chat .input-area .input-toolbar-left .toolbar-btn {
-        width: 40px !important;
-        min-width: 40px !important;
-        height: 40px !important;
-        min-height: 40px !important;
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
         padding: 0 !important;
-        font-size: 14px !important;
+        font-size: 13px !important;
         border-radius: 50% !important;
+        background: var(--dt-btn-secondary, rgba(0, 0, 0, 0.06)) !important;
+        color: var(--dt-text-primary, #1e293b) !important;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    body.page-chat .input-area .input-toolbar-left .toolbar-btn:active {
+        background: var(--dt-btn-secondary-hover, rgba(0, 0, 0, 0.1)) !important;
+    }
+    /* To・GIFはアイコン寄りに（テキスト短縮） */
+    body.page-chat .input-area .input-toolbar-left .toolbar-btn.to-btn,
+    body.page-chat .input-area .input-toolbar-left .toolbar-btn.gif-btn {
+        font-weight: 500;
+    }
+    /* 常時起動ボタンは角丸長方形 */
+    body.page-chat .input-area .input-toolbar-left .toolbar-btn.ai-always-on-btn {
+        width: auto !important;
+        min-width: 5.2em !important;
+        max-width: none !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        padding: 0 14px !important;
+        font-size: 12px !important;
+        border-radius: 22px !important;
     }
     body.page-chat .input-area .input-toolbar-left .toolbar-btn .btn-icon {
-        font-size: 18px !important;
+        font-size: 20px !important;
     }
     body.page-chat .input-area .input-toolbar-left .toolbar-btn .btn-icon-mic svg {
-        width: 20px !important;
-        height: 20px !important;
+        width: 22px !important;
+        height: 22px !important;
     }
     body.page-chat .input-area .input-toolbar-left .toolbar-btn.mic-btn.chat-mic-listening {
         background: rgba(239, 68, 68, 0.25) !important;
@@ -1317,36 +1358,32 @@
     body.page-chat .input-area .input-toolbar-left .toolbar-btn.mic-btn.chat-mic-listening .btn-icon-mic svg {
         color: #dc2626 !important;
     }
-    /* 上記以外の入力欄内ツールバーボタン（input-icons 等）・タッチターゲット 44px */
     body.page-chat .input-area .input-icons button {
         min-height: 44px !important;
         height: 44px !important;
         padding: 10px 12px !important;
         font-size: 14px !important;
     }
-    /* 収納・送信ボタン：ツールバー右で同サイズに統一（タッチターゲット 40px・必ず表示） */
-    body.page-chat .input-area .input-toolbar-right .toolbar-toggle-btn,
+    /* 送信ボタン: 44px・アクセント色・右端に配置 */
     body.page-chat .input-area .input-toolbar-right .input-send-btn {
-        width: 40px !important;
-        min-width: 40px !important;
-        height: 40px !important;
-        min-height: 40px !important;
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
         padding: 0 !important;
-        font-size: 16px !important;
+        font-size: 18px !important;
         border-radius: 50% !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         visibility: visible !important;
+        background: var(--dt-accent, #6b7280) !important;
+        color: white !important;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
     }
-    body.page-chat .input-area .enter-send-label {
-        font-size: 11px !important;
-        min-height: 44px !important;
-        align-items: center !important;
-    }
-    body.page-chat .input-area .enter-send-label input[type="checkbox"] {
-        width: 14px !important;
-        height: 14px !important;
+    body.page-chat .input-area .input-toolbar-right .input-send-btn:active {
+        opacity: 0.9;
     }
 
     .input-row {
@@ -3417,8 +3454,9 @@
         border-radius: 16px 16px 0 0 !important;
         max-height: 70vh;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
         box-shadow: 0 -4px 20px rgba(0,0,0,0.12) !important;
-        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15) !important;
         z-index: 1001 !important;
         min-width: 240px;
     }
@@ -3527,19 +3565,19 @@
         filter: none;
     }
 
-    /* FABオーバーレイ */
+    /* FABオーバーレイ（メニュー外タップで閉じる用。画面は暗くしない） */
     .fab-overlay {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.3);
+        background: transparent;
         z-index: 1000;
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
-        transition: all 0.3s;
+        transition: opacity 0.2s;
     }
 
     .fab-overlay.show {
