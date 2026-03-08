@@ -19,7 +19,7 @@
 
 | # | 項目 | 状態 | 実施日・メモ |
 |---|------|------|--------------|
-| 1.1 | `database/migration_private_group_settings.sql` を新規作成（conversations に is_private_group と4設定カラム追加） | ✅ 済 | 5カラムを個別 ALTER で追加 |
+| 1.1 | `database/migration_private_group_settings.sql` を新規作成（conversations に is_private_group と4設定カラム追加） | ✅ 済 | 5カラムを個別 ALTER で追加。**MySQL 5.7 対応**: `IF NOT EXISTS` を削除（8.0 のみの構文のため）。既存カラムがある場合は「Duplicate column」でスキップ可 |
 | 1.2 | `database/DEPENDENCIES.md` に上記マイグレーションを追記 | ✅ 済 | 既存の conversations 表・マイグレーション一覧に記載済 |
 | 1.3 | 本番DBへの SQL 適用（手動。ユーザー方針に従う） | ⬜ 未 | 実行はユーザーが実施。手順は下記「本番DB適用チェックリスト」を参照 |
 

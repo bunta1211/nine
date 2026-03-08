@@ -295,8 +295,20 @@ function updateGroup($pdo) {
     }
     
     $params[] = $groupId;
-    $stmt = $pdo->prepare("UPDATE conversations SET " . implode(', ', $sets) . " WHERE id = ? AND type = 'group'");
-    $stmt->execute($params);
+    
+    try {
+        $stmt = $pdo->prepare("UPDATE conversations SET " . implode(', ', $sets) . " WHERE id = ? AND type = 'group'");
+        $stmt->execute($params);
+    } catch (PDOException $e) {
+        $msg = $e->getMessage();
+        if (strpos($msg, 'Unknown column') !== false) {
+            echo json_encode(['success' => false, 'error' => 'プライベート設定を保存するには、database/migration_private_group_settings.sql を本番DBで実行してください。']);
+            return;
+        }
+        error_log('updateGroup PDO error: ' . $msg);
+        echo json_encode(['success' => false, 'error' => '保存中にエラーが発生しました。']);
+        return;
+    }
     
     echo json_encode(['success' => true]);
 }
