@@ -1121,7 +1121,7 @@ if ($is_secretary_mode) {
                     </div>
                     <div class="input-row">
                         <div class="input-wrapper">
-                            <textarea id="messageInput" class="message-input" placeholder="<?= __('message_input_placeholder') ?>&#10;<?= __('shift_enter_hint') ?>" rows="1" style="min-height:168px;max-height:280px;height:168px" onkeydown="handleKeyDown(event)" oninput="autoResizeInput(this)"></textarea>
+                            <textarea id="messageInput" class="message-input" placeholder="<?= $is_mobile_request ? __('message_input_placeholder') : __('message_input_placeholder') . "&#10;" . __('shift_enter_hint') ?>" rows="1" style="min-height:168px;max-height:280px;height:168px" onkeydown="handleKeyDown(event)" oninput="autoResizeInput(this)"></textarea>
                         </div>
                     </div>
                 </div>

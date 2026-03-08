@@ -2637,6 +2637,11 @@ window.submitChatTask = async function() {
             }
 
             isAISecretaryActive = true;
+
+            // 携帯: data-has-conversation="0"のままだと中央パネルが非表示のため、確実に表示させる
+            if (document.body && document.body.getAttribute) {
+                document.body.setAttribute('data-has-conversation', '1');
+            }
             
             // ポーリングを止めるため conversationId を退避して null にする
             if (typeof conversationId !== 'undefined' && conversationId) {
