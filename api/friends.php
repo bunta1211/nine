@@ -1,6 +1,6 @@
 <?php
 /**
- * 友だち管理API
+ * 個人アドレス帳・アドレス追加申請API
  * api-bootstrap により IP ブロック・迎撃・共通エラーハンドリングを適用
  */
 
@@ -151,7 +151,7 @@ try {
             
             if ($existing) {
                 if ($existing['status'] === 'accepted') {
-                    echo json_encode(['success' => false, 'error' => '既に友だちです']);
+                    echo json_encode(['success' => false, 'error' => '既にアドレス帳に追加済みです']);
                 } elseif ($existing['status'] === 'pending') {
                     echo json_encode(['success' => false, 'error' => '申請済みです']);
                 } elseif ($existing['status'] === 'blocked') {
@@ -172,7 +172,7 @@ try {
                         $stmt->execute([$user_id, $friend['id']]);
                     }
                     sendFriendRequestNotification($pdo, $user_id, (int)$friend['id']);
-                    echo json_encode(['success' => true, 'message' => '友だち申請を送信しました']);
+                    echo json_encode(['success' => true, 'message' => 'アドレス追加申請を送信しました']);
                 }
                 exit;
             }
@@ -187,7 +187,7 @@ try {
             $isRequesterMinor = ($reqBirth && !empty($reqBirth['birth_date']) && $reqBirth['birth_date'] > $cutoff);
             $isTargetMinor = ($tgtBirth && !empty($tgtBirth['birth_date']) && $tgtBirth['birth_date'] > $cutoff);
             if ($isRequesterMinor && $isTargetMinor && $source === 'search') {
-                echo json_encode(['success' => false, 'error' => '未成年同士の友達申請は、QRコードまたは招待リンク経由でのみ可能です']);
+                echo json_encode(['success' => false, 'error' => '未成年同士のアドレス追加申請は、QRコードまたは招待リンク経由でのみ可能です']);
                 exit;
             }
             
@@ -204,7 +204,7 @@ try {
                 $stmt = $pdo->prepare("INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'accepted')");
                 $stmt->execute([$user_id, $friend['id']]);
                 
-                echo json_encode(['success' => true, 'message' => '友だちになりました！', 'status' => 'accepted']);
+                echo json_encode(['success' => true, 'message' => 'アドレス帳に追加済みになりました！', 'status' => 'accepted']);
                 exit;
             }
             
@@ -231,7 +231,7 @@ try {
             $stmt->execute($params);
             
             sendFriendRequestNotification($pdo, $user_id, (int)$friend['id']);
-            echo json_encode(['success' => true, 'message' => '友だち申請を送信しました']);
+            echo json_encode(['success' => true, 'message' => 'アドレス追加申請を送信しました']);
             break;
             
         case 'accept':
@@ -261,7 +261,7 @@ try {
             $stmt = $pdo->prepare("INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'accepted') ON DUPLICATE KEY UPDATE status = 'accepted', updated_at = NOW()");
             $stmt->execute([$user_id, $request['user_id']]);
             
-            echo json_encode(['success' => true, 'message' => '友だち申請を承認しました']);
+            echo json_encode(['success' => true, 'message' => 'アドレス追加申請を承認しました']);
             break;
             
         case 'reject':
@@ -276,7 +276,7 @@ try {
             $stmt = $pdo->prepare("UPDATE friendships SET status = 'rejected', updated_at = NOW() WHERE id = ? AND friend_id = ? AND status = 'pending'");
             $stmt->execute([$friendship_id, $user_id]);
             
-            echo json_encode(['success' => true, 'message' => '友だち申請を拒否しました']);
+            echo json_encode(['success' => true, 'message' => 'アドレス追加申請を拒否しました']);
             break;
             
         case 'defer':
@@ -309,7 +309,7 @@ try {
                 echo json_encode(['success' => false, 'error' => '取り消せる申請がありません']);
                 exit;
             }
-            echo json_encode(['success' => true, 'message' => '友だち申請を取り消しました']);
+            echo json_encode(['success' => true, 'message' => 'アドレス追加申請を取り消しました']);
             break;
             
         case 'remove':
@@ -317,7 +317,7 @@ try {
             $friend_id = $input['friend_id'] ?? null;
             
             if (!$friend_id) {
-                echo json_encode(['success' => false, 'error' => '友だちIDが必要です']);
+                echo json_encode(['success' => false, 'error' => 'アドレス帳のユーザーIDが必要です']);
                 exit;
             }
             
@@ -325,7 +325,7 @@ try {
             $stmt = $pdo->prepare("DELETE FROM friendships WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)");
             $stmt->execute([$user_id, $friend_id, $friend_id, $user_id]);
             
-            echo json_encode(['success' => true, 'message' => '友だちを削除しました']);
+            echo json_encode(['success' => true, 'message' => 'アドレス帳から削除しました']);
             break;
             
         case 'block':
@@ -870,10 +870,10 @@ try {
                 $emailSubject = "「{$groupName}」への招待";
                 $htmlMessage = "<html><body><p>{$inviterName}さんがあなたを「{$groupName}」グループへ招待しています。</p><p><a href=\"{$inviteLink}\">こちらから登録</a></p></body></html>";
             } else {
-                // 通常の招待
-                $message = "{$inviterName}さんがあなたをSocial9へ招待しています。\n\n下記リンクから登録できます：\n{$inviteLink}";
-                $emailSubject = 'Social9への招待';
-                $htmlMessage = "<html><body><p>{$inviterName}さんがあなたをSocial9へ招待しています。</p><p><a href=\"{$inviteLink}\">こちらから登録</a></p></body></html>";
+                // 通常の招待（個人アドレス帳への追加。マスター計画 5.1）
+                $message = "{$inviterName}さんがあなたを個人アドレス帳に追加する招待を送っています。\n\n下記リンクから受諾できます：\n{$inviteLink}";
+                $emailSubject = "{$inviterName}の個人アドレス帳に追加受諾";
+                $htmlMessage = "<html><body><p>{$inviterName}さんがあなたを個人アドレス帳に追加する招待を送っています。</p><p><a href=\"{$inviteLink}\">{$inviterName}の個人アドレス帳に追加受諾</a></p></body></html>";
             }
             
             $sent = false;

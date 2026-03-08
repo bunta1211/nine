@@ -580,7 +580,7 @@ try {
                                 <input type="checkbox" checked value="admin/users.php"> 👥 ユーザー管理
                             </label>
                             <label class="option-checkbox active" data-page="admin/members.php">
-                                <input type="checkbox" checked value="admin/members.php"> 👤 メンバー管理
+                                <input type="checkbox" checked value="admin/members.php"> 👤 組織アドレス帳
                             </label>
                             <label class="option-checkbox active" data-page="admin/groups.php">
                                 <input type="checkbox" checked value="admin/groups.php"> 🏠 グループ管理

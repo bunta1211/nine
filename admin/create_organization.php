@@ -28,7 +28,7 @@ $type = 'corporation';
             </div>
             <nav class="admin-nav">
                 <a href="/chat.php">💬 チャットへ戻る</a>
-                <a href="members.php">👥 メンバー管理</a>
+                <a href="members.php">👥 組織アドレス帳</a>
                 <a href="groups.php">📁 グループ一覧</a>
             </nav>
         </aside>

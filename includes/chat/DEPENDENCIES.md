@@ -8,7 +8,7 @@
 |---------|------|------|
 | `data.php` | データ取得ロジック（DB最適化済み） | ~280行 |
 | `topbar.php` | 上パネル（ヘッダー）HTML。`.top-panel-inner` で内側凹みラッパー、各ボタンに `.btn-label`。タスク/メモ・通知は `<a href="tasks.php">` / `<a href="notifications.php">` のリンクで即ページ遷移（JSに依存しない）。`top-divider` は削除。chat.php のほか design.php / tasks.php / notifications.php から include（$topbar_back_url, $topbar_header_id 等で制御）。立体デザインは assets/css/layout/header.css と design_loader.php で適用。 | ~206行 |
-| `sidebar.php` | 左パネル（会話リスト）HTML。**モバイル友達追加**: placeholder「Email/携帯番号で検索」、説明文、未登録時の「このメールアドレスに友達申請を送る」用 `#mobileFriendInviteRow`、ヘッダーに「QRコード」ボタン（openAddFriendModalForQR）、フォーム下に「QRコードを表示」ボタンと `#mobileMyQRContainer`（showMyQRCodeMobile） | ~240行 |
+| `sidebar.php` | 左パネル（会話リスト）HTML。**モバイル個人アドレス帳**: placeholder「Email/携帯番号で検索」、説明文、未登録時の「招待メール送信」用 `#mobileFriendInviteRow`、ヘッダーに「QRコード」ボタン（openAddFriendModalForQR）、フォーム下に「QRコードを表示」ボタンと `#mobileMyQRContainer`（showMyQRCodeMobile） | ~240行 |
 | `rightpanel.php` | 右パネル（詳細）HTML | ~100行 |
 | `rightpanel_secretary.php` | AI秘書（AIクローン）専用右パネルHTML。訓練言語選択・判断材料フォルダツリー・会話記憶表示・自動返信トグル＋統計。secretary-rightpanel.js（SecRP）と連携 | ~100行 |
 | `settings-account-bar.php` | 設定＋アカウントドロップダウン共通。`$account_bar_variant = 'left_panel'` のときは左パネル用に「グループ管理」ボタンのみ（歯車なし・クリックで右パネル＝詳細を開く） | ~95行 |

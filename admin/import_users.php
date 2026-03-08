@@ -107,7 +107,7 @@ fclose($handle);
         </div>
         <?php endif; ?>
         
-        <a href="members.php" class="btn">メンバー管理へ戻る</a>
+        <a href="members.php" class="btn">組織アドレス帳へ戻る</a>
     </div>
 </body>
 </html>

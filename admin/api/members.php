@@ -59,13 +59,15 @@ try {
         listMembers($pdo, $currentOrgId);
     }
 
-    // POST 新規登録 / 既存ユーザーを組織に追加 / 招待メール再送
+    // POST 新規登録 / 既存ユーザーを組織に追加 / 招待メール再送 / 一斉招待
     if ($method === 'POST') {
         $body = json_decode(file_get_contents('php://input'), true) ?: [];
         if (isset($body['action']) && $body['action'] === 'add_existing') {
             addExistingMember($pdo, $currentOrgId, $body);
         } elseif (isset($body['action']) && $body['action'] === 'resend_invite') {
             resendOrgInvite($pdo, $currentOrgId, $body);
+        } elseif (isset($body['action']) && $body['action'] === 'bulk_invite') {
+            bulkInvite($pdo, $currentOrgId, $body);
         } else {
             createMember($pdo, $currentOrgId, $body);
         }
@@ -625,9 +627,10 @@ function syncMemberGroups(PDO $pdo, $orgId, $userId, array $groupIds) {
 }
 
 /**
- * 新規メンバー登録（表示名・メール・本名のみ。パスワードは本人がメールのリンクから設定し、承諾した時点で正式所属）
+ * 新規メンバー登録の本体（exit しない。createMember / bulkInvite から呼ぶ）
+ * @return array{success: bool, message?: string, error?: string, user_id?: int}
  */
-function createMember(PDO $pdo, $orgId, array $data) {
+function doCreateMember(PDO $pdo, $orgId, array $data) {
     $orgId = (int)$orgId;
     $fullName = trim($data['full_name'] ?? '');
     $displayName = trim($data['display_name'] ?? '');
@@ -638,13 +641,13 @@ function createMember(PDO $pdo, $orgId, array $data) {
     $isOrgAdmin = !empty($data['is_org_admin']);
 
     if ($displayName === '') {
-        jsonError('表示名は必須です', 400);
+        return ['success' => false, 'error' => '表示名は必須です'];
     }
     if ($email === '' && $phone === '') {
-        jsonError('メールアドレスまたは携帯電話番号のどちらかを入力してください', 400);
+        return ['success' => false, 'error' => 'メールアドレスまたは携帯電話番号のどちらかを入力してください'];
     }
     if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        jsonError('有効なメールアドレスを入力してください', 400);
+        return ['success' => false, 'error' => '有効なメールアドレスを入力してください'];
     }
 
     $pdo->beginTransaction();
@@ -669,7 +672,7 @@ function createMember(PDO $pdo, $orgId, array $data) {
             $stmt->execute([$orgId, $userId]);
             if ($stmt->fetch()) {
                 $pdo->rollBack();
-                jsonError('このメールアドレス・電話番号のユーザーは既にこの組織に所属しています', 400);
+                return ['success' => false, 'error' => 'このメールアドレス・電話番号のユーザーは既にこの組織に所属しています'];
             }
         } else {
             $passwordHash = password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT);
@@ -765,19 +768,75 @@ function createMember(PDO $pdo, $orgId, array $data) {
             $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
             $acceptUrl = rtrim($baseUrl, '/') . '/accept_org_invite.php?token=' . urlencode($token);
             require_once __DIR__ . '/../../includes/org_invite_mail.php';
-            sendOrgInviteMail($email, $orgName, $acceptUrl);
+            sendOrgInviteMail($email, $orgName, $acceptUrl, !empty($existingUser));
         } catch (Exception $e) {
-            error_log('admin/api/members.php createMember invite mail: ' . $e->getMessage());
+            error_log('admin/api/members.php doCreateMember invite mail: ' . $e->getMessage());
         }
 
-        jsonSuccess([], $existingUser ? '招待メールを送信しました（承諾後に正式所属になります）' : '招待メールを送信しました。本人がパスワードを設定して承諾すると組織に所属します。');
+        $message = $existingUser
+            ? '招待メールを送信しました（承諾後に正式所属になります）'
+            : '招待メールを送信しました。本人がパスワードを設定して承諾すると組織に所属します。';
+        return ['success' => true, 'message' => $message, 'user_id' => $userId];
     } catch (Exception $e) {
         $pdo->rollBack();
         if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'users.email') !== false) {
-            jsonError('このメールアドレスは既に登録されています。', 400);
+            return ['success' => false, 'error' => 'このメールアドレスは既に登録されています。'];
         }
-        jsonError('登録に失敗しました: ' . $e->getMessage(), 500);
+        return ['success' => false, 'error' => '登録に失敗しました: ' . $e->getMessage()];
     }
+}
+
+/**
+ * 一斉招待（候補リストの各件で doCreateMember を実行。マスター計画 4.4）
+ * POST action=bulk_invite, body: { candidates: [{ display_name, email?, phone? }, ...] }
+ */
+function bulkInvite(PDO $pdo, $orgId, array $body) {
+    $orgId = (int)$orgId;
+    $candidates = $body['candidates'] ?? [];
+    if (!is_array($candidates)) {
+        jsonError('candidates は配列で指定してください', 400);
+    }
+    if (count($candidates) === 0) {
+        jsonError('1件以上の候補を指定してください', 400);
+    }
+    $results = [];
+    foreach ($candidates as $i => $c) {
+        $data = [
+            'display_name' => trim($c['display_name'] ?? ''),
+            'full_name' => trim($c['full_name'] ?? ''),
+            'email' => trim($c['email'] ?? ''),
+            'phone' => trim($c['phone'] ?? ''),
+            'member_type' => ($c['member_type'] ?? 'internal') === 'external' ? 'external' : 'internal',
+            'is_org_admin' => !empty($c['is_org_admin']),
+            'group_ids' => isset($c['group_ids']) && is_array($c['group_ids']) ? $c['group_ids'] : [],
+        ];
+        $r = doCreateMember($pdo, $orgId, $data);
+        $results[] = [
+            'index' => $i,
+            'email' => $data['email'],
+            'display_name' => $data['display_name'],
+            'success' => $r['success'],
+            'message' => $r['message'] ?? null,
+            'error' => $r['error'] ?? null,
+        ];
+    }
+    $succeeded = count(array_filter($results, function ($x) { return $x['success']; }));
+    $failed = count($results) - $succeeded;
+    $message = $failed === 0
+        ? '全件の招待を送信しました。'
+        : ($succeeded . ' 件送信、' . $failed . ' 件失敗しました。');
+    jsonSuccess(['results' => $results, 'succeeded' => $succeeded, 'failed' => $failed], $message);
+}
+
+/**
+ * 新規メンバー登録（表示名・メール・本名のみ。パスワードは本人がメールのリンクから設定し、承諾した時点で正式所属）
+ */
+function createMember(PDO $pdo, $orgId, array $data) {
+    $result = doCreateMember($pdo, $orgId, $data);
+    if (!$result['success']) {
+        jsonError($result['error'], 400);
+    }
+    jsonSuccess([], $result['message']);
 }
 
 /**
@@ -836,6 +895,14 @@ function resendOrgInvite(PDO $pdo, $orgId, array $data) {
         jsonError('承諾前のメンバーが見つかりません', 404);
     }
     $email = trim($row['email']);
+    // 既存ユーザー（パスワード設定済み）なら統合案内メールを送る（マスター計画 4.3）
+    $is_existing_user = false;
+    $stmtUser = $pdo->prepare("SELECT password_hash FROM users WHERE id = ?");
+    $stmtUser->execute([$userId]);
+    $u = $stmtUser->fetch(PDO::FETCH_ASSOC);
+    if ($u && !empty(trim((string)($u['password_hash'] ?? '')))) {
+        $is_existing_user = true;
+    }
     $orgName = '組織';
     $stmt = $pdo->prepare("SELECT name FROM organizations WHERE id = ?");
     $stmt->execute([$orgId]);
@@ -874,7 +941,7 @@ function resendOrgInvite(PDO $pdo, $orgId, array $data) {
         if (!function_exists('sendOrgInviteMail')) {
             jsonError('招待メール送信関数が定義されていません。', 500);
         }
-        $sent = sendOrgInviteMail($email, $orgName, $acceptUrl);
+        $sent = sendOrgInviteMail($email, $orgName, $acceptUrl, $is_existing_user);
     } catch (Throwable $e) {
         error_log('resendOrgInvite mail: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
         jsonError('メール送信でエラーが発生しました: ' . (strlen($e->getMessage()) < 60 ? $e->getMessage() : '送信処理に失敗しました'), 500);

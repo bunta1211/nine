@@ -41,6 +41,15 @@ mysql -h database-1.cjgimse22md1.ap-northeast-1.rds.amazonaws.com -P 3306 -u adm
 
 - **詳細**: 本番 DB への接続・実行方法の詳細は [PRODUCTION_DB_ACCESS.md](./PRODUCTION_DB_ACCESS.md) を参照。
 
+### 2.3 プライベートグループ・組織アドレス帳で使うマイグレーション
+
+次の SQL は [PRIVATE_GROUP_AND_ADDRESS_BOOK_IMPLEMENTATION_LOG.md](./PRIVATE_GROUP_AND_ADDRESS_BOOK_IMPLEMENTATION_LOG.md) の Phase 1.3 で手動適用する想定です。
+
+| ファイル | 説明 |
+|----------|------|
+| `migration_private_group_settings.sql` | conversations にプライベートグループ用カラム追加（必須） |
+| `migration_org_invite_candidates.sql` | 組織招待候補テーブル（一斉招待を使う場合のみ） |
+
 ---
 
 ## 3. エージェントが SQL ありの場合にやること

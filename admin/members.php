@@ -1,6 +1,6 @@
 <?php
 /**
- * 組織管理画面 - メンバー管理
+ * 組織管理画面 - 組織アドレス帳
  */
 ob_start(); // 出力バッファリング開始
 require_once __DIR__ . '/../includes/auth.php';
@@ -9,7 +9,7 @@ require_once __DIR__ . '/../config/database.php';
 // 組織管理者チェック
 requireOrgAdmin();
 
-$pageTitle = 'メンバー管理';
+$pageTitle = '組織アドレス帳';
 $currentUser = getCurrentUser();
 ?>
 <!DOCTYPE html>
@@ -31,7 +31,7 @@ $currentUser = getCurrentUser();
                 </select>
             </div>
             <nav class="admin-nav">
-                <a href="members.php" class="active">👥 メンバー管理</a>
+                <a href="members.php" class="active">👥 組織アドレス帳</a>
                 <a href="groups.php">📁 グループ一覧</a>
                 <a href="ai_specialist_admin.php">🎓 専門AI管理</a>
                 <a href="/chat.php">💬 チャットへ戻る</a>
@@ -45,7 +45,7 @@ $currentUser = getCurrentUser();
         <!-- メインコンテンツ -->
         <main class="admin-main">
             <header class="admin-header">
-                <h2>👥 メンバー管理</h2>
+                <h2>👥 組織アドレス帳</h2>
                 <div class="admin-actions">
                     <button id="btnExportCsv" class="btn btn-secondary">📥 CSV出力</button>
                     <button id="btnAddMember" class="btn btn-primary">➕ 新規登録</button>

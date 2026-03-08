@@ -168,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
             <nav class="admin-nav">
-                <a href="members.php">👥 メンバー管理</a>
+                <a href="members.php">👥 組織アドレス帳</a>
                 <a href="groups.php">📁 グループ一覧</a>
                 <a href="ai_specialist_admin.php" class="active">🎓 専門AI管理</a>
                 <a href="/chat.php">💬 チャットへ戻る</a>

@@ -295,6 +295,10 @@
             <span>🔇</span>
             <span id="menuToggleSilenceText"><?= $currentLang === 'en' ? 'Silence' : ($currentLang === 'zh' ? '禁言' : '発言制限') ?></span>
         </div>
+        <div class="member-menu-item" id="menuAddContactFromGroup" style="display: none;" onclick="addContactFromMemberMenu()">
+            <span>👋</span>
+            <span><?= $currentLang === 'en' ? 'Address request' : ($currentLang === 'zh' ? '地址申请' : 'アドレス追加申請') ?></span>
+        </div>
         <div class="menu-divider"></div>
         <div class="member-menu-item danger" onclick="removeMemberFromGroup()">
             <span>🚫</span>
@@ -528,11 +532,11 @@
         </div>
     </div>
     
-    <!-- 友達追加モーダル -->
+    <!-- 個人アドレス帳・DMモーダル（旧: 友達追加モーダル） -->
     <div class="modal-overlay" id="addFriendModal">
         <div class="modal" style="max-width:480px;">
             <div class="modal-header">
-                <h3>👥 友達追加・DM</h3>
+                <h3>👥 個人アドレス帳・DM</h3>
                 <button class="modal-close" onclick="closeModal('addFriendModal')" aria-label="閉じる">×</button>
             </div>
             <div class="modal-body" style="padding:0;">
@@ -571,7 +575,7 @@
                 
                 <!-- 招待リンクタブ -->
                 <div class="add-friend-content" id="addFriendInvite" style="display:none;">
-                    <p class="add-friend-desc">このリンクを友達に共有すると、あなたを友達追加できます</p>
+                    <p class="add-friend-desc"><?= $currentLang === 'en' ? 'Share this link so others can add you to their address book.' : ($currentLang === 'zh' ? '分享此链接，他人可将您加入通讯录。' : 'このリンクを共有すると、あなたの個人アドレス帳に追加できます') ?></p>
                     <div class="invite-link-box">
                         <input type="text" id="friendInviteLinkInput" readonly value="<?= 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/invite.php?u=' . $user_id ?>">
                         <button class="copy-btn" onclick="copyFriendInviteLink()">📋 コピー</button>
@@ -602,15 +606,15 @@
                                     カメラで読み取る
                                 </button>
                             </div>
-                            <p id="qrScannerStatus" style="margin-top:8px;font-size:11px;color:var(--text-muted);">友達のQRを読み取る</p>
+                            <p id="qrScannerStatus" style="margin-top:8px;font-size:11px;color:var(--text-muted);"><?= $currentLang === 'en' ? 'Scan QR to add to address book' : ($currentLang === 'zh' ? '扫描二维码添加到通讯录' : '個人アドレス帳に追加するQRを読み取る') ?></p>
                         </div>
                     </div>
-                    <p class="add-friend-note">QRコードをスキャンすると友達追加ページに移動します</p>
+                    <p class="add-friend-note"><?= $currentLang === 'en' ? 'Scanning the QR code opens the invite page.' : ($currentLang === 'zh' ? '扫描二维码将打开邀请页面。' : 'QRコードをスキャンすると招待ページに移動します') ?></p>
                 </div>
                 
                 <!-- メール・携帯で検索タブ（Email/携帯番号のみ） -->
                 <div class="add-friend-content" id="addFriendSearch" style="display:none;">
-                    <p class="add-friend-desc"><?= $currentLang === 'en' ? 'Search by email or phone number. You can send an invite to unregistered email addresses.' : ($currentLang === 'zh' ? '通过邮箱或手机号搜索。可向未注册邮箱发送邀请。' : 'メールアドレスまたは携帯番号で検索。登録済みの方は友達申請、未登録のメールアドレスには招待を送れます') ?></p>
+                    <p class="add-friend-desc"><?= $currentLang === 'en' ? 'Search by email or phone number. You can send an invite to unregistered email addresses.' : ($currentLang === 'zh' ? '通过邮箱或手机号搜索。可向未注册邮箱发送邀请。' : 'メールアドレスまたは携帯番号で検索。登録済みの方はアドレス追加申請、未登録のメールアドレスには招待を送れます。') ?></p>
                     <div class="search-user-box">
                         <input type="text" id="searchUserInput" placeholder="<?= $currentLang === 'en' ? 'Email or phone number...' : ($currentLang === 'zh' ? '邮箱或手机号...' : 'Email/携帯番号で検索') ?>" oninput="debounceSearchUser()" autocomplete="off">
                     </div>
@@ -621,7 +625,7 @@
                         </div>
                     </div>
                     <div id="addFriendSearchInviteRow" class="add-friend-search-invite-row" style="display: none;">
-                        <button type="button" class="btn btn-primary" id="addFriendSearchInviteBtn">このメールアドレスに友達申請を送る</button>
+                        <button type="button" class="btn btn-primary" id="addFriendSearchInviteBtn"><?= htmlspecialchars(__('search_invite_mail_btn'), ENT_QUOTES, 'UTF-8') ?></button>
                     </div>
                 </div>
                 

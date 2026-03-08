@@ -1665,7 +1665,7 @@
             }
         } catch (error) {
             console.error('検索エラー:', error);
-            resultsContainer.innerHTML = '<div class="mobile-search-no-result">' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_error') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_error)) || '検索中にエラーが発生しました') + '</div>';
+            resultsContainer.innerHTML = '<div class="mobile-search-no-result">' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_error') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_error)) || '検索エラーが発生しました') + '</div>';
             if (inviteRow) inviteRow.style.display = 'none';
         }
     };
@@ -1688,7 +1688,7 @@
                 const row = document.getElementById('mobileFriendInviteRow');
                 if (row) row.style.display = 'none';
             } else {
-                showMobileToast(data.error || '送信に失敗しました');
+                showMobileToast(data.error || ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_invite_error') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_invite_error)) || '招待の送信に失敗しました'));
             }
         } catch (e) {
             showMobileToast('通信エラーが発生しました');
@@ -1726,7 +1726,7 @@
         if (!userId) return;
         
         btn.disabled = true;
-        btn.textContent = '送信中...';
+        btn.textContent = (typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_sending') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_sending)) || '送信中...';
         
         try {
             const response = await fetch('api/friends.php', {

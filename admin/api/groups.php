@@ -173,6 +173,14 @@ function createGroup($pdo) {
     $nameEn = trim((string)($input['name_en'] ?? ''));
     $nameZh = trim((string)($input['name_zh'] ?? ''));
 
+    // プライベートグループ設定（マスター計画 2.5。カラム存在時のみ）
+    $hasPrivateGroupCol = checkColumnExists($pdo, 'conversations', 'is_private_group');
+    $isPrivateGroup = $hasPrivateGroupCol ? (int)($input['is_private_group'] ?? 0) : 0;
+    $allowMemberPost = $hasPrivateGroupCol ? (int)($input['allow_member_post'] ?? 1) : 1;
+    $allowDataSend = $hasPrivateGroupCol ? (int)($input['allow_data_send'] ?? 1) : 1;
+    $memberListVisible = $hasPrivateGroupCol ? (int)($input['member_list_visible'] ?? 1) : 1;
+    $allowAddContactFromGroup = $hasPrivateGroupCol ? (int)($input['allow_add_contact_from_group'] ?? 1) : 1;
+
     $hasOrgId = checkColumnExists($pdo, 'conversations', 'organization_id');
     $hasCreatedBy = checkColumnExists($pdo, 'conversations', 'created_by');
     $hasNameEn = checkColumnExists($pdo, 'conversations', 'name_en');
@@ -180,30 +188,42 @@ function createGroup($pdo) {
 
     $pdo->beginTransaction();
     try {
+        if ($hasPrivateGroupCol) {
+            // プライベートグループ設定カラムあり: INSERT に含める
+            $privateCols = 'is_private_group, allow_member_post, allow_data_send, member_list_visible, allow_add_contact_from_group';
+            $privatePlace = '?, ?, ?, ?, ?';
+            $privateVals = [$isPrivateGroup, $allowMemberPost, $allowDataSend, $memberListVisible, $allowAddContactFromGroup];
+        } else {
+            $privateCols = '';
+            $privatePlace = '';
+            $privateVals = [];
+        }
+        $sep = ($privateCols !== '') ? ', ' : '';
+
         if ($hasOrgId && $hasCreatedBy && $hasNameEn && $hasNameZh) {
             $stmt = $pdo->prepare("
-                INSERT INTO conversations (type, name, name_en, name_zh, description, organization_id, created_by)
-                VALUES ('group', ?, ?, ?, ?, ?, ?)
+                INSERT INTO conversations (type, name, name_en, name_zh, description, organization_id, created_by" . ($privateCols ? ", {$privateCols}" : "") . ")
+                VALUES ('group', ?, ?, ?, ?, ?, ?" . ($privatePlace ? ", {$privatePlace}" : "") . ")
             ");
-            $stmt->execute([$name, $nameEn ?: null, $nameZh ?: null, $description ?: null, $currentOrgId, $userId]);
+            $stmt->execute(array_merge([$name, $nameEn ?: null, $nameZh ?: null, $description ?: null, $currentOrgId, $userId], $privateVals));
         } elseif ($hasOrgId && $hasCreatedBy) {
             $stmt = $pdo->prepare("
-                INSERT INTO conversations (type, name, description, organization_id, created_by)
-                VALUES ('group', ?, ?, ?, ?, ?)
+                INSERT INTO conversations (type, name, description, organization_id, created_by" . ($privateCols ? ", {$privateCols}" : "") . ")
+                VALUES ('group', ?, ?, ?, ?, ?" . ($privatePlace ? ", {$privatePlace}" : "") . ")
             ");
-            $stmt->execute([$name, $description ?: null, $currentOrgId, $userId]);
+            $stmt->execute(array_merge([$name, $description ?: null, $currentOrgId, $userId], $privateVals));
         } elseif ($hasOrgId) {
             $stmt = $pdo->prepare("
-                INSERT INTO conversations (type, name, description, organization_id)
-                VALUES ('group', ?, ?, ?)
+                INSERT INTO conversations (type, name, description, organization_id" . ($privateCols ? ", {$privateCols}" : "") . ")
+                VALUES ('group', ?, ?, ?" . ($privatePlace ? ", {$privatePlace}" : "") . ")
             ");
-            $stmt->execute([$name, $description ?: null, $currentOrgId]);
+            $stmt->execute(array_merge([$name, $description ?: null, $currentOrgId], $privateVals));
         } else {
             $stmt = $pdo->prepare("
-                INSERT INTO conversations (type, name, description, created_by)
-                VALUES ('group', ?, ?, ?)
+                INSERT INTO conversations (type, name, description, created_by" . ($privateCols ? ", {$privateCols}" : "") . ")
+                VALUES ('group', ?, ?, ?" . ($privatePlace ? ", {$privatePlace}" : "") . ")
             ");
-            $stmt->execute([$name, $description ?: null, $userId]);
+            $stmt->execute(array_merge([$name, $description ?: null, $userId], $privateVals));
         }
         $conversationId = (int)$pdo->lastInsertId();
 
@@ -228,7 +248,7 @@ function createGroup($pdo) {
 }
 
 /**
- * グループ名更新
+ * グループ名更新（マスター計画 2.7: is_private_group と4設定の変更可能）
  */
 function updateGroup($pdo) {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -243,12 +263,14 @@ function updateGroup($pdo) {
         return;
     }
     
+    $groupId = (int)$data['id'];
+    $hasPrivateCols = checkColumnExists($pdo, 'conversations', 'is_private_group');
+    
     // 多言語対応のカラムが存在するか確認
     $columns = $pdo->query("SHOW COLUMNS FROM conversations LIKE 'name_en'")->fetchAll();
     $hasI18n = count($columns) > 0;
     
     if ($hasI18n) {
-        // 多言語対応
         $stmt = $pdo->prepare("
             UPDATE conversations 
             SET name = ?, name_en = ?, name_zh = ? 
@@ -258,12 +280,31 @@ function updateGroup($pdo) {
             trim($data['name']),
             isset($data['name_en']) ? trim($data['name_en']) : null,
             isset($data['name_zh']) ? trim($data['name_zh']) : null,
-            $data['id']
+            $groupId
         ]);
     } else {
-        // 日本語のみ
         $stmt = $pdo->prepare("UPDATE conversations SET name = ? WHERE id = ? AND type = 'group'");
-        $stmt->execute([trim($data['name']), $data['id']]);
+        $stmt->execute([trim($data['name']), $groupId]);
+    }
+    
+    if ($hasPrivateCols) {
+        $isPrivate = isset($data['is_private_group']) ? (int)(bool)$data['is_private_group'] : null;
+        $allowPost = isset($data['allow_member_post']) ? (int)(bool)$data['allow_member_post'] : null;
+        $allowData = isset($data['allow_data_send']) ? (int)(bool)$data['allow_data_send'] : null;
+        $listVisible = isset($data['member_list_visible']) ? (int)(bool)$data['member_list_visible'] : null;
+        $allowContact = isset($data['allow_add_contact_from_group']) ? (int)(bool)$data['allow_add_contact_from_group'] : null;
+        $sets = [];
+        $params = [];
+        if ($isPrivate !== null) { $sets[] = 'is_private_group = ?'; $params[] = $isPrivate; }
+        if ($allowPost !== null) { $sets[] = 'allow_member_post = ?'; $params[] = $allowPost; }
+        if ($allowData !== null) { $sets[] = 'allow_data_send = ?'; $params[] = $allowData; }
+        if ($listVisible !== null) { $sets[] = 'member_list_visible = ?'; $params[] = $listVisible; }
+        if ($allowContact !== null) { $sets[] = 'allow_add_contact_from_group = ?'; $params[] = $allowContact; }
+        if (!empty($sets)) {
+            $params[] = $groupId;
+            $stmt = $pdo->prepare("UPDATE conversations SET " . implode(', ', $sets) . " WHERE id = ? AND type = 'group'");
+            $stmt->execute($params);
+        }
     }
     
     echo json_encode(['success' => true]);
@@ -378,7 +419,12 @@ function getGroups($pdo) {
         $where .= ' AND c.name LIKE ?';
         $params[] = "%{$search}%";
     }
-    
+
+    $hasPrivateGroupCol = checkColumnExists($pdo, 'conversations', 'is_private_group');
+    $privateSelect = $hasPrivateGroupCol
+        ? ", c.is_private_group, c.allow_member_post, c.allow_data_send, c.member_list_visible, c.allow_add_contact_from_group"
+        : "";
+
     // 総件数取得
     $countSql = "SELECT COUNT(*) FROM conversations c {$where}";
     $stmt = $pdo->prepare($countSql);
@@ -387,7 +433,7 @@ function getGroups($pdo) {
     $totalPages = ceil($totalCount / $perPage);
     
     // データ取得（メンバー数を含む）
-    $sql = "SELECT c.id, c.name, c.created_at,
+    $sql = "SELECT c.id, c.name, c.created_at{$privateSelect},
                    (SELECT COUNT(*) FROM conversation_members cm WHERE cm.conversation_id = c.id AND cm.left_at IS NULL) as member_count
             FROM conversations c 
             {$where} 
@@ -402,6 +448,13 @@ function getGroups($pdo) {
         $group['id'] = (int)$group['id'];
         $group['member_count'] = (int)$group['member_count'];
         $group['name'] = $group['name'] ?? '無題のグループ';
+        if ($hasPrivateGroupCol) {
+            $group['is_private_group'] = (int)($group['is_private_group'] ?? 0);
+            $group['allow_member_post'] = (int)($group['allow_member_post'] ?? 1);
+            $group['allow_data_send'] = (int)($group['allow_data_send'] ?? 1);
+            $group['member_list_visible'] = (int)($group['member_list_visible'] ?? 1);
+            $group['allow_add_contact_from_group'] = (int)($group['allow_add_contact_from_group'] ?? 1);
+        }
     }
     
     echo json_encode([
@@ -420,22 +473,22 @@ function getGroups($pdo) {
  * グループ詳細取得（多言語対応）
  */
 function getGroupDetail($pdo, $groupId) {
-    // 多言語カラムの存在チェック
-    $hasI18n = checkColumnExists($pdo, 'conversations', 'name_en');
-    
-    if ($hasI18n) {
-        $stmt = $pdo->prepare("
-            SELECT id, name, name_en, name_zh, description, description_en, description_zh, type, created_at
-            FROM conversations 
-            WHERE id = ? AND type = 'group'
-        ");
-    } else {
-        $stmt = $pdo->prepare("
-            SELECT id, name, '' as name_en, '' as name_zh, description, '' as description_en, '' as description_zh, type, created_at
-            FROM conversations 
-            WHERE id = ? AND type = 'group'
-        ");
-    }
+    // 多言語カラムの存在チェック（name_en と description_en は別マイグレーションの可能性あり）
+    $hasNameI18n = checkColumnExists($pdo, 'conversations', 'name_en');
+    $hasDescI18n = checkColumnExists($pdo, 'conversations', 'description_en');
+    $hasPrivateGroupCol = checkColumnExists($pdo, 'conversations', 'is_private_group');
+    $privateSelect = $hasPrivateGroupCol
+        ? ", is_private_group, allow_member_post, allow_data_send, member_list_visible, allow_add_contact_from_group"
+        : "";
+
+    $nameCols = $hasNameI18n ? "name, name_en, name_zh" : "name, '' as name_en, '' as name_zh";
+    $descCols = $hasDescI18n ? "description, description_en, description_zh" : "description, '' as description_en, '' as description_zh";
+
+    $stmt = $pdo->prepare("
+        SELECT id, {$nameCols}, {$descCols}, type, created_at {$privateSelect}
+        FROM conversations
+        WHERE id = ? AND type = 'group'
+    ");
     
     $stmt->execute([$groupId]);
     $group = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -446,6 +499,13 @@ function getGroupDetail($pdo, $groupId) {
     }
     
     $group['id'] = (int)$group['id'];
+    if ($hasPrivateGroupCol) {
+        $group['is_private_group'] = (int)($group['is_private_group'] ?? 0);
+        $group['allow_member_post'] = (int)($group['allow_member_post'] ?? 1);
+        $group['allow_data_send'] = (int)($group['allow_data_send'] ?? 1);
+        $group['member_list_visible'] = (int)($group['member_list_visible'] ?? 1);
+        $group['allow_add_contact_from_group'] = (int)($group['allow_add_contact_from_group'] ?? 1);
+    }
     
     echo json_encode(['success' => true, 'group' => $group]);
 }

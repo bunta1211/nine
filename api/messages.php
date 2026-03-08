@@ -176,6 +176,11 @@ switch ($action) {
         if (!$conversation) {
             errorResponse('会話が見つかりません', 404);
         }
+        // プライベートグループで発言不可の場合は送信拒否（マスター計画 2.3）
+        if (array_key_exists('is_private_group', $conversation) && (int)$conversation['is_private_group'] === 1
+            && array_key_exists('allow_member_post', $conversation) && (int)($conversation['allow_member_post'] ?? 1) === 0) {
+            errorResponse('このグループでは発言が許可されていません', 403);
+        }
         
         // 長文テキストモード: 組織名入りラベルを組み立て（「検索・〇〇 AI学習用に保存されています」）
         if ($longTextMode && !empty($fullContent)) {
@@ -2222,6 +2227,20 @@ switch ($action) {
         $stmt->execute([$conversation_id, $user_id]);
         if (!$stmt->fetch()) {
             errorResponse('この会話に参加していません');
+        }
+        // プライベートグループでデータ送信不可の場合はアップロード拒否（マスター計画 2.4）
+        $hasPrivateCols = false;
+        try {
+            $col = $pdo->query("SHOW COLUMNS FROM conversations LIKE 'is_private_group'")->fetch();
+            $hasPrivateCols = ($col !== false);
+        } catch (Throwable $e) {}
+        if ($hasPrivateCols) {
+            $stmt = $pdo->prepare("SELECT is_private_group, allow_data_send FROM conversations WHERE id = ?");
+            $stmt->execute([$conversation_id]);
+            $conv = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($conv && (int)($conv['is_private_group'] ?? 0) === 1 && (int)($conv['allow_data_send'] ?? 1) === 0) {
+                errorResponse('このグループではファイルの送信が許可されていません', 403);
+            }
         }
         
         // ファイルのアップロード処理

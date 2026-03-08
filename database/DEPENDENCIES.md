@@ -56,6 +56,11 @@ conversations
 ├── icon_style ────────────────► 背景スタイル（migration_icon_style.sql）
 ├── icon_pos_x, icon_pos_y ────► アイコン位置（%）
 ├── icon_size ─────────────────► アイコンサイズ（50–150）
+├── is_private_group ──────────► 1=プライベート（組織管理からのみ作成）。migration_private_group_settings.sql
+├── allow_member_post ─────────► 1=メンバー発言許可
+├── allow_data_send ───────────► 1=ファイル等送信許可
+├── member_list_visible ────────► 1=メンバー一覧表示
+├── allow_add_contact_from_group ► 1=グループ内から個人アドレス帳追加許可
 └── created_at
 
 conversation_members
@@ -319,6 +324,8 @@ sms_verification_codes (migration_phone_registration.sql)
 | `migration_merge_memos_into_tasks.sql` | tasks に type/content/color/message_id/is_pinned 追加、memos→tasks データ移行。memos テーブルは削除せずバックアップとして残す | `api/tasks.php`, `api/memos.php`(deprecated wrapper), `tasks.php`, `includes/task_memo_search_helper.php` |
 | `migration_messages_extracted_text_longtext.sql` | `messages.extracted_text` を MEDIUMTEXT→LONGTEXT に変更（貼り付け上限200M文字対応）。ft_extracted_text がある場合は DROP 後に MODIFY | `api/messages.php`, `api/ai.php`（suggest_reply で extracted_text 優先参照） |
 | `migration_production_missing_columns.sql` | 本番で不足しがちなカラムを一括追加（messages.reply_to_id/message_type/is_edited/deleted_at/extracted_text, users.avatar_path, conversation_members.left_at/last_read_message_id, tasks.type/status/deleted_at/is_shared）。既存カラムはエラーになるがスキップして実行可。 | `api/messages.php`, `api/tasks.php` の耐障害化の根本対応用 |
+| `migration_private_group_settings.sql` | `conversations` に is_private_group, allow_member_post, allow_data_send, member_list_visible, allow_add_contact_from_group を追加（プライベートグループ・アドレス帳制御）。DOCS/PRIVATE_GROUP_AND_ADDRESS_BOOK_MASTER_PLAN.md 準拠。 | `api/conversations.php`, `api/messages.php`, `api/upload.php`, `admin/api/groups.php`, `includes/chat/data.php`, `includes/chat/scripts.php` |
+| `migration_org_invite_candidates.sql` | `org_invite_candidates` テーブル（組織一斉招待候補。organization_id, email, display_name, status 等） | `admin/api/members.php`（bulk_invite で利用予定） |
 
 ---
 

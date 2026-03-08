@@ -1,7 +1,7 @@
 <?php
 /**
- * 友達追加招待ページ
- * 招待リンクからアクセスした時に友達追加または新規登録を処理する
+ * 個人アドレス帳に追加する招待ページ
+ * 招待リンクからアクセスした時に個人アドレス帳に追加または新規登録を処理する
  */
 
 require_once __DIR__ . '/config/database.php';
@@ -245,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $showRegistrationForm && $invitatio
             $inviterId = (int)$invitation['inviter_id'];
             createDMWithInviter($pdo, $newUserId, $inviterId, $displayName, $inviter['display_name']);
             
-            // 友達関係も自動的に作成（双方向で承認済み）
+            // アドレス帳の関係も自動的に作成（双方向で承認済み）
             $stmt = $pdo->prepare("
                 INSERT INTO friendships (user_id, friend_id, status, created_at)
                 VALUES (?, ?, 'accepted', NOW())
@@ -281,12 +281,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $showRegistrationForm && $invitatio
     }
 }
 
-// ログイン済みの場合は友達追加処理（およびグループ招待処理）
+// ログイン済みの場合は個人アドレス帳に追加する処理（およびグループ招待処理）
 if (!$error && !$success && isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
     
     if ($user_id == $inviter_id) {
-        $error = '自分自身を友達に追加することはできません。';
+        $error = '自分自身を個人アドレス帳に追加することはできません。';
     } else {
         // グループ招待の場合、グループに自動入室
         $joinedGroupName = null;
@@ -317,7 +317,7 @@ if (!$error && !$success && isset($_SESSION['user_id'])) {
             }
         }
         
-        // グループ招待でない場合、または追加で友達関係も作成
+        // グループ招待でない場合、または追加でアドレス帳の関係も作成
         if (!$joinedGroupName) {
             // 既存の関係をチェック
             $stmt = $pdo->prepare("SELECT status FROM friendships WHERE user_id = ? AND friend_id = ?");
@@ -326,11 +326,11 @@ if (!$error && !$success && isset($_SESSION['user_id'])) {
             
             if ($existing) {
                 if ($existing['status'] === 'accepted') {
-                    $success = 'すでに友達です！';
+                    $success = 'すでにアドレス帳に追加済みです。';
                 } elseif ($existing['status'] === 'pending') {
-                    $success = '友達リクエストは送信済みです。';
+                    $success = 'アドレス追加申請は送信済みです。';
                 } elseif ($existing['status'] === 'blocked') {
-                    $error = 'このユーザーとの友達追加はできません。';
+                    $error = 'このユーザーを個人アドレス帳に追加することはできません。';
                 }
             } else {
                 // 相手からの申請があるかチェック
@@ -346,13 +346,13 @@ if (!$error && !$success && isset($_SESSION['user_id'])) {
                     $stmt = $pdo->prepare("INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'accepted')");
                     $stmt->execute([$user_id, $inviter_id]);
                     
-                    $success = $inviter['display_name'] . 'さんと友達になりました！';
+                    $success = $inviter['display_name'] . 'さんを個人アドレス帳に追加しました！';
                 } else {
                     // 新規申請
                     $stmt = $pdo->prepare("INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'pending')");
                     $stmt->execute([$user_id, $inviter_id]);
                     
-                    $success = $inviter['display_name'] . 'さんに友達リクエストを送信しました！';
+                    $success = $inviter['display_name'] . 'さんにアドレス追加申請を送信しました！';
                 }
             }
         }
@@ -366,7 +366,7 @@ $lang = getCurrentLanguage();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>友達追加 - <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></title>
+    <title>個人アドレス帳に追加する招待 - <?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></title>
     <style>
         * {
             margin: 0;
@@ -659,8 +659,8 @@ $lang = getCurrentLanguage();
         <?php elseif ($inviter && !isset($_SESSION['user_id'])): ?>
             <!-- 通常の招待リンク -->
             <div class="invite-logo">👥</div>
-            <div class="invite-title">友達追加リクエスト</div>
-            <div class="invite-subtitle"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>で友達になりましょう</div>
+            <div class="invite-title">個人アドレス帳に追加する招待</div>
+            <div class="invite-subtitle"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>でつながりましょう</div>
             
             <div class="inviter-avatar">
                 <?php if (!empty($inviter['avatar'])): ?>
@@ -671,9 +671,9 @@ $lang = getCurrentLanguage();
             </div>
             
             <div class="inviter-name"><?= htmlspecialchars($inviter['display_name']) ?></div>
-            <div class="inviter-message">さんから友達追加の招待が届いています</div>
+            <div class="inviter-message">さんから個人アドレス帳に追加する招待が届いています</div>
             
-            <a href="index.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="btn btn-primary">ログインして友達追加</a>
+            <a href="index.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="btn btn-primary">ログインしてアドレス帳に追加</a>
             
             <div class="divider"><span>または</span></div>
             
@@ -684,7 +684,7 @@ $lang = getCurrentLanguage();
             </div>
             
         <?php elseif ($inviter && isset($_SESSION['user_id'])): ?>
-            <!-- ログイン済み - 友達追加処理済み -->
+            <!-- ログイン済み - 個人アドレス帳に追加する処理済み -->
             <div class="success-icon">✅</div>
             <div class="success-message">処理が完了しました</div>
             <a href="chat.php" class="btn btn-primary">チャットを開く</a>

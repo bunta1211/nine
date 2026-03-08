@@ -7917,6 +7917,7 @@ window.submitChatTask = async function() {
         
         let currentGroupMembers = [];
         let selectedMemberId = null;
+        let selectedMemberDisplayName = '';
         let selectedMemberRole = null;
         let selectedMemberSilenced = false;
         
@@ -7991,7 +7992,10 @@ window.submitChatTask = async function() {
                 
                 if (data.success) {
                     currentGroupMembers = data.members;
-                    renderMembersList(data.members, data.my_role === 'admin');
+                    const memberListVisible = (data.member_list_visible != null) ? (data.member_list_visible === 1 || data.member_list_visible === '1') : true;
+                    const allowAddContactFromGroup = (data.allow_add_contact_from_group != null) ? (data.allow_add_contact_from_group === 1 || data.allow_add_contact_from_group === '1') : true;
+                    window._currentConversationAllowAddContactFromGroup = allowAddContactFromGroup;
+                    renderMembersList(data.members, data.my_role === 'admin', memberListVisible, allowAddContactFromGroup);
                 }
             } catch (e) {
                 console.error('Failed to load members:', e);
@@ -7999,9 +8003,42 @@ window.submitChatTask = async function() {
         }
         
         // メンバー一覧を描画
-        function renderMembersList(members, isAdmin) {
+        function renderMembersList(members, isAdmin, memberListVisible, allowAddContactFromGroup) {
             const list = document.getElementById('membersList');
             if (!list) return;
+            
+            const myId = <?= $user_id ?>;
+            const showNames = (memberListVisible !== false && memberListVisible !== 0);
+            const canAddContact = (allowAddContactFromGroup !== false && allowAddContactFromGroup !== 0);
+            
+            if (!showNames && members.length > 0) {
+                const othersCount = members.filter(m => m.id != myId).length;
+                const myMember = members.find(m => m.id == myId);
+                const rows = [];
+                if (myMember) {
+                    const m = myMember;
+                    const initial = (m.display_name || '?')[0].toUpperCase();
+                    const roleLabel = m.role === 'admin' ? '<?= $currentLang === 'en' ? 'Admin' : ($currentLang === 'zh' ? '管理员' : '管理者') ?>' : '';
+                    rows.push(`
+                        <div class="member-item" data-user-id="${m.id}" data-role="${m.role}">
+                            <div class="member-avatar" style="${m.avatar_path ? 'background-image: url(' + m.avatar_path + '); background-size: cover;' : ''}">${m.avatar_path ? '' : initial}</div>
+                            <div class="member-info">
+                                <div class="member-name">${escapeHtml(m.display_name)}（あなた）</div>
+                                ${roleLabel ? `<div class="member-role admin">${roleLabel}</div>` : ''}
+                            </div>
+                        </div>
+                    `);
+                }
+                if (othersCount > 0) {
+                    rows.push(`
+                        <div class="member-item member-item-others" style="padding:12px;color:var(--text-muted);font-size:13px;">
+                            <?= $currentLang === 'en' ? 'Other members' : ($currentLang === 'zh' ? '其他成员' : 'その他') ?> ${othersCount}<?= $currentLang === 'en' ? ' member' : ($currentLang === 'zh' ? '人' : '人') ?>
+                        </div>
+                    `);
+                }
+                list.innerHTML = rows.join('');
+                return;
+            }
             
             list.innerHTML = members.map(member => {
                 const initial = (member.display_name || '?')[0].toUpperCase();
@@ -8032,11 +8069,20 @@ window.submitChatTask = async function() {
             selectedMemberId = userId;
             selectedMemberRole = role;
             selectedMemberSilenced = isSilenced;
+            var item = document.querySelector('.member-item[data-user-id="' + userId + '"]');
+            var nameEl = item ? item.querySelector('.member-name') : null;
+            selectedMemberDisplayName = nameEl ? nameEl.textContent.replace(/（あなた）$/, '').trim() : '';
             
             const menu = document.getElementById('memberContextMenu');
             const toggleAdminText = document.getElementById('menuToggleAdminText');
             const toggleSilenceText = document.getElementById('menuToggleSilenceText');
             const toggleAdminItem = document.getElementById('menuToggleAdmin');
+            var menuAddContact = document.getElementById('menuAddContactFromGroup');
+            if (menuAddContact) {
+                var allowAdd = (typeof window._currentConversationAllowAddContactFromGroup !== 'undefined') ? window._currentConversationAllowAddContactFromGroup : true;
+                var myId = <?= (int)($user_id ?? 0) ?>;
+                menuAddContact.style.display = (allowAdd && userId != myId) ? 'flex' : 'none';
+            }
             
             // 管理者の場合は「管理者を解除」、そうでなければ「管理者に任命」
             if (role === 'admin') {
@@ -8075,6 +8121,15 @@ window.submitChatTask = async function() {
         function hideMemberMenu() {
             document.getElementById('memberContextMenu').style.display = 'none';
             document.removeEventListener('click', hideMemberMenu);
+        }
+        
+        // マスター計画 2.10: グループ内からアドレス追加申請（allow_add_contact_from_group=0 のときはメニュー非表示）
+        function addContactFromMemberMenu() {
+            hideMemberMenu();
+            if (!selectedMemberId) return;
+            if (typeof openFriendRequestModal === 'function') {
+                openFriendRequestModal(selectedMemberId, selectedMemberDisplayName || '');
+            }
         }
         
         // 管理者権限を切り替え
@@ -9566,10 +9621,10 @@ window.submitChatTask = async function() {
                         </div>
                         <div class="add-friend-contact-actions">
                             ${contact.is_friend
-                                ? '<span style="color:#10b981;font-size:12px;">✓ 友だち</span>'
+                                ? '<span style="color:#10b981;font-size:12px;">✓ アドレス帳に追加済み</span>'
                                 : contact.is_pending
                                     ? '<span style="color:#f59e0b;font-size:12px;">申請中</span>'
-                                    : `<button type="button" class="btn btn-primary btn-sm" onclick="addFriendFromContactInModal(${contact.user_id})">${(typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || '友達申請'}</button> <button type="button" class="btn btn-secondary btn-sm" onclick="startDmFromSearch(${contact.user_id}, '${dmDisplayName}')">DM</button>`
+                                    : `<button type="button" class="btn btn-primary btn-sm" onclick="addFriendFromContactInModal(${contact.user_id})">${(typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || 'アドレス追加申請'}</button> <button type="button" class="btn btn-secondary btn-sm" onclick="startDmFromSearch(${contact.user_id}, '${dmDisplayName}')">DM</button>`
                             }
                         </div>
                     </div>
@@ -9612,7 +9667,7 @@ window.submitChatTask = async function() {
                     const c = addFriendModalContacts.find(x => x.user_id === userId);
                     if (c) { c.is_pending = true; renderAddFriendContactsList(); }
                 } else {
-                    alert(data.error || '友だち追加に失敗しました');
+                    alert(data.error || 'アドレス追加申請に失敗しました');
                 }
             } catch (e) {
                 alert('エラーが発生しました');
@@ -9781,7 +9836,7 @@ window.submitChatTask = async function() {
             
             // Social9の招待リンクかチェック
             if (data.includes('/invite.php?u=')) {
-                if (confirm('友達追加ページを開きますか？\n\n' + data)) {
+                if (confirm('個人アドレス帳の招待ページを開きますか？\n\n' + data)) {
                     window.location.href = data;
                 }
             } else if (data.startsWith('http://') || data.startsWith('https://')) {
@@ -9923,7 +9978,7 @@ window.submitChatTask = async function() {
         }
         
         async function cancelSentFriendRequest(userId) {
-            if (!confirm('<?= $currentLang === "en" ? "Cancel this friend request?" : ($currentLang === "zh" ? "确定要取消好友申请吗？" : "この友だち申請を取り消しますか？") ?>')) return;
+            if (!confirm('<?= $currentLang === "en" ? "Cancel this friend request?" : ($currentLang === "zh" ? "确定要取消好友申请吗？" : "このアドレス追加申請を取り消しますか？") ?>')) return;
             try {
                 const res = await fetch((window.__CHAT_API_BASE||'')+'api/friends.php', {
                     method: 'POST',
@@ -9967,22 +10022,22 @@ window.submitChatTask = async function() {
         }
         window.acceptFriendFromSearch = function(fid) {
             friendActionFromSearch('accept', fid,
-                '<?= $currentLang === "en" ? "Accept this friend request?" : ($currentLang === "zh" ? "确定要接受好友申请吗？" : "この友だち申請を受諾しますか？") ?>',
-                '<?= $currentLang === "en" ? "Accepted." : ($currentLang === "zh" ? "已接受。" : "友だち申請を受諾しました。") ?>',
+                '<?= $currentLang === "en" ? "Accept this friend request?" : ($currentLang === "zh" ? "确定要接受好友申请吗？" : "このアドレス追加申請を受諾しますか？") ?>',
+                '<?= $currentLang === "en" ? "Accepted." : ($currentLang === "zh" ? "已接受。" : "アドレス追加申請を受諾しました。") ?>',
                 '<?= $currentLang === "en" ? "Failed." : ($currentLang === "zh" ? "失败。" : "受諾に失敗しました。") ?>'
             );
         };
         window.rejectFriendFromSearch = function(fid) {
             friendActionFromSearch('reject', fid,
-                '<?= $currentLang === "en" ? "Reject this friend request?" : ($currentLang === "zh" ? "确定要拒绝好友申请吗？" : "この友だち申請を拒否しますか？") ?>',
-                '<?= $currentLang === "en" ? "Rejected." : ($currentLang === "zh" ? "已拒绝。" : "友だち申請を拒否しました。") ?>',
+                '<?= $currentLang === "en" ? "Reject this friend request?" : ($currentLang === "zh" ? "确定要拒绝好友申请吗？" : "このアドレス追加申請を拒否しますか？") ?>',
+                '<?= $currentLang === "en" ? "Rejected." : ($currentLang === "zh" ? "已拒绝。" : "アドレス追加申請を拒否しました。") ?>',
                 '<?= $currentLang === "en" ? "Failed." : ($currentLang === "zh" ? "失败。" : "拒否に失敗しました。") ?>'
             );
         };
         window.deferFriendFromSearch = function(fid) {
             friendActionFromSearch('defer', fid,
-                '<?= $currentLang === "en" ? "Defer this friend request?" : ($currentLang === "zh" ? "确定要搁置好友申请吗？" : "この友だち申請を保留しますか？") ?>',
-                '<?= $currentLang === "en" ? "Deferred." : ($currentLang === "zh" ? "已搁置。" : "友だち申請を保留しました。") ?>',
+                '<?= $currentLang === "en" ? "Defer this friend request?" : ($currentLang === "zh" ? "确定要搁置好友申请吗？" : "このアドレス追加申請を保留しますか？") ?>',
+                '<?= $currentLang === "en" ? "Deferred." : ($currentLang === "zh" ? "已搁置。" : "アドレス追加申請を保留しました。") ?>',
                 '<?= $currentLang === "en" ? "Failed." : ($currentLang === "zh" ? "失败。" : "保留に失敗しました。") ?>'
             );
         };
@@ -10037,9 +10092,9 @@ window.submitChatTask = async function() {
                 if (data.success) {
                     closeFriendRequestModal();
                     if (data.status === 'accepted') {
-                        alert(data.message || '友だちになりました！');
+                        alert(data.message || 'アドレス帳に追加済みになりました！');
                     } else {
-                        alert(data.message || '友だち申請を送信しました');
+                        alert(data.message || 'アドレス追加申請を送信しました');
                     }
                     // グローバル検索の結果を再表示
                     if (typeof performSearch === 'function') performSearch();
@@ -11110,14 +11165,14 @@ window.submitChatTask = async function() {
                         var fshipId = x.friendship_id || '';
                         dataAttrs += ' data-action="none" data-friendship-id="' + fshipId + '"';
                         actionHtml = '<span class="search-result-friend-actions">'
-                            + '<span class="search-result-action-label">' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || '友達申請') + '</span>'
+                            + '<span class="search-result-action-label">' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || 'アドレス追加申請') + '</span>'
                             + '<button type="button" class="sr-action-btn sr-accept" onclick="event.stopPropagation();acceptFriendFromSearch(' + fshipId + ')" title="受諾">受諾</button>'
                             + '<button type="button" class="sr-action-btn sr-reject" onclick="event.stopPropagation();rejectFriendFromSearch(' + fshipId + ')" title="拒否">拒否</button>'
                             + '<button type="button" class="sr-action-btn sr-defer" onclick="event.stopPropagation();deferFriendFromSearch(' + fshipId + ')" title="保留">保留</button>'
                             + '</span>';
                     } else {
                         dataAttrs += ' data-action="friend-request"';
-                        actionHtml = '<span class="search-result-action-btn search-result-add-btn" title="' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || '友達申請') + '">👋 ' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || '友達申請') + '</span>';
+                        actionHtml = '<span class="search-result-action-btn search-result-add-btn" title="' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || 'アドレス追加申請') + '">👋 ' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || 'アドレス追加申請') + '</span>';
                     }
                 } else if (type === 'message') {
                     var msgId = (x.id != null && x.id !== '') ? String(x.id) : '';

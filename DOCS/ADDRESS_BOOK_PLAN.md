@@ -1,5 +1,7 @@
 # アドレス帳 計画書
 
+**文言・UIの実施方針は [PRIVATE_GROUP_AND_ADDRESS_BOOK_MASTER_PLAN.md](PRIVATE_GROUP_AND_ADDRESS_BOOK_MASTER_PLAN.md) に従う。** 本書は概念・データモデル・ロードマップを記述する。
+
 ## 1. 目的とスコープ
 
 - **アドレス帳**: 「グループに追加できる候補」「検索の対象」を一元的に管理するリスト。**個人**と**組織**の2種類を持つ。

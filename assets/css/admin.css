@@ -505,6 +505,23 @@ body {
     font-size: 0.85em;
 }
 
+.admin-private-group-desc {
+    margin: 0 0 1rem;
+    padding: 0 1rem;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.admin-private-group-options {
+    margin-top: 1rem;
+}
+
+.admin-private-group-options .checkbox-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: normal;
+}
+
 .member-groups-checkboxes {
     max-height: 200px;
     overflow-y: auto;
@@ -1097,6 +1114,13 @@ body {
 .badge-external {
     background: #fff3e0;
     color: #e65100;
+}
+
+/* グループ一覧: プライベートグループのインライン表示（admin-groups.js で使用） */
+.badge-private-inline {
+    display: inline-block;
+    margin-right: 4px;
+    vertical-align: middle;
 }
 
 /* ============ 種別選択（フォーム内） ============ */

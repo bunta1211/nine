@@ -2657,29 +2657,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <?php elseif ($current_section === 'friends'): ?>
-            <!-- 友だち管理 -->
-            <h2 class="section-title">友だち管理</h2>
+            <!-- 個人アドレス帳（旧: 友だち管理） -->
+            <h2 class="section-title">個人アドレス帳</h2>
             
             <!-- タブナビゲーション -->
             <div class="friends-tabs">
-                <button class="friends-tab active" data-tab="list"><span>友だち</span><span>リスト</span></button>
+                <button class="friends-tab active" data-tab="list"><span>アドレス帳</span><span>リスト</span></button>
                 <button class="friends-tab" data-tab="requests">申請</button>
                 <button class="friends-tab" data-tab="blocked">ブロック</button>
                 <button class="friends-tab" data-tab="import"><span>連絡先</span><span>インポート</span></button>
             </div>
             
-            <!-- 友だちリストタブ -->
+            <!-- アドレス帳リストタブ -->
             <div class="friends-tab-content active" id="tab-list">
                 <div class="friends-search">
-                    <input type="text" id="friendSearchInput" placeholder="友だちを検索..." class="search-input">
+                    <input type="text" id="friendSearchInput" placeholder="個人アドレス帳で検索..." class="search-input">
                     <button class="btn btn-primary" onclick="searchUsers()">検索</button>
                 </div>
                 
-                <!-- 友だち候補ボタン -->
+                <!-- アドレス帳の候補ボタン -->
                 <div class="friend-suggestions-section">
                     <button class="btn-friend-suggestions" onclick="openFriendSuggestions()">
                         <span class="btn-icon">📱</span>
-                        <span class="btn-text">友だち候補を見つける</span>
+                        <span class="btn-text">アドレス帳の候補を見つける</span>
                         <span class="btn-arrow">→</span>
                     </button>
                 </div>
@@ -2755,11 +2755,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
             
-            <!-- 友だち候補モーダル -->
+            <!-- アドレス帳の候補モーダル -->
             <div id="friendSuggestionsModal" class="modal" style="display: none;">
                 <div class="modal-content suggestions-modal-content">
                     <div class="modal-header">
-                        <h3>友だち候補</h3>
+                        <h3>アドレス帳の候補</h3>
                         <button class="modal-close" onclick="closeSuggestionsModal()">×</button>
                     </div>
                     <div class="modal-body" id="suggestionsModalBody">
@@ -2777,7 +2777,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="suggestions-header">
                                 <div>
                                     <h3 id="suggestionsCount">連絡先</h3>
-                                    <p id="suggestionsSubtext">招待を送信して友だちを増やしましょう</p>
+                                    <p id="suggestionsSubtext">招待を送信して個人アドレス帳に追加しましょう</p>
                                 </div>
                             </div>
                             <div id="suggestionsList" class="suggestions-list"></div>
@@ -2811,11 +2811,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="loading-text">読み込み中...</div>
             </div>
             
-            <!-- 友だちを増やす方法の案内 -->
+            <!-- 個人アドレス帳を増やす方法の案内 -->
             <div id="friendGuidanceSection" style="margin-top: 32px; padding: 20px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; border: 1px solid #7dd3fc;">
-                <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #0369a1;">📱 友だちを増やす方法</h3>
+                <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #0369a1;">📱 個人アドレス帳を増やす方法</h3>
                 <p style="margin: 0 0 16px 0; color: #0c4a6e; font-size: 14px; line-height: 1.6;">
-                    検索を非公開にしていても、以下の方法で友だちを増やすことができます。
+                    検索を非公開にしていても、以下の方法でアドレス帳に追加することができます。
                 </p>
                 <div style="display: grid; gap: 12px;">
                     <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
@@ -3066,7 +3066,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="data-stat-icon">👥</div>
                     <div class="data-stat-info">
                         <span class="data-stat-value" id="friendCount">-</span>
-                        <span class="data-stat-label">友だち</span>
+                        <span class="data-stat-label">アドレス帳</span>
                     </div>
                 </div>
             </div>
@@ -3540,7 +3540,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        // ========== 友だち管理機能 ==========
+        // ========== 個人アドレス帳機能（旧: 友だち管理） ==========
         
         // タブ切り替え
         document.querySelectorAll('.friends-tab').forEach(tab => {
@@ -3586,7 +3586,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (data.success && data.friends.length > 0) {
                     container.innerHTML = data.friends.map(friend => renderFriendCard(friend)).join('');
                 } else {
-                    container.innerHTML = '<div class="empty-text">友だちがいません。ユーザーを検索して友だちを追加しましょう！</div>';
+                    container.innerHTML = '<div class="empty-text">アドレス帳が空です。検索してアドレス追加申請を送りましょう。</div>';
                 }
             } catch (e) {
                 container.innerHTML = '<div class="empty-text">読み込みに失敗しました</div>';
@@ -3623,17 +3623,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 `;
             } else if (type === 'search') {
                 if (friend.friendship_status === 'accepted') {
-                    actions = `<span style="color: #10b981;">✓ 友だち</span>`;
+                    actions = `<span style="color: #10b981;">✓ アドレス帳に追加済み</span>`;
                 } else if (friend.friendship_status === 'pending') {
                     actions = `<span style="color: #f59e0b;">申請中</span>`;
                 } else if (friend.friendship_status === 'blocked') {
                     actions = `<span style="color: #ef4444;">ブロック中</span>`;
                 } else {
-                    actions = `<button class="friend-action-btn primary" onclick="addFriend(${friend.id})">友だち追加</button>`;
+                    actions = `<button class="friend-action-btn primary" onclick="addFriend(${friend.id})">アドレス追加申請</button>`;
                 }
             } else if (type === 'imported') {
                 if (friend.matched_user_id) {
-                    actions = `<button class="friend-action-btn primary" onclick="addFriend(${friend.matched_user_id})">友だち追加</button>`;
+                    actions = `<button class="friend-action-btn primary" onclick="addFriend(${friend.matched_user_id})">アドレス追加申請</button>`;
                 } else {
                     actions = `<span style="color: #6b7280;">未登録</span>`;
                 }
@@ -3776,7 +3776,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById('searchResultsModal').style.display = 'none';
         }
         
-        // ========== 友だち候補機能 ==========
+        // ========== アドレス帳の候補機能（連絡先マッチ） ==========
         
         // 連絡先データを保持
         let loadedContacts = [];
@@ -3933,10 +3933,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="suggestion-actions">
                             ${contact.is_friend 
-                                ? '<span style="color: #10b981; font-size: 12px;">✓ 友だち</span>'
+                                ? '<span style="color: #10b981; font-size: 12px;">✓ アドレス帳に追加済み</span>'
                                 : contact.is_pending
                                     ? '<span style="color: #f59e0b; font-size: 12px;">申請中</span>'
-                                    : `<button class="btn btn-primary btn-sm" onclick="addFriendFromContact(${contact.user_id})">友だち追加</button>`
+                                    : `<button class="btn btn-primary btn-sm" onclick="addFriendFromContact(${contact.user_id})">アドレス追加申請</button>`
                             }
                         </div>
                     </div>
@@ -3991,7 +3991,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         showContactsList();
                     }
                 } else {
-                    alert(data.error || '友だち追加に失敗しました');
+                    alert(data.error || 'アドレス追加申請に失敗しました');
                 }
             } catch (e) {
                 alert('エラーが発生しました');
@@ -4048,7 +4048,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return div.innerHTML;
         }
         
-        // 友だち追加
+        // アドレス追加申請送信（候補から）
         async function addFriend(userId) {
             try {
                 const response = await fetch('api/friends.php', {
@@ -4064,7 +4064,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     loadFriendsList();
                     loadImportedContacts();
                 } else {
-                    alert(data.error || '友だち追加に失敗しました');
+                    alert(data.error || 'アドレス追加申請に失敗しました');
                 }
             } catch (e) {
                 alert('エラーが発生しました');
@@ -4157,7 +4157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // 送信した申請を取り消す
         async function cancelSentRequest(userId) {
-            if (!confirm('この友だち申請を取り消しますか？')) return;
+            if (!confirm('このアドレス追加申請を取り消しますか？')) return;
             try {
                 const response = await fetch('api/friends.php', {
                     method: 'POST',
@@ -4178,7 +4178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // 友だち削除
         async function removeFriend(userId) {
-            if (!confirm('この友だちを削除しますか？')) return;
+            if (!confirm('このアドレス帳から削除しますか？')) return;
             
             try {
                 const response = await fetch('api/friends.php', {

@@ -1188,9 +1188,9 @@ $translations = [
     // 左パネル（チャット一覧）
     // ============================================
     'add_friend' => [
-        'ja' => '+ 友達追加',
-        'en' => '+ Add Friend',
-        'zh' => '+ 添加好友'
+        'ja' => '+ 個人アドレス帳',
+        'en' => '+ Address book',
+        'zh' => '+ 个人通讯录'
     ],
     'add_group' => [
         'ja' => 'グループ追加',
@@ -1208,9 +1208,9 @@ $translations = [
         'zh' => '未读'
     ],
     'filter_friends' => [
-        'ja' => '友達',
-        'en' => 'Friends',
-        'zh' => '好友'
+        'ja' => '個人アドレス帳',
+        'en' => 'Address book',
+        'zh' => '个人通讯录'
     ],
     'filter_org_label' => [
         'ja' => '表示する組織',

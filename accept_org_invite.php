@@ -18,12 +18,15 @@ $pdo = getDB();
 $message = '';
 $success = false;
 $valid_token = false;
+$cancelled = false;
 
 $token = $_GET['token'] ?? $_POST['token'] ?? '';
 
+$is_existing_user = false; // パスワード設定済み＝既存ユーザー（マスター計画 4.1: 統合UIを表示）
+
 if ($token) {
     $stmt = $pdo->prepare("
-        SELECT prt.*, u.email
+        SELECT prt.*, u.email, u.password_hash
         FROM password_reset_tokens prt
         INNER JOIN users u ON prt.user_id = u.id
         WHERE prt.token = ? AND prt.used_at IS NULL AND prt.expires_at > NOW()
@@ -33,8 +36,43 @@ if ($token) {
 
     if ($reset_data) {
         $valid_token = true;
+        $is_existing_user = !empty(trim((string)($reset_data['password_hash'] ?? '')));
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $action = $_POST['action'] ?? '';
+
+            // 既存ユーザー: 統合する / キャンセル（マスター計画 4.1）
+            if ($is_existing_user) {
+                if ($action === 'merge') {
+                    $pdo->beginTransaction();
+                    try {
+                        $stmt = $pdo->prepare("UPDATE password_reset_tokens SET used_at = NOW() WHERE id = ?");
+                        $stmt->execute([$reset_data['id']]);
+                        $chk = $pdo->query("SHOW COLUMNS FROM organization_members LIKE 'accepted_at'");
+                        if ($chk && $chk->rowCount() > 0) {
+                            $stmt = $pdo->prepare("UPDATE organization_members SET accepted_at = NOW() WHERE user_id = ? AND accepted_at IS NULL");
+                            $stmt->execute([$reset_data['user_id']]);
+                        }
+                        $pdo->commit();
+                        $success = true;
+                        $message = '組織への統合が完了しました。ログインしてご利用ください。';
+                    } catch (Exception $e) {
+                        $pdo->rollBack();
+                        $message = 'エラーが発生しました。もう一度お試しください。';
+                    }
+                } elseif ($action === 'cancel') {
+                    try {
+                        $stmt = $pdo->prepare("UPDATE password_reset_tokens SET used_at = NOW() WHERE id = ?");
+                        $stmt->execute([$reset_data['id']]);
+                        $valid_token = false;
+                        $cancelled = true;
+                        $message = '招待をキャンセルしました。';
+                    } catch (Exception $e) {
+                        $message = 'エラーが発生しました。';
+                    }
+                }
+            } else {
+                // 新規ユーザー: パスワード設定
             $password = $_POST['password'] ?? '';
             $password_confirm = $_POST['password_confirm'] ?? '';
 
@@ -71,9 +109,9 @@ if ($token) {
                     $message = 'エラーが発生しました。もう一度お試しください。';
                 }
             }
+            }
         }
-    } else {
-        $message = 'このリンクは無効または期限切れです。';
+        // GET のときは message を上書きしない（統合UI or パスワード設定フォームを表示）
     }
 } else {
     $message = 'トークンがありません。';
@@ -107,6 +145,9 @@ if ($token) {
         .back-link { display: block; text-align: center; margin-top: 20px; color: var(--text-muted); text-decoration: none; font-size: 14px; }
         .back-link:hover { color: var(--primary); }
         .icon { font-size: 48px; text-align: center; margin-bottom: 16px; }
+        .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+        .btn-group .btn { flex: 1; }
+        .btn-secondary { background: #6b7280; color: white; }
     </style>
 </head>
 <body>
@@ -118,6 +159,27 @@ if ($token) {
         <h2>参加完了</h2>
         <div class="message success"><?= htmlspecialchars($message) ?></div>
         <a href="index.php" class="btn">ログインする</a>
+        <a href="index.php" class="back-link">← ログイン画面に戻る</a>
+
+        <?php elseif ($cancelled): ?>
+        <div class="icon">ℹ️</div>
+        <h2>キャンセルしました</h2>
+        <div class="message success"><?= htmlspecialchars($message) ?></div>
+        <a href="index.php" class="back-link">← ログイン画面に戻る</a>
+
+        <?php elseif ($valid_token && $is_existing_user): ?>
+        <h2>組織への統合</h2>
+        <p class="subtitle">このアドレスはすでに登録されています。組織に統合しますか？</p>
+        <?php if ($message): ?>
+        <div class="message error"><?= htmlspecialchars($message) ?></div>
+        <?php endif; ?>
+        <form method="POST">
+            <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+            <div class="btn-group">
+                <button type="submit" name="action" value="merge" class="btn">統合する</button>
+                <button type="submit" name="action" value="cancel" class="btn btn-secondary">キャンセル</button>
+            </div>
+        </form>
 
         <?php elseif ($valid_token): ?>
         <h2>パスワードを設定して承諾</h2>
@@ -145,7 +207,9 @@ if ($token) {
         <div class="message error"><?= htmlspecialchars($message) ?></div>
         <?php endif; ?>
 
+        <?php if (!$success && !$cancelled): ?>
         <a href="index.php" class="back-link">← ログイン画面に戻る</a>
+        <?php endif; ?>
     </div>
 </body>
 </html>

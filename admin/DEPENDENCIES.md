@@ -11,7 +11,7 @@
 | `ai_usage.php` | AI使用量（種別別・ユーザー別集計・**AI利用料金表**） | admin |
 | `users.php` | ユーザー管理 | admin |
 | `user_groups.php` | ユーザー別所属グループ一覧・再入室（引っ越し等で外れたユーザー用） | system_admin |
-| `members.php` | メンバー管理 | admin |
+| `members.php` | 組織アドレス帳（メンバー一覧・新規登録・既存ユーザー追加・招待再送・一斉招待） | admin |
 | `groups.php` | グループ管理 | admin |
 | `settings.php` | システム設定 | admin |
 | `logs.php` | ログ閲覧 | admin |
@@ -49,7 +49,7 @@ admin/
 └── api/                 ← 管理用API
     ├── create-organization.php  ← 組織新規作成（POST JSON）
     ├── groups.php        ← POST action=create_group（グループチャット新規作成）
-    ├── members.php       ← GET action=search_candidates（候補者検索）, POST action=add_existing（既存ユーザーを組織に追加）
+    ├── members.php       ← GET action=search_candidates（候補者検索）, POST action=add_existing（既存ユーザーを組織に追加）, action=bulk_invite（一斉招待）, action=resend_invite（招待再送）
     ├── member-restrictions.php
     ├── my-organizations.php
     └── switch-organization.php

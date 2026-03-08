@@ -30,7 +30,14 @@ switch ($action) {
             $hasNameI18n = ($col !== false);
         } catch (Throwable $e) { /* テーブルなし等 */ }
         
+        $hasPrivateGroupCols = false;
+        try {
+            $col = $pdo->query("SHOW COLUMNS FROM conversations LIKE 'is_private_group'")->fetch();
+            $hasPrivateGroupCols = ($col !== false);
+        } catch (Throwable $e) { /* マイグレーション未適用 */ }
+        
         $nameEnZh = $hasNameI18n ? "c.name_en,\n                c.name_zh," : '';
+        $privateGroupCols = $hasPrivateGroupCols ? "c.is_private_group,\n                c.allow_member_post,\n                c.allow_data_send,\n                c.member_list_visible,\n                c.allow_add_contact_from_group," : '';
         $stmt = $pdo->prepare("
             SELECT 
                 c.id,
@@ -45,6 +52,7 @@ switch ($action) {
                 c.icon_size,
                 c.organization_id,
                 c.is_public,
+                " . $privateGroupCols . "
                 c.created_at,
                 cm.role as my_role,
                 cm.is_pinned,
@@ -92,6 +100,13 @@ switch ($action) {
             $conv['icon_pos_x'] = (float)($conv['icon_pos_x'] ?? 0);
             $conv['icon_pos_y'] = (float)($conv['icon_pos_y'] ?? 0);
             $conv['icon_size'] = (int)($conv['icon_size'] ?? 100);
+            if ($hasPrivateGroupCols) {
+                $conv['is_private_group'] = (int)($conv['is_private_group'] ?? 0);
+                $conv['allow_member_post'] = (int)($conv['allow_member_post'] ?? 1);
+                $conv['allow_data_send'] = (int)($conv['allow_data_send'] ?? 1);
+                $conv['member_list_visible'] = (int)($conv['member_list_visible'] ?? 1);
+                $conv['allow_add_contact_from_group'] = (int)($conv['allow_add_contact_from_group'] ?? 1);
+            }
             if ($conv['organization_id']) {
                 $conv['organization_id'] = (int)$conv['organization_id'];
             }
@@ -156,6 +171,12 @@ switch ($action) {
     
     case 'list_with_unread':
         // ポーリング用：未読数と時刻表示を含む軽量版リスト（アイコン表示用のカラムも取得）
+        $hasPrivateGroupColsUnread = false;
+        try {
+            $col = $pdo->query("SHOW COLUMNS FROM conversations LIKE 'is_private_group'")->fetch();
+            $hasPrivateGroupColsUnread = ($col !== false);
+        } catch (Throwable $e) { /* マイグレーション未適用 */ }
+        $privateColsUnread = $hasPrivateGroupColsUnread ? "c.is_private_group,\n                c.allow_member_post,\n                c.allow_data_send,\n                c.member_list_visible,\n                c.allow_add_contact_from_group," : '';
         $stmt = $pdo->prepare("
             SELECT 
                 c.id,
@@ -166,6 +187,7 @@ switch ($action) {
                 c.icon_pos_x,
                 c.icon_pos_y,
                 c.icon_size,
+                " . $privateColsUnread . "
                 cm.is_pinned,
                 lm.created_at as last_message_at,
                 (
@@ -204,6 +226,13 @@ switch ($action) {
             $conv['icon_pos_x'] = isset($conv['icon_pos_x']) ? (float)$conv['icon_pos_x'] : 0;
             $conv['icon_pos_y'] = isset($conv['icon_pos_y']) ? (float)$conv['icon_pos_y'] : 0;
             $conv['icon_size'] = isset($conv['icon_size']) ? (int)$conv['icon_size'] : 100;
+            if ($hasPrivateGroupColsUnread) {
+                $conv['is_private_group'] = (int)($conv['is_private_group'] ?? 0);
+                $conv['allow_member_post'] = (int)($conv['allow_member_post'] ?? 1);
+                $conv['allow_data_send'] = (int)($conv['allow_data_send'] ?? 1);
+                $conv['member_list_visible'] = (int)($conv['member_list_visible'] ?? 1);
+                $conv['allow_add_contact_from_group'] = (int)($conv['allow_add_contact_from_group'] ?? 1);
+            }
             
             // 時刻表示（例：今日なら時刻、昨日以前なら日付）
             if ($conv['last_message_at']) {
@@ -296,6 +325,13 @@ switch ($action) {
         
         // 会話IDも整数にキャスト
         $conversation['id'] = (int)$conversation['id'];
+        if (array_key_exists('is_private_group', $conversation)) {
+            $conversation['is_private_group'] = (int)$conversation['is_private_group'];
+            $conversation['allow_member_post'] = (int)($conversation['allow_member_post'] ?? 1);
+            $conversation['allow_data_send'] = (int)($conversation['allow_data_send'] ?? 1);
+            $conversation['member_list_visible'] = (int)($conversation['member_list_visible'] ?? 1);
+            $conversation['allow_add_contact_from_group'] = (int)($conversation['allow_add_contact_from_group'] ?? 1);
+        }
         
         successResponse(['conversation' => $conversation]);
         break;
@@ -393,7 +429,11 @@ switch ($action) {
         break;
         
     case 'create':
-        // 新規会話を作成
+        // 新規会話を作成（プライベートグループは組織管理からのみ。チャット側では拒否）
+        if (isset($input['is_private_group']) && (int)$input['is_private_group'] === 1) {
+            errorResponse('プライベートグループは組織管理画面からのみ作成できます', 403);
+        }
+        
         $type = $input['type'] ?? 'group';
         $name = trim($input['name'] ?? '');
         $name_en = trim($input['name_en'] ?? '') ?: null;
@@ -1325,7 +1365,28 @@ switch ($action) {
                 $m['id'] = (int)$m['id'];
                 $m['is_silenced'] = $hasSilenced ? (int)($m['is_silenced'] ?? 0) : 0;
             }
-            successResponse(['members' => $members, 'my_role' => $myRole['role']]);
+            unset($m);
+            // マスター計画 2.9: 会話の member_list_visible / allow_add_contact_from_group を返す
+            $memberListVisible = 1;
+            $allowAddContactFromGroup = 1;
+            try {
+                $chkPrivate = $pdo->query("SHOW COLUMNS FROM conversations LIKE 'is_private_group'");
+                if ($chkPrivate && $chkPrivate->rowCount() > 0) {
+                    $stmtConv = $pdo->prepare("SELECT member_list_visible, allow_add_contact_from_group FROM conversations WHERE id = ?");
+                    $stmtConv->execute([$conversation_id]);
+                    $rowConv = $stmtConv->fetch(PDO::FETCH_ASSOC);
+                    if ($rowConv) {
+                        $memberListVisible = (int)($rowConv['member_list_visible'] ?? 1);
+                        $allowAddContactFromGroup = (int)($rowConv['allow_add_contact_from_group'] ?? 1);
+                    }
+                }
+            } catch (Exception $e) {}
+            successResponse([
+                'members' => $members,
+                'my_role' => $myRole['role'],
+                'member_list_visible' => $memberListVisible,
+                'allow_add_contact_from_group' => $allowAddContactFromGroup
+            ]);
         } catch (PDOException $e) {
             error_log('get_members: ' . $e->getMessage());
             errorResponse('メンバーの取得に失敗しました', 500);

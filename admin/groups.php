@@ -96,7 +96,7 @@ $stats['max_members'] = (int)$stmt->fetchColumn();
                 </select>
             </div>
             <nav class="admin-nav">
-                <a href="members.php">👥 メンバー管理</a>
+                <a href="members.php">👥 組織アドレス帳</a>
                 <a href="groups.php" class="active">📁 グループ一覧</a>
                 <a href="ai_specialist_admin.php">🎓 専門AI管理</a>
                 <a href="/chat.php">💬 チャットへ戻る</a>
@@ -113,6 +113,7 @@ $stats['max_members'] = (int)$stmt->fetchColumn();
                 <h2>📁 グループ一覧</h2>
                 <div class="admin-actions">
                     <button id="btnAddGroup" class="btn btn-primary">💬 グループチャットを追加</button>
+                    <button id="btnAddPrivateGroup" class="btn btn-secondary">🔒 プライベートグループを作成</button>
                     <button id="btnExportCsv" class="btn btn-secondary">📥 CSV出力</button>
                 </div>
             </header>
@@ -188,6 +189,40 @@ $stats['max_members'] = (int)$stmt->fetchColumn();
         </main>
     </div>
 
+    <!-- プライベートグループ作成モーダル（マスター計画 2.11） -->
+    <div class="modal" id="addPrivateGroupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔒 プライベートグループを作成</h3>
+                <button class="modal-close" id="btnCloseAddPrivateGroupModal">&times;</button>
+            </div>
+            <p class="admin-private-group-desc">チャット画面からは作成できません。発言・データ送信・メンバー一覧・アドレス追加の許可を個別に設定できます。</p>
+            <form id="addPrivateGroupForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="newPrivateGroupName">グループ名 <span class="required">*</span></label>
+                        <input type="text" id="newPrivateGroupName" name="name" required placeholder="例: 役員会議">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPrivateGroupDescription">説明 <span class="optional">（任意）</span></label>
+                        <textarea id="newPrivateGroupDescription" name="description" rows="2" placeholder="グループの説明"></textarea>
+                    </div>
+                    <div class="form-group admin-private-group-options">
+                        <label>プライベート設定</label>
+                        <label class="checkbox-label"><input type="checkbox" id="privateAllowMemberPost" name="allow_member_post" value="1" checked> 発言を許可する</label>
+                        <label class="checkbox-label"><input type="checkbox" id="privateAllowDataSend" name="allow_data_send" value="1" checked> データ送信を許可する</label>
+                        <label class="checkbox-label"><input type="checkbox" id="privateMemberListVisible" name="member_list_visible" value="1" checked> メンバー一覧を表示する</label>
+                        <label class="checkbox-label"><input type="checkbox" id="privateAllowAddContact" name="allow_add_contact_from_group" value="1" checked> グループ内からアドレス追加を許可する</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btnCancelAddPrivateGroup">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">作成する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- グループチャット作成モーダル -->
     <div class="modal" id="addGroupModal">
         <div class="modal-content">
@@ -253,6 +288,17 @@ $stats['max_members'] = (int)$stmt->fetchColumn();
                     <div class="form-group">
                         <label for="editGroupNameZh">🇨🇳 グループ名（中国語）</label>
                         <input type="text" id="editGroupNameZh" name="name_zh" placeholder="中文名（可选）">
+                    </div>
+                    <!-- マスター計画 2.12: プライベートグループ設定（編集時のみ表示。API がカラム存在時のみ返す） -->
+                    <div id="editGroupPrivateSection" class="form-group private-group-fields" style="display: none;">
+                        <hr style="margin: 16px 0;">
+                        <label class="checkbox-label"><input type="checkbox" id="editGroupIsPrivate" name="is_private_group" value="1"> 🔒 プライベートグループにする</label>
+                        <div id="editGroupPrivateOptions" style="margin-top: 12px; margin-left: 20px; display: none;">
+                            <label class="checkbox-label"><input type="checkbox" id="editGroupAllowPost" name="allow_member_post" value="1" checked> メンバー発言を許可</label><br>
+                            <label class="checkbox-label"><input type="checkbox" id="editGroupAllowData" name="allow_data_send" value="1" checked> ファイル送信を許可</label><br>
+                            <label class="checkbox-label"><input type="checkbox" id="editGroupMemberListVisible" name="member_list_visible" value="1" checked> メンバー一覧を表示</label><br>
+                            <label class="checkbox-label"><input type="checkbox" id="editGroupAllowAddContact" name="allow_add_contact_from_group" value="1" checked> グループ内からアドレス追加を許可</label>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

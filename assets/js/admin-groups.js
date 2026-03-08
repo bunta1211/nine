@@ -24,6 +24,11 @@ function setupEventListeners() {
     if (btnAddGroup) {
         btnAddGroup.addEventListener('click', openAddGroupModal);
     }
+    // プライベートグループを作成ボタン（マスター計画 2.11）
+    const btnAddPrivateGroup = document.getElementById('btnAddPrivateGroup');
+    if (btnAddPrivateGroup) {
+        btnAddPrivateGroup.addEventListener('click', openAddPrivateGroupModal);
+    }
 
     // グループ作成モーダル
     const btnCloseAddGroupModal = document.getElementById('btnCloseAddGroupModal');
@@ -38,6 +43,20 @@ function setupEventListeners() {
         });
     }
     if (addGroupForm) addGroupForm.addEventListener('submit', submitAddGroup);
+
+    // プライベートグループ作成モーダル
+    const btnCloseAddPrivateGroupModal = document.getElementById('btnCloseAddPrivateGroupModal');
+    const btnCancelAddPrivateGroup = document.getElementById('btnCancelAddPrivateGroup');
+    const addPrivateGroupModal = document.getElementById('addPrivateGroupModal');
+    const addPrivateGroupForm = document.getElementById('addPrivateGroupForm');
+    if (btnCloseAddPrivateGroupModal) btnCloseAddPrivateGroupModal.addEventListener('click', closeAddPrivateGroupModal);
+    if (btnCancelAddPrivateGroup) btnCancelAddPrivateGroup.addEventListener('click', closeAddPrivateGroupModal);
+    if (addPrivateGroupModal) {
+        addPrivateGroupModal.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeAddPrivateGroupModal();
+        });
+    }
+    if (addPrivateGroupForm) addPrivateGroupForm.addEventListener('submit', submitAddPrivateGroup);
 
     // CSV出力ボタン
     document.getElementById('btnExportCsv').addEventListener('click', exportGroupsCsv);
@@ -77,6 +96,15 @@ function setupEventListeners() {
         if (e.target === e.currentTarget) closeEditModal();
     });
     document.getElementById('editGroupForm').addEventListener('submit', saveGroupName);
+
+    // 編集モーダル: プライベートグループのチェックで4設定の表示を切り替え（マスター計画 2.12）
+    const editGroupIsPrivate = document.getElementById('editGroupIsPrivate');
+    const editGroupPrivateOptions = document.getElementById('editGroupPrivateOptions');
+    if (editGroupIsPrivate && editGroupPrivateOptions) {
+        editGroupIsPrivate.addEventListener('change', () => {
+            editGroupPrivateOptions.style.display = editGroupIsPrivate.checked ? 'block' : 'none';
+        });
+    }
 
     // メンバー追加モーダル
     document.getElementById('btnCloseAddMemberModal').addEventListener('click', closeAddMemberModal);
@@ -136,6 +164,79 @@ function closeAddGroupModal() {
     if (modal) modal.classList.remove('show');
 }
 
+// プライベートグループ作成モーダル（マスター計画 2.11）
+function openAddPrivateGroupModal() {
+    const modal = document.getElementById('addPrivateGroupModal');
+    const form = document.getElementById('addPrivateGroupForm');
+    if (modal) {
+        modal.classList.add('show');
+        if (form) form.reset();
+        document.getElementById('newPrivateGroupName').focus();
+    }
+}
+
+function closeAddPrivateGroupModal() {
+    const modal = document.getElementById('addPrivateGroupModal');
+    if (modal) modal.classList.remove('show');
+}
+
+async function submitAddPrivateGroup(e) {
+    e.preventDefault();
+    const nameInput = document.getElementById('newPrivateGroupName');
+    const descInput = document.getElementById('newPrivateGroupDescription');
+    const name = (nameInput && nameInput.value) ? nameInput.value.trim() : '';
+    if (!name) {
+        alert('グループ名を入力してください');
+        return;
+    }
+    const allowMemberPost = document.getElementById('privateAllowMemberPost').checked ? 1 : 0;
+    const allowDataSend = document.getElementById('privateAllowDataSend').checked ? 1 : 0;
+    const memberListVisible = document.getElementById('privateMemberListVisible').checked ? 1 : 0;
+    const allowAddContactFromGroup = document.getElementById('privateAllowAddContact').checked ? 1 : 0;
+
+    const form = document.getElementById('addPrivateGroupForm');
+    const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '作成中...';
+    }
+    try {
+        const response = await fetch('/admin/api/groups.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'create_group',
+                name: name,
+                description: (descInput && descInput.value) ? descInput.value.trim() : '',
+                is_private_group: 1,
+                allow_member_post: allowMemberPost,
+                allow_data_send: allowDataSend,
+                member_list_visible: memberListVisible,
+                allow_add_contact_from_group: allowAddContactFromGroup
+            })
+        });
+        const data = await response.json();
+        if (data.success) {
+            closeAddPrivateGroupModal();
+            loadGroups();
+            if (typeof showToast === 'function') {
+                showToast('✅ プライベートグループを作成しました', 'success');
+            } else {
+                alert('プライベートグループを作成しました');
+            }
+        } else {
+            alert(data.error || '作成に失敗しました');
+        }
+    } catch (err) {
+        alert('エラー: ' + (err.message || '通信に失敗しました'));
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '作成する';
+        }
+    }
+}
+
 async function submitAddGroup(e) {
     e.preventDefault();
     const nameInput = document.getElementById('newGroupName');
@@ -192,10 +293,15 @@ function renderGroups(groups) {
         return;
     }
 
-    tbody.innerHTML = groups.map(group => `
+    tbody.innerHTML = groups.map(group => {
+        const isPrivate = (group.is_private_group === 1 || group.is_private_group === '1');
+        const nameCell = isPrivate
+            ? `<span class="badge-private-inline" title="プライベートグループ">🔒</span> ${escapeHtml(group.name)}`
+            : escapeHtml(group.name);
+        return `
         <tr>
             <td>${group.id}</td>
-            <td>${escapeHtml(group.name)}</td>
+            <td>${nameCell}</td>
             <td>${group.member_count}名</td>
             <td>${formatDate(group.created_at)}</td>
             <td>
@@ -206,7 +312,8 @@ function renderGroups(groups) {
                 </div>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // ページネーション描画
@@ -414,6 +521,24 @@ async function openEditModal(groupId, groupName) {
             document.getElementById('editGroupName').value = group.name || '';
             document.getElementById('editGroupNameEn').value = group.name_en || '';
             document.getElementById('editGroupNameZh').value = group.name_zh || '';
+            // マスター計画 2.12: プライベートグループ設定
+            const privateSection = document.getElementById('editGroupPrivateSection');
+            const privateOpts = document.getElementById('editGroupPrivateOptions');
+            const cbPrivate = document.getElementById('editGroupIsPrivate');
+            const cbPost = document.getElementById('editGroupAllowPost');
+            const cbData = document.getElementById('editGroupAllowData');
+            const cbList = document.getElementById('editGroupMemberListVisible');
+            const cbContact = document.getElementById('editGroupAllowAddContact');
+            if (privateSection && cbPrivate) {
+                const isPrivate = (group.is_private_group === 1 || group.is_private_group === '1');
+                cbPrivate.checked = !!isPrivate;
+                if (cbPost) cbPost.checked = (group.allow_member_post === 1 || group.allow_member_post === '1');
+                if (cbData) cbData.checked = (group.allow_data_send === 1 || group.allow_data_send === '1');
+                if (cbList) cbList.checked = (group.member_list_visible === 1 || group.member_list_visible === '1');
+                if (cbContact) cbContact.checked = (group.allow_add_contact_from_group === 1 || group.allow_add_contact_from_group === '1');
+                privateSection.style.display = (group.is_private_group !== undefined && group.is_private_group !== null) ? 'block' : 'none';
+                if (privateOpts) privateOpts.style.display = isPrivate ? 'block' : 'none';
+            }
         }
     } catch (error) {
         console.error('グループ情報取得エラー:', error);
@@ -437,11 +562,22 @@ async function saveGroupName(e) {
         return;
     }
 
+    const payload = { id, name, name_en, name_zh };
+    // マスター計画 2.12: プライベート設定（API がカラム存在時のみ更新）
+    const privateSection = document.getElementById('editGroupPrivateSection');
+    if (privateSection && privateSection.style.display !== 'none') {
+        payload.is_private_group = document.getElementById('editGroupIsPrivate').checked ? 1 : 0;
+        payload.allow_member_post = document.getElementById('editGroupAllowPost').checked ? 1 : 0;
+        payload.allow_data_send = document.getElementById('editGroupAllowData').checked ? 1 : 0;
+        payload.member_list_visible = document.getElementById('editGroupMemberListVisible').checked ? 1 : 0;
+        payload.allow_add_contact_from_group = document.getElementById('editGroupAllowAddContact').checked ? 1 : 0;
+    }
+
     try {
         const response = await fetch('/admin/api/groups.php', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, name, name_en, name_zh })
+            body: JSON.stringify(payload)
         });
 
         const data = await response.json();

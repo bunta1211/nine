@@ -1,11 +1,11 @@
 <?php
 /**
- * 友達申請通知メール送信
+ * アドレス追加申請通知メール送信
  * 相手のメールアドレスに「承諾する」リンク付きで案内を送る
  */
 
 /**
- * 友達申請を受けた相手に通知メールを送信する
+ * アドレス追加申請を受けた相手に通知メールを送信する
  *
  * @param PDO $pdo
  * @param int $requester_user_id 申請したユーザーID
@@ -32,7 +32,7 @@ function sendFriendRequestNotification($pdo, $requester_user_id, $recipient_user
         . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
     $accept_url = htmlspecialchars($base_url . '/settings.php?section=friends#requests', ENT_QUOTES, 'UTF-8');
 
-    $subject = $requester_name . 'さんから友達申請が届いています';
+    $subject = $requester_name . 'さんからアドレス追加申請が届いています';
     $html = <<<HTML
 <!DOCTYPE html>
 <html>
@@ -53,8 +53,8 @@ function sendFriendRequestNotification($pdo, $requester_user_id, $recipient_user
     <div class="container">
         <div class="logo"><h1>Social9</h1></div>
         <div class="content">
-            <p><strong>{$requester_name_esc}</strong>さんから友達申請が届いています。</p>
-            <p>承諾するには、下のボタンからログインし、設定の「友だち」→「申請」タブで「受信した申請」から承諾してください。</p>
+            <p><strong>{$requester_name_esc}</strong>さんからアドレス追加申請が届いています。</p>
+            <p>承諾するには、下のボタンからログインし、設定の「個人アドレス帳」→「申請」タブで「受信した申請」から承諾してください。</p>
             <p><a href="{$accept_url}" class="btn">承諾する</a></p>
             <p class="note">※ このメールに心当たりがない場合は無視してください。</p>
         </div>

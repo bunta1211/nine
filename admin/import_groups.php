@@ -251,7 +251,7 @@ $totalGroups = $stmt->fetch(PDO::FETCH_ASSOC)['cnt'];
         </table>
         
         <a href="groups.php" class="btn">📁 グループ一覧へ</a>
-        <a href="members.php" class="btn">👥 メンバー管理へ</a>
+        <a href="members.php" class="btn">👥 組織アドレス帳へ</a>
     </div>
 </body>
 </html>

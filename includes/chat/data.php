@@ -217,6 +217,14 @@ function getChatPageData($pdo, $userId) {
         } elseif ($conv['organization_id'] !== null && $conv['organization_id'] !== '') {
             $conv['organization_id'] = (int)$conv['organization_id'];
         }
+        // プライベートグループ設定（マスター計画 2.8: カラム存在時は int で統一）
+        if (array_key_exists('is_private_group', $conv)) {
+            $conv['is_private_group'] = (int)($conv['is_private_group'] ?? 0);
+            $conv['allow_member_post'] = (int)($conv['allow_member_post'] ?? 1);
+            $conv['allow_data_send'] = (int)($conv['allow_data_send'] ?? 1);
+            $conv['member_list_visible'] = (int)($conv['member_list_visible'] ?? 1);
+            $conv['allow_add_contact_from_group'] = (int)($conv['allow_add_contact_from_group'] ?? 1);
+        }
     }
     unset($conv);
     
@@ -571,6 +579,14 @@ function getSelectedConversationData($pdo, $userId, $conversationId) {
             $conversation['name_zh'] = $dmPartner['display_name'];
             $conversation['is_dm_like'] = true;
         }
+    }
+    // プライベートグループ設定（マスター計画 2.8: カラム存在時は int で統一）
+    if (array_key_exists('is_private_group', $conversation)) {
+        $conversation['is_private_group'] = (int)($conversation['is_private_group'] ?? 0);
+        $conversation['allow_member_post'] = (int)($conversation['allow_member_post'] ?? 1);
+        $conversation['allow_data_send'] = (int)($conversation['allow_data_send'] ?? 1);
+        $conversation['member_list_visible'] = (int)($conversation['member_list_visible'] ?? 1);
+        $conversation['allow_add_contact_from_group'] = (int)($conversation['allow_add_contact_from_group'] ?? 1);
     }
     
     // メッセージ取得（deleted_at / is_deleted のどちらかで削除済みを除外）
