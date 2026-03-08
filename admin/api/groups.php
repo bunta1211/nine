@@ -270,42 +270,33 @@ function updateGroup($pdo) {
     $columns = $pdo->query("SHOW COLUMNS FROM conversations LIKE 'name_en'")->fetchAll();
     $hasI18n = count($columns) > 0;
     
+    // 名前＋プライベート設定を1回のUPDATEでまとめて保存（プライベート設定が送られていれば必ず反映）
+    $sets = ['name = ?'];
+    $params = [trim($data['name'])];
+    
     if ($hasI18n) {
-        $stmt = $pdo->prepare("
-            UPDATE conversations 
-            SET name = ?, name_en = ?, name_zh = ? 
-            WHERE id = ? AND type = 'group'
-        ");
-        $stmt->execute([
-            trim($data['name']),
-            isset($data['name_en']) ? trim($data['name_en']) : null,
-            isset($data['name_zh']) ? trim($data['name_zh']) : null,
-            $groupId
-        ]);
-    } else {
-        $stmt = $pdo->prepare("UPDATE conversations SET name = ? WHERE id = ? AND type = 'group'");
-        $stmt->execute([trim($data['name']), $groupId]);
+        $sets[] = 'name_en = ?';
+        $sets[] = 'name_zh = ?';
+        $params[] = isset($data['name_en']) ? trim($data['name_en']) : null;
+        $params[] = isset($data['name_zh']) ? trim($data['name_zh']) : null;
     }
     
     if ($hasPrivateCols) {
-        $isPrivate = isset($data['is_private_group']) ? (int)(bool)$data['is_private_group'] : null;
-        $allowPost = isset($data['allow_member_post']) ? (int)(bool)$data['allow_member_post'] : null;
-        $allowData = isset($data['allow_data_send']) ? (int)(bool)$data['allow_data_send'] : null;
-        $listVisible = isset($data['member_list_visible']) ? (int)(bool)$data['member_list_visible'] : null;
-        $allowContact = isset($data['allow_add_contact_from_group']) ? (int)(bool)$data['allow_add_contact_from_group'] : null;
-        $sets = [];
-        $params = [];
+        $isPrivate = array_key_exists('is_private_group', $data) ? (int)(bool)$data['is_private_group'] : null;
+        $allowPost = array_key_exists('allow_member_post', $data) ? (int)(bool)$data['allow_member_post'] : null;
+        $allowData = array_key_exists('allow_data_send', $data) ? (int)(bool)$data['allow_data_send'] : null;
+        $listVisible = array_key_exists('member_list_visible', $data) ? (int)(bool)$data['member_list_visible'] : null;
+        $allowContact = array_key_exists('allow_add_contact_from_group', $data) ? (int)(bool)$data['allow_add_contact_from_group'] : null;
         if ($isPrivate !== null) { $sets[] = 'is_private_group = ?'; $params[] = $isPrivate; }
         if ($allowPost !== null) { $sets[] = 'allow_member_post = ?'; $params[] = $allowPost; }
         if ($allowData !== null) { $sets[] = 'allow_data_send = ?'; $params[] = $allowData; }
         if ($listVisible !== null) { $sets[] = 'member_list_visible = ?'; $params[] = $listVisible; }
         if ($allowContact !== null) { $sets[] = 'allow_add_contact_from_group = ?'; $params[] = $allowContact; }
-        if (!empty($sets)) {
-            $params[] = $groupId;
-            $stmt = $pdo->prepare("UPDATE conversations SET " . implode(', ', $sets) . " WHERE id = ? AND type = 'group'");
-            $stmt->execute($params);
-        }
     }
+    
+    $params[] = $groupId;
+    $stmt = $pdo->prepare("UPDATE conversations SET " . implode(', ', $sets) . " WHERE id = ? AND type = 'group'");
+    $stmt->execute($params);
     
     echo json_encode(['success' => true]);
 }

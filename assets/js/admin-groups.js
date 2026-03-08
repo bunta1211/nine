@@ -598,14 +598,18 @@ async function saveGroupName(e) {
     }
 
     const payload = { id, name, name_en, name_zh };
-    // マスター計画 2.12: プライベート設定（編集モーダルに表示されている場合は常に送信。API がカラム存在時のみ更新）
-    const privateSection = document.getElementById('editGroupPrivateSection');
-    if (privateSection && document.getElementById('editGroupIsPrivate')) {
-        payload.is_private_group = document.getElementById('editGroupIsPrivate').checked ? 1 : 0;
-        payload.allow_member_post = document.getElementById('editGroupAllowPost').checked ? 1 : 0;
-        payload.allow_data_send = document.getElementById('editGroupAllowData').checked ? 1 : 0;
-        payload.member_list_visible = document.getElementById('editGroupMemberListVisible').checked ? 1 : 0;
-        payload.allow_add_contact_from_group = document.getElementById('editGroupAllowAddContact').checked ? 1 : 0;
+    // プライベート設定は編集モーダルにある場合は必ず整数で送信（APIで確実にUPDATEされるようにする）
+    const cbPrivate = document.getElementById('editGroupIsPrivate');
+    const cbPost = document.getElementById('editGroupAllowPost');
+    const cbData = document.getElementById('editGroupAllowData');
+    const cbList = document.getElementById('editGroupMemberListVisible');
+    const cbContact = document.getElementById('editGroupAllowAddContact');
+    if (cbPrivate) {
+        payload.is_private_group = cbPrivate.checked ? 1 : 0;
+        payload.allow_member_post = (cbPost && cbPost.checked) ? 1 : 0;
+        payload.allow_data_send = (cbData && cbData.checked) ? 1 : 0;
+        payload.member_list_visible = (cbList && cbList.checked) ? 1 : 0;
+        payload.allow_add_contact_from_group = (cbContact && cbContact.checked) ? 1 : 0;
     }
 
     try {
@@ -618,7 +622,7 @@ async function saveGroupName(e) {
         const data = await response.json();
 
         if (data.success) {
-            showToast('グループ名を変更しました', 'success');
+            showToast('グループ名と設定を保存しました（プライベート設定を含む）', 'success');
             closeEditModal();
             loadGroups();
         } else {

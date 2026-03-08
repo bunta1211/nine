@@ -414,7 +414,16 @@ body {
     border-top: 1px solid #eee;
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 10px;
+}
+
+/* 編集モーダル: 保存後の表示についての注釈 */
+.admin-edit-group-save-hint {
+    margin: 0;
+    margin-right: auto;
+    font-size: 0.85rem;
+    color: #666;
 }
 
 .modal-header {

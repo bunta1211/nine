@@ -307,6 +307,7 @@ $stats['max_members'] = (int)$stmt->fetchColumn();
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <p class="admin-edit-group-save-hint">保存後、一覧に「🔒 プライベート」として表示されます</p>
                     <button type="button" class="btn btn-secondary" id="btnCancelEdit">キャンセル</button>
                     <button type="submit" class="btn btn-primary">保存</button>
                 </div>
