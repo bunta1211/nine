@@ -12,6 +12,7 @@
 | `auth.php` | 認証チェック | **全画面** |
 | `db.php` | データベース接続 | **全API/画面** |
 | `lang.php` | 多言語対応 | **全画面** |
+| `search_config.php` | 検索まわり設定（SEARCH_INDEX.md 準拠）。個人アドレス帳検索の API パス・パラメータ名を定数で定義。`search_config_for_js()` で `window.__SEARCH_CONFIG` 用の連想配列を返す。 | includes/chat/scripts.php（require）、settings.php（任意） |
 | `api-bootstrap.php` | API共通初期化。php://input を1回読んでキャッシュ（multipart 時は読まない・携帯の$_FILES空問題を防ぐ） | **全API** |
 | `api-helpers.php` | APIヘルパー関数 | **全API** |
 | `permissions.php` | 権限チェック | グループ管理 |

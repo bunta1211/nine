@@ -1611,7 +1611,9 @@
         }
         
         try {
-            const response = await fetch(`api/friends.php?action=search&q=${encodeURIComponent(query)}`);
+            const response = (typeof window.addressSearch === 'function')
+                ? await window.addressSearch(query)
+                : await fetch(`api/friends.php?action=search&query=${encodeURIComponent(query)}`);
             const data = await response.json();
             
             if (inviteRow) inviteRow.style.display = 'none';
@@ -1624,11 +1626,11 @@
                             <div class="mobile-search-result-name">${escapeHtml(user.display_name || user.name)}</div>
                             <div class="mobile-search-result-id">ID: ${user.friend_id || user.id}</div>
                         </div>
-                        <button class="mobile-search-result-action" onclick="sendMobileFriendRequest(${user.id}, this)">追加</button>
+                        <button class="mobile-search-result-action" onclick="sendMobileFriendRequest(${user.id}, this)">${(typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || 'アドレス追加申請'}</button>
                     </div>
                 `).join('');
             } else {
-                resultsContainer.innerHTML = '<div class="mobile-search-no-result">ユーザーが見つかりませんでした</div>';
+                resultsContainer.innerHTML = '<div class="mobile-search-no-result">' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_no_user') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_no_user)) || 'ユーザーが見つかりませんでした') + '</div>';
                 if (data.invite_available && data.contact && inviteRow && inviteBtn) {
                     inviteBtn.setAttribute('data-invite-contact', data.contact);
                     inviteRow.style.display = 'block';
@@ -1636,7 +1638,7 @@
             }
         } catch (error) {
             console.error('検索エラー:', error);
-            resultsContainer.innerHTML = '<div class="mobile-search-no-result">検索中にエラーが発生しました</div>';
+            resultsContainer.innerHTML = '<div class="mobile-search-no-result">' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_error') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_error)) || '検索中にエラーが発生しました') + '</div>';
             if (inviteRow) inviteRow.style.display = 'none';
         }
     };
@@ -1646,7 +1648,7 @@
         const btn = document.getElementById('mobileFriendInviteBtn');
         const contact = btn ? btn.getAttribute('data-invite-contact') : '';
         if (!contact) return;
-        if (btn) { btn.disabled = true; btn.textContent = '送信中...'; }
+        if (btn) { btn.disabled = true; btn.textContent = (typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_sending') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_sending)) || '送信中...'; }
         try {
             const response = await fetch('api/friends.php', {
                 method: 'POST',
@@ -1655,7 +1657,7 @@
             });
             const data = await response.json();
             if (data.success) {
-                showMobileToast('招待を送信しました');
+                showMobileToast((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_invite_sent') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_invite_sent)) || '招待を送信しました');
                 const row = document.getElementById('mobileFriendInviteRow');
                 if (row) row.style.display = 'none';
             } else {
@@ -1664,7 +1666,7 @@
         } catch (e) {
             showMobileToast('通信エラーが発生しました');
         }
-        if (btn) { btn.disabled = false; btn.textContent = 'このメールアドレスに友達申請を送る'; }
+        if (btn) { btn.disabled = false; btn.textContent = (typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_invite_mail_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_invite_mail_btn)) || '招待メール送信'; }
     };
 
     // 友達追加モーダルをQRタブで開く（携帯から）
@@ -1710,7 +1712,7 @@
             if (data.success) {
                 btn.textContent = '送信済み';
                 btn.style.background = '#6b7280';
-                showMobileToast('友達リクエストを送信しました');
+                showMobileToast((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_sent') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_sent)) || 'アドレス追加申請を送信しました');
             } else {
                 btn.textContent = '追加';
                 btn.disabled = false;

@@ -7,7 +7,8 @@
 | ファイル | 役割 | 読込み元 |
 |---------|------|---------|
 | `chat.js` | チャット画面メインJS | chat.php |
-| `chat-mobile.js` | モバイル対応。**v2.0.0**: スクロール時入力欄非表示を完全廃止(常時表示)。デッドコード削除(initMobilePagesStripScroll/ensureMobileListFirst/setTimeout11連発)。パネルtoggleをCSS classベースに変更(inline style廃止)。パネル閉じるボタン動的追加。 | chat.php |
+| `search-common.js` | 検索まわり共通。`getSearchLabel(key)`（文言取得）、`addressSearch(query)`（個人アドレス帳検索 API 呼出）。前提: ページで `window.__SEARCH_LABELS` と（任意）`window.__SEARCH_CONFIG` が設定されていること（scripts.php または search_config.php で出力）。 | chat.php（scripts.php の後） |
+| `chat-mobile.js` | モバイル対応。**v2.0.0**: スクロール時入力欄非表示を完全廃止(常時表示)。デッドコード削除(initMobilePagesStripScroll/ensureMobileListFirst/setTimeout11連発)。パネルtoggleをCSS classベースに変更(inline style廃止)。パネル閉じるボタン動的追加。**検索**: 個人アドレス帳検索で `getSearchLabel` / `addressSearch` を使用（search-common.js 未読込時は従来の __SEARCH_LABELS / fetch にフォールバック）。 | chat.php |
 | `chat-call.js` | 通話機能（Jitsi統合） | chat.php（オプション） |
 | `common.js` | 共通ユーティリティ | 複数ページ |
 | `design-settings.js` | デザイン設定画面 | design.php |

@@ -1291,6 +1291,7 @@ if ($is_secretary_mode) {
     ?>
     <script>window.__RINGTONE_PATHS = <?= json_encode($ringtone_paths_js) ?>;</script>
     <?php include __DIR__ . '/includes/chat/scripts.php'; ?>
+    <script src="assets/js/search-common.js?v=<?= assetVersion('assets/js/search-common.js') ?>"></script>
     <script src="assets/js/chat/panel-resize.js?v=<?= assetVersion('assets/js/chat/panel-resize.js') ?>"></script>
     <script src="assets/js/chat/input-area-resize.js?v=<?= assetVersion('assets/js/chat/input-area-resize.js') ?>"></script>
     <script>

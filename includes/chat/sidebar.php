@@ -49,21 +49,21 @@
             </div>
         </div>
         
-        <!-- 友達追加フォーム -->
+        <!-- 個人アドレス帳フォーム（モバイル） -->
         <div class="mobile-form-section" id="mobileFriendForm" style="display: none;">
             <div class="mobile-form-header">
-                <span>友達追加</span>
+                <span><?= htmlspecialchars(__('add_friend'), ENT_QUOTES, 'UTF-8') ?></span>
                 <button type="button" class="mobile-friend-qr-scan-btn" onclick="openAddFriendModalForQR()">QRコード</button>
                 <button class="mobile-form-close" onclick="closeMobileInlineForm()" aria-label="フォームを閉じる">×</button>
             </div>
             <div class="mobile-form-body">
-                <input type="text" id="mobileFriendSearchInput" placeholder="Email/携帯番号で検索" autocomplete="off" aria-label="Emailまたは携帯番号で友達を検索">
-                <p class="mobile-friend-search-desc">メールアドレスまたは携帯番号で検索。登録済みの方は友達申請、未登録のメールアドレスには招待を送れます</p>
-                <button class="mobile-form-submit" onclick="searchMobileFriend()" aria-label="友達を検索">検索</button>
+                <input type="text" id="mobileFriendSearchInput" placeholder="<?= htmlspecialchars(__('search_address_placeholder'), ENT_QUOTES, 'UTF-8') ?>" autocomplete="off" aria-label="<?= htmlspecialchars(__('search_address_placeholder'), ENT_QUOTES, 'UTF-8') ?>">
+                <p class="mobile-friend-search-desc"><?= htmlspecialchars(__('search_address_hint'), ENT_QUOTES, 'UTF-8') ?></p>
+                <button class="mobile-form-submit" onclick="searchMobileFriend()" aria-label="<?= htmlspecialchars(__('search_placeholder'), ENT_QUOTES, 'UTF-8') ?>"><?= $currentLang === 'en' ? 'Search' : ($currentLang === 'zh' ? '搜索' : '検索') ?></button>
             </div>
             <div class="mobile-search-results" id="mobileFriendResults"></div>
             <div id="mobileFriendInviteRow" class="mobile-friend-invite-row" style="display: none;">
-                <button type="button" class="mobile-friend-invite-btn" id="mobileFriendInviteBtn" onclick="sendMobileInvite()">このメールアドレスに友達申請を送る</button>
+                <button type="button" class="mobile-friend-invite-btn" id="mobileFriendInviteBtn" onclick="sendMobileInvite()"><?= htmlspecialchars(__('search_invite_mail_btn'), ENT_QUOTES, 'UTF-8') ?></button>
             </div>
             <button type="button" class="mobile-show-my-qr-btn" onclick="showMyQRCodeMobile()">QRコードを表示</button>
             <div id="mobileMyQRContainer" class="mobile-my-qr-container" style="display: none;">

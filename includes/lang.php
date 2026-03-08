@@ -1285,6 +1285,73 @@ $translations = [
         'en' => 'Search for messages, users, and groups',
         'zh' => '可以搜索消息、用户和群组'
     ],
+
+    // 個人アドレス帳検索（SEARCH_INDEX.md 4.2）
+    'search_address_placeholder' => [
+        'ja' => 'メールアドレスまたは携帯番号で検索',
+        'en' => 'Search by email or phone number',
+        'zh' => '用邮箱或手机号搜索'
+    ],
+    'search_address_hint' => [
+        'ja' => '登録済みの方はアドレス追加申請、未登録のメールアドレスには招待を送れます',
+        'en' => 'Registered users: send address request. Unregistered: send invite.',
+        'zh' => '已注册用户可发送地址申请，未注册可发送邀请'
+    ],
+    'search_address_request_btn' => [
+        'ja' => 'アドレス追加申請',
+        'en' => 'Address request',
+        'zh' => '地址申请'
+    ],
+    'search_invite_mail_btn' => [
+        'ja' => '招待メール送信',
+        'en' => 'Send invite',
+        'zh' => '发送邀请'
+    ],
+    'search_invite_accept_label' => [
+        'ja' => 'の個人アドレス帳に追加受諾',
+        'en' => ' - Accept add to address book',
+        'zh' => ' 的通讯录添加接受'
+    ],
+    'search_no_user' => [
+        'ja' => 'ユーザーが見つかりません',
+        'en' => 'No users found',
+        'zh' => '未找到用户'
+    ],
+    'search_loading' => [
+        'ja' => '検索中...',
+        'en' => 'Searching...',
+        'zh' => '搜索中...'
+    ],
+    'search_error' => [
+        'ja' => '検索エラーが発生しました',
+        'en' => 'Search error occurred',
+        'zh' => '发生搜索错误'
+    ],
+    'search_address_request_sent' => [
+        'ja' => 'アドレス追加申請を送信しました',
+        'en' => 'Address request sent',
+        'zh' => '已发送地址申请'
+    ],
+    'search_sending' => [
+        'ja' => '送信中...',
+        'en' => 'Sending...',
+        'zh' => '发送中...'
+    ],
+    'search_invite_sent' => [
+        'ja' => '招待を送信しました',
+        'en' => 'Invitation sent',
+        'zh' => '已发送邀请'
+    ],
+    'search_invite_done' => [
+        'ja' => '招待済み',
+        'en' => 'Invited',
+        'zh' => '已邀请'
+    ],
+    'search_invite_error' => [
+        'ja' => '招待の送信に失敗しました',
+        'en' => 'Failed to send invitation',
+        'zh' => '邀请发送失败'
+    ],
     
     // ============================================
     // 通知ページ

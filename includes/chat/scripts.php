@@ -1,4 +1,9 @@
 <script>
+<?php
+if (!function_exists('search_config_for_js')) {
+    require_once __DIR__ . '/../search_config.php';
+}
+?>
 // ========================================
 // scripts.php v2026.02.27.6 - ポーリング: JSON parse安全化+リトライ制御（指数バックオフ+上限停止）
 // ========================================
@@ -27,6 +32,24 @@ window.escapeHtml = function(str) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 };
+
+// 検索まわり文言（SEARCH_INDEX.md 4.2）。PC・モバイル共通で参照する。
+window.__SEARCH_LABELS = {
+    search_address_placeholder: '<?= addslashes(__('search_address_placeholder')) ?>',
+    search_address_hint: '<?= addslashes(__('search_address_hint')) ?>',
+    search_address_request_btn: '<?= addslashes(__('search_address_request_btn')) ?>',
+    search_invite_mail_btn: '<?= addslashes(__('search_invite_mail_btn')) ?>',
+    search_invite_accept_label: '<?= addslashes(__('search_invite_accept_label')) ?>',
+    search_no_user: '<?= addslashes(__('search_no_user')) ?>',
+    search_loading: '<?= addslashes(__('search_loading')) ?>',
+    search_error: '<?= addslashes(__('search_error')) ?>',
+    search_address_request_sent: '<?= addslashes(__('search_address_request_sent')) ?>',
+    search_sending: '<?= addslashes(__('search_sending')) ?>',
+    search_invite_sent: '<?= addslashes(__('search_invite_sent')) ?>',
+    search_invite_done: '<?= addslashes(__('search_invite_done')) ?>',
+    search_invite_error: '<?= addslashes(__('search_invite_error')) ?>'
+};
+window.__SEARCH_CONFIG = <?= json_encode(search_config_for_js()) ?>;
 
 // ========================================
 // グローバル関数プレースホルダ（後で上書きされる）
@@ -9055,7 +9078,7 @@ window.submitChatTask = async function() {
             const isEmail = contact.includes('@');
             const type = isEmail ? 'email' : 'phone';
             
-            resultDiv.innerHTML = '<span style="color: #999;"><?= $currentLang === 'en' ? 'Sending invitation...' : ($currentLang === 'zh' ? '发送邀请中...' : '招待を送信中...') ?></span>';
+            resultDiv.innerHTML = '<span style="color: #999;">' + (typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_sending') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_sending ? window.__SEARCH_LABELS.search_sending : '送信中...')) + '</span>';
             
             try {
                 const response = await fetch((window.__CHAT_API_BASE||'')+'api/friends.php', {
@@ -9071,7 +9094,7 @@ window.submitChatTask = async function() {
                 const data = await response.json();
                 
                 if (data.success) {
-                    resultDiv.innerHTML = '<span style="color: #27ae60;"><?= $currentLang === 'en' ? 'Invitation sent!' : ($currentLang === 'zh' ? '邀请已发送！' : '招待を送信しました！') ?></span>';
+                    resultDiv.innerHTML = '<span style="color: #27ae60;">' + (typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_invite_sent') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_invite_sent ? window.__SEARCH_LABELS.search_invite_sent : '招待を送信しました')) + '</span>';
                     contactInput.value = '';
                     
                     // 3秒後にメッセージをクリア
@@ -9079,7 +9102,7 @@ window.submitChatTask = async function() {
                         resultDiv.innerHTML = '';
                     }, 3000);
                 } else {
-                    resultDiv.innerHTML = '<span style="color: #e74c3c;">' + (data.error || '<?= $currentLang === 'en' ? 'Failed to send' : ($currentLang === 'zh' ? '发送失败' : '送信に失敗しました') ?>') + '</span>';
+                    resultDiv.innerHTML = '<span style="color: #e74c3c;">' + (data.error || (typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_invite_error') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_invite_error ? window.__SEARCH_LABELS.search_invite_error : '招待の送信に失敗しました'))) + '</span>';
                 }
             } catch (e) {
                 console.error('Error:', e);
@@ -9541,7 +9564,7 @@ window.submitChatTask = async function() {
                                 ? '<span style="color:#10b981;font-size:12px;">✓ 友だち</span>'
                                 : contact.is_pending
                                     ? '<span style="color:#f59e0b;font-size:12px;">申請中</span>'
-                                    : `<button type="button" class="btn btn-primary btn-sm" onclick="addFriendFromContactInModal(${contact.user_id})">友達申請</button> <button type="button" class="btn btn-secondary btn-sm" onclick="startDmFromSearch(${contact.user_id}, '${dmDisplayName}')">DM</button>`
+                                    : `<button type="button" class="btn btn-primary btn-sm" onclick="addFriendFromContactInModal(${contact.user_id})">${(typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || '友達申請'}</button> <button type="button" class="btn btn-secondary btn-sm" onclick="startDmFromSearch(${contact.user_id}, '${dmDisplayName}')">DM</button>`
                             }
                         </div>
                     </div>
@@ -9595,7 +9618,8 @@ window.submitChatTask = async function() {
             const actionsEl = document.getElementById('addFriendInviteActions-' + contactId);
             if (!actionsEl) return;
             const btn = actionsEl.querySelector('.btn-invite-from-modal');
-            if (btn) { btn.disabled = true; btn.textContent = '送信中...'; }
+            const getLbl = (typeof window.getSearchLabel === 'function') ? window.getSearchLabel : function(k) { return (window.__SEARCH_LABELS && window.__SEARCH_LABELS[k]) || ''; };
+            if (btn) { btn.disabled = true; btn.textContent = getLbl('search_sending') || '送信中...'; }
             try {
                 const response = await fetch((window.__CHAT_API_BASE||'')+'api/friends.php', {
                     method: 'POST',
@@ -9604,14 +9628,14 @@ window.submitChatTask = async function() {
                 });
                 const data = await response.json();
                 if (data.success) {
-                    actionsEl.innerHTML = '<span style="color:#10b981;font-size:12px;">✓ 招待済み</span>';
+                    actionsEl.innerHTML = '<span style="color:#10b981;font-size:12px;">✓ ' + (getLbl('search_invite_done') || '招待済み') + '</span>';
                 } else {
-                    alert(data.error || '招待の送信に失敗しました');
-                    if (btn) { btn.disabled = false; btn.textContent = type === 'phone' ? 'SMS招待' : 'メール招待'; }
+                    alert(data.error || (getLbl('search_invite_error') || '招待の送信に失敗しました'));
+                    if (btn) { btn.disabled = false; btn.textContent = getLbl('search_invite_mail_btn') || (type === 'phone' ? 'SMS招待' : '招待メール送信'); }
                 }
             } catch (e) {
-                if (btn) { btn.disabled = false; btn.textContent = type === 'phone' ? 'SMS招待' : 'メール招待'; }
-                alert('招待の送信に失敗しました');
+                if (btn) { btn.disabled = false; btn.textContent = getLbl('search_invite_mail_btn') || (type === 'phone' ? 'SMS招待' : '招待メール送信'); }
+                alert(getLbl('search_invite_error') || '招待の送信に失敗しました');
             }
         }
         
@@ -9782,6 +9806,7 @@ window.submitChatTask = async function() {
         async function searchUser() {
             const query = document.getElementById('searchUserInput').value.trim();
             const resultsDiv = document.getElementById('searchUserResults');
+            const getLbl = (typeof window.getSearchLabel === 'function') ? window.getSearchLabel : function(k) { return (window.__SEARCH_LABELS && window.__SEARCH_LABELS[k]) || ''; };
             
             // 2文字以上で検索（Email/携帯番号のみ）
             if (query.length < 2) {
@@ -9790,19 +9815,24 @@ window.submitChatTask = async function() {
                 resultsDiv.innerHTML = `
                     <div class="search-user-empty">
                         <span style="font-size:40px;">🔍</span>
-                        <p>メールアドレスまたは携帯番号で検索できます</p>
+                        <p>${getLbl('search_address_placeholder') || 'メールアドレスまたは携帯番号で検索'}</p>
                     </div>
                 `;
                 return;
             }
             
-            resultsDiv.innerHTML = '<div class="search-user-empty"><p>検索中...</p></div>';
+            resultsDiv.innerHTML = '<div class="search-user-empty"><p>' + (getLbl('search_loading') || '検索中...') + '</p></div>';
             var inviteRow = document.getElementById('addFriendSearchInviteRow');
             var inviteBtn = document.getElementById('addFriendSearchInviteBtn');
             if (inviteRow) inviteRow.style.display = 'none';
             
             try {
-                const res = await fetch((window.__CHAT_API_BASE||'')+'api/friends.php?action=search&query=' + encodeURIComponent(query));
+                var res;
+                if (typeof window.addressSearch === 'function') {
+                    res = await window.addressSearch(query);
+                } else {
+                    res = await fetch((window.__CHAT_API_BASE||'')+'api/friends.php?action=search&query=' + encodeURIComponent(query));
+                }
                 const data = await res.json();
                 
                 if (data.success && data.users && data.users.length > 0) {
@@ -9817,7 +9847,7 @@ window.submitChatTask = async function() {
                         } else if (user.friendship_status === 'blocked') {
                             btnHtml = '<button class="add-btn" disabled style="background:#6b7280;cursor:default;">ブロック中</button>';
                         } else {
-                            btnHtml = `<button class="add-btn" onclick="event.stopPropagation();openFriendRequestModal(${user.id}, '${safeName}')">👋 友達申請</button>`;
+                            btnHtml = `<button class="add-btn" onclick="event.stopPropagation();openFriendRequestModal(${user.id}, '${safeName}')">👋 ${getLbl('search_address_request_btn') || 'アドレス追加申請'}</button>`;
                         }
                         
                         const statusColor = user.online_status_color || '#9ca3af';
@@ -9838,7 +9868,7 @@ window.submitChatTask = async function() {
                     resultsDiv.innerHTML = `
                         <div class="search-user-empty">
                             <span style="font-size:40px;">😕</span>
-                            <p>該当するユーザーは見つかりませんでした</p>
+                            <p>${getLbl('search_no_user') || '該当するユーザーは見つかりませんでした'}</p>
                         </div>
                     `;
                     if (data.invite_available && data.contact && inviteRow && inviteBtn) {
@@ -9854,7 +9884,7 @@ window.submitChatTask = async function() {
                 resultsDiv.innerHTML = `
                     <div class="search-user-empty">
                         <span style="font-size:40px;">⚠️</span>
-                        <p>検索エラーが発生しました</p>
+                        <p>${getLbl('search_error') || '検索エラーが発生しました'}</p>
                     </div>
                 `;
             }
@@ -11075,14 +11105,14 @@ window.submitChatTask = async function() {
                         var fshipId = x.friendship_id || '';
                         dataAttrs += ' data-action="none" data-friendship-id="' + fshipId + '"';
                         actionHtml = '<span class="search-result-friend-actions">'
-                            + '<span class="search-result-action-label">友達申請</span>'
+                            + '<span class="search-result-action-label">' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || '友達申請') + '</span>'
                             + '<button type="button" class="sr-action-btn sr-accept" onclick="event.stopPropagation();acceptFriendFromSearch(' + fshipId + ')" title="受諾">受諾</button>'
                             + '<button type="button" class="sr-action-btn sr-reject" onclick="event.stopPropagation();rejectFriendFromSearch(' + fshipId + ')" title="拒否">拒否</button>'
                             + '<button type="button" class="sr-action-btn sr-defer" onclick="event.stopPropagation();deferFriendFromSearch(' + fshipId + ')" title="保留">保留</button>'
                             + '</span>';
                     } else {
                         dataAttrs += ' data-action="friend-request"';
-                        actionHtml = '<span class="search-result-action-btn search-result-add-btn" title="友達申請">👋 友達申請</span>';
+                        actionHtml = '<span class="search-result-action-btn search-result-add-btn" title="' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || '友達申請') + '">👋 ' + ((typeof window.getSearchLabel === 'function' ? window.getSearchLabel('search_address_request_btn') : (window.__SEARCH_LABELS && window.__SEARCH_LABELS.search_address_request_btn)) || '友達申請') + '</span>';
                     }
                 } else if (type === 'message') {
                     var msgId = (x.id != null && x.id !== '') ? String(x.id) : '';

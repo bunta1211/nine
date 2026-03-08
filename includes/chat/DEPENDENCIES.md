@@ -15,7 +15,7 @@
 | `call-ui.php` | 通話関連UI HTML。**通話は call.php に統合**。チャットでは通話メニュー・着信モーダル（拒否/出る）のみ。通話ビデオウィンドウ・コントロールバーは廃止。「出る」で call.php へ遷移。 |
 | `member-popup.php` | メンバーポップアップ HTML | ~70行 |
 | `modals.php` | モーダルウィンドウHTML。手動タスク追加（manualWishModal）では「元のメッセージ」を textarea（wishOriginalText）で編集可能 | 既存 |
-| `scripts.php` | JavaScript（メッセージ表示・送信・返信引用等）。1000文字以上送信時はコンソールで「長文はテキストのまま保存され、検索・AI学習に利用されます」と案内。**ファイル添付カード**: 題名ラッパーに `file-attachment-card__title` を付与。題名は横書き・1 行省略（`white-space:nowrap; overflow:hidden; text-overflow:ellipsis`）に統一し、省略時は `title` 属性でフルファイル名を表示。PDF/Office/圧縮/テキストファイルの各カードで共通。**PC版送信**: `messagesArea` が無い場合でもAPI送信は実行（楽観的UIは任意）。`window.sendMessage` を明示代入し、`#messageForm` の submit を送信に紐付け。**APIドメイン固定**: `window.__CHAT_API_BASE`（chat.phpで設定）を用い、全 `api/*.php` の fetch を現在オリジンに固定（`<base>` タグや別ドメインキャッシュ対策）。`__chatApiUrl(path)` ヘルパーを定義。**朝のニュース動画**: answer に「（朝のニュース動画）」が含まれる場合は JSON 動画リストを解析し、一覧＋小窓埋め込み（YouTube IFrame API）で表示。再生終了で次を自動再生。一覧クリックでその動画を再生。**AI秘書入力欄**: グループチャット同様にドラッグで高さ変更可能。パネル描画時に `input-area-resize-handle` を差し込み、`initInputAreaResize()` でリサイズを有効化。**メッセージ内画像404対策**: ファイル名のみの img src（例: msg_xxx.png）で読み込み失敗時に `uploads/messages/` を付与して再試行する error イベントリスナーを document に登録。 | 既存 |
+| `scripts.php` | JavaScript（メッセージ表示・送信・返信引用等）。1000文字以上送信時はコンソールで「長文はテキストのまま保存され、検索・AI学習に利用されます」と案内。**ファイル添付カード**: 題名ラッパーに `file-attachment-card__title` を付与。題名は横書き・1 行省略（`white-space:nowrap; overflow:hidden; text-overflow:ellipsis`）に統一し、省略時は `title` 属性でフルファイル名を表示。PDF/Office/圧縮/テキストファイルの各カードで共通。**PC版送信**: `messagesArea` が無い場合でもAPI送信は実行（楽観的UIは任意）。`window.sendMessage` を明示代入し、`#messageForm` の submit を送信に紐付け。**APIドメイン固定**: `window.__CHAT_API_BASE`（chat.phpで設定）を用い、全 `api/*.php` の fetch を現在オリジンに固定（`<base>` タグや別ドメインキャッシュ対策）。`__chatApiUrl(path)` ヘルパーを定義。**朝のニュース動画**: answer に「（朝のニュース動画）」が含まれる場合は JSON 動画リストを解析し、一覧＋小窓埋め込み（YouTube IFrame API）で表示。再生終了で次を自動再生。一覧クリックでその動画を再生。**AI秘書入力欄**: グループチャット同様にドラッグで高さ変更可能。パネル描画時に `input-area-resize-handle` を差し込み、`initInputAreaResize()` でリサイズを有効化。**メッセージ内画像404対策**: ファイル名のみの img src（例: msg_xxx.png）で読み込み失敗時に `uploads/messages/` を付与して再試行する error イベントリスナーを document に登録。**検索まわり**: `includes/search_config.php` を require し `window.__SEARCH_CONFIG` を出力。個人アドレス帳検索の文言は `getSearchLabel(key)`（search-common.js）で取得し、API 呼び出しは `addressSearch(query)` を使用（読込順のため未定義時は従来の fetch にフォールバック）。 | 既存 |
 
 ---
 
@@ -45,7 +45,8 @@ chat.php (317行)
     │
     └── JavaScript
         ├── assets/js/chat/ui-sounds.js   ← パネル収納時効果音（book1）
-        ├── includes/chat/scripts.php     ← メインJS
+        ├── includes/chat/scripts.php     ← メインJS（search_config.php require、__SEARCH_CONFIG 出力）
+        ├── assets/js/search-common.js   ← 検索共通 getSearchLabel / addressSearch
         └── assets/js/chat-mobile.js      ← モバイル用
 ```
 
