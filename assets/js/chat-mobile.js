@@ -305,19 +305,46 @@
     }
 
     // グループ選択時にパネルを閉じる（中央へスクロール＋body.mobile-panel-open を外してログを表示）。イベント委譲で動的追加の conv-item にも対応
+    // AI秘書(.ai-secretary)タップ時は selectAISecretary を呼び、それ以外はパネルを閉じる
     function setupConversationClick() {
         const convList = document.getElementById('conversationList');
         const root = convList || document.body;
-        root.addEventListener('click', function(e) {
-            if (!isMobile()) return;
-            const item = e.target && e.target.closest ? e.target.closest('.conv-item') : null;
+
+        function handleConvItemTap(e, item) {
             if (!item) return;
+            if (item.classList.contains('ai-secretary')) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof window.selectAISecretary === 'function') {
+                    window.selectAISecretary();
+                }
+                return;
+            }
             if (typeof window.closeMobileAllPanels === 'function') {
                 window.closeMobileAllPanels();
             } else {
                 window.closeMobileLeftPanel();
             }
+        }
+
+        root.addEventListener('click', function(e) {
+            if (!isMobile()) return;
+            const item = e.target && e.target.closest ? e.target.closest('.conv-item') : null;
+            if (!item) return;
+            handleConvItemTap(e, item);
         });
+
+        // モバイル: タッチデバイスでclickが遅延・不発する場合のフォールバック
+        root.addEventListener('touchend', function(e) {
+            if (!isMobile()) return;
+            const item = e.target && e.target.closest ? e.target.closest('.conv-item.ai-secretary') : null;
+            if (!item) return;
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.selectAISecretary === 'function') {
+                window.selectAISecretary();
+            }
+        }, { passive: false });
     }
 
     // DOMContentLoaded時に初期化
