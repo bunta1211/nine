@@ -191,29 +191,34 @@ $stats['max_members'] = (int)$stmt->fetchColumn();
 
     <!-- プライベートグループ作成モーダル（マスター計画 2.11） -->
     <div class="modal" id="addPrivateGroupModal">
-        <div class="modal-content">
+        <div class="modal-content modal-content-private-group">
             <div class="modal-header">
                 <h3>🔒 プライベートグループを作成</h3>
-                <button class="modal-close" id="btnCloseAddPrivateGroupModal">&times;</button>
+                <button class="modal-close" id="btnCloseAddPrivateGroupModal" aria-label="閉じる">&times;</button>
             </div>
-            <p class="admin-private-group-desc">チャット画面からは作成できません。発言・データ送信・メンバー一覧・アドレス追加の許可を個別に設定できます。</p>
+            <div class="admin-private-group-desc-block">
+                <p class="admin-private-group-lead">管理画面でのみ作成できます。</p>
+                <p class="admin-private-group-detail">発言・データ送信・メンバー一覧・アドレス追加の許可を、グループごとに設定できます。</p>
+            </div>
             <form id="addPrivateGroupForm">
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="form-group admin-private-group-field">
                         <label for="newPrivateGroupName">グループ名 <span class="required">*</span></label>
-                        <input type="text" id="newPrivateGroupName" name="name" required placeholder="例: 役員会議">
+                        <input type="text" id="newPrivateGroupName" name="name" required placeholder="例: 役員会議" class="admin-private-group-input" autocomplete="off">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group admin-private-group-field">
                         <label for="newPrivateGroupDescription">説明 <span class="optional">（任意）</span></label>
-                        <textarea id="newPrivateGroupDescription" name="description" rows="2" placeholder="グループの説明"></textarea>
+                        <textarea id="newPrivateGroupDescription" name="description" rows="3" placeholder="このグループの目的や運用方針を簡潔に" class="admin-private-group-textarea"></textarea>
                     </div>
-                    <div class="form-group admin-private-group-options">
-                        <label>プライベート設定</label>
-                        <label class="checkbox-label"><input type="checkbox" id="privateAllowMemberPost" name="allow_member_post" value="1" checked> 発言を許可する</label>
-                        <label class="checkbox-label"><input type="checkbox" id="privateAllowDataSend" name="allow_data_send" value="1" checked> データ送信を許可する</label>
-                        <label class="checkbox-label"><input type="checkbox" id="privateMemberListVisible" name="member_list_visible" value="1" checked> メンバー一覧を表示する</label>
-                        <label class="checkbox-label"><input type="checkbox" id="privateAllowAddContact" name="allow_add_contact_from_group" value="1" checked> グループ内からアドレス追加を許可する</label>
-                    </div>
+                    <fieldset class="admin-private-group-options-block">
+                        <legend class="admin-private-group-options-legend">プライベート設定</legend>
+                        <div class="admin-private-group-options">
+                            <label class="checkbox-label"><input type="checkbox" id="privateAllowMemberPost" name="allow_member_post" value="1" checked> 発言を許可する</label>
+                            <label class="checkbox-label"><input type="checkbox" id="privateAllowDataSend" name="allow_data_send" value="1" checked> データ送信を許可する</label>
+                            <label class="checkbox-label"><input type="checkbox" id="privateMemberListVisible" name="member_list_visible" value="1" checked> メンバー一覧を表示する</label>
+                            <label class="checkbox-label"><input type="checkbox" id="privateAllowAddContact" name="allow_add_contact_from_group" value="1" checked> グループ内からアドレス追加を許可する</label>
+                        </div>
+                    </fieldset>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="btnCancelAddPrivateGroup">キャンセル</button>

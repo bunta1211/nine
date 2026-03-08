@@ -48,7 +48,7 @@ assets/css/
 | `BEM-GUIDE.md` | BEM命名規則ガイド | - |
 | `chat-mobile.css` | モバイル用上書き。**v2.0.0**: blur全廃止(不透明背景)・text-shadow全削除・会話リストフラット化(LINE風)・パネルアニメtransform化(60fps)・入力欄スクロール非表示廃止&常時表示・メッセージバブル幅75%&line-height1.35・FABアクセントカラー&ボトムシート化・タッチターゲット44px統一・文字サイズ最低11px・z-index5段階・PC装飾(::before/scrollbar)モバイル非表示・デザイントークン移行。 | chat.php |
 | `pages-mobile.css` | 非チャットページのモバイルレイアウト。`.main-container` ルールは `:not()` で上パネル共有4ページ（settings/design/tasks/notifications）を除外。**全デバイス表示計画**: FAB に `env(safe-area-inset-bottom/right)` を追加（ノッチ・ホームインジケータ対応） | settings.php, design.php, tasks.php, notifications.php |
-| `admin.css` | 管理画面共通（組織作成ページの `.create-org-card`, `.create-org-error` 含む）。グループ一覧の `.badge-private-inline`（プライベートグループ🔒表示）、`.badge-internal` / `.badge-external`（メンバー種別） | admin/*.php |
+| `admin.css` | 管理画面共通（組織作成ページの `.create-org-card`, `.create-org-error` 含む）。グループ一覧の `.badge-private-inline`（プライベートグループ🔒表示）、`.badge-internal` / `.badge-external`（メンバー種別）。プライベートグループ作成モーダル（`.admin-private-group-desc-block`, `.admin-private-group-options-block`, `.admin-private-group-input` / `.admin-private-group-textarea` 等） | admin/*.php |
 | `admin-ai-memories.css` | AI記憶管理ページ（`aimem-*` プレフィクス。テーブル・フィルタ・モーダル・履歴表示） | admin/ai_memories.php |
 | `admin-ai-specialists.css` | 専門AI管理ページ（`aisp-*` プレフィクス。カードグリッド・編集モーダル・機能フラグ行） | admin/ai_specialist_admin.php |
 | `admin-ai-safety.css` | AI安全通報管理ページ（`aisf-*` プレフィクス。統計カード・通報リスト・詳細モーダル・質問フォーム） | admin/ai_safety_reports.php |

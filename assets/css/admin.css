@@ -391,6 +391,10 @@ body {
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
 }
 
+.modal-content-private-group {
+    max-width: 520px;
+}
+
 .modal-small {
     max-width: 400px;
 }
@@ -505,21 +509,113 @@ body {
     font-size: 0.85em;
 }
 
-.admin-private-group-desc {
-    margin: 0 0 1rem;
-    padding: 0 1rem;
+/* プライベートグループ作成モーダル：説明ブロック */
+.admin-private-group-desc-block {
+    margin: 0;
+    padding: 16px 25px;
+    background: linear-gradient(135deg, #f8f9fc 0%, #f0f2f8 100%);
+    border-bottom: 1px solid #e8eaef;
+}
+
+.admin-private-group-lead {
+    margin: 0 0 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.admin-private-group-detail {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #6b7280;
+}
+
+/* プライベートグループ作成モーダル：入力欄 */
+.admin-private-group-field {
+    margin-bottom: 20px;
+}
+
+.admin-private-group-field label {
+    display: block;
+    margin-bottom: 8px;
     font-size: 0.9rem;
-    color: #555;
+    font-weight: 500;
+    color: #374151;
+}
+
+.admin-private-group-input,
+.admin-private-group-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: #111827;
+    background: #fff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-private-group-input::placeholder,
+.admin-private-group-textarea::placeholder {
+    color: #9ca3af;
+}
+
+.admin-private-group-input:focus,
+.admin-private-group-textarea:focus {
+    outline: none;
+    border-color: var(--dt-input-focus-border, #6366f1);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.admin-private-group-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* プライベートグループ作成モーダル：設定ブロック */
+.admin-private-group-options-block {
+    margin: 24px 0 0;
+    padding: 0;
+    border: none;
+}
+
+.admin-private-group-options-legend {
+    margin: 0 0 12px;
+    padding: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
 }
 
 .admin-private-group-options {
-    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 18px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
 }
 
 .admin-private-group-options .checkbox-label {
-    display: block;
-    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
     font-weight: normal;
+    font-size: 0.9rem;
+    color: #4b5563;
+    cursor: pointer;
+}
+
+.admin-private-group-options .checkbox-label input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    cursor: pointer;
 }
 
 .member-groups-checkboxes {
