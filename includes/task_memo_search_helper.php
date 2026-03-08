@@ -520,6 +520,8 @@ function extractTopicKeyword(string $question): ?string {
     $topicPatterns = [
         // 「〇〇について」パターン
         '/(.{2,20})について(?:教えて|まとめて|どう|知りたい|聞きたい|報告|説明)/u',
+        // 「〇〇について質問」パターン（送迎バスについて質問です、等）
+        '/(.{2,20})について質問/u',
         // 「〇〇の〇〇」パターン（運営、状況、経緯など）
         '/(.{2,15})の(?:運営|状況|経緯|詳細|内容|概要|結果|記録|履歴|情報)/u',
         // 「〇〇はどう」パターン
@@ -530,6 +532,8 @@ function extractTopicKeyword(string $question): ?string {
         '/(.{2,15})のこと(?:を|について|教えて|知りたい)/u',
         // 「〇〇って何」「〇〇とは」
         '/(.{2,15})(?:って何|とは)/u',
+        // 「〇〇を教えて」「〇〇を教えてください」（月曜日の基本送迎など）
+        '/(.{2,20})を教えて(?:ください)?/u',
     ];
 
     foreach ($topicPatterns as $pat) {
@@ -545,6 +549,64 @@ function extractTopicKeyword(string $question): ?string {
     }
 
     return null;
+}
+
+/**
+ * メッセージ（過去ログ）検索用に複数キーワードを抽出
+ * 「2025年度の送迎バスについて。月曜日の基本送迎を教えて」→ ["送迎バス", "月曜", "基本送迎"] など
+ *
+ * @param string $question ユーザーの質問
+ * @return array 検索に使うキーワードの配列（最大5件、2文字以上）
+ */
+function extractMessageSearchKeywords(string $question): array {
+    $q = trim($question);
+    $keywords = [];
+    $seen = [];
+
+    // 年度表記を除去してから抽出
+    $qNorm = preg_replace('/\d{4}年度?/u', '', $q);
+
+    // 「〇〇について」「〇〇を教えて」からメインキーワード
+    if (preg_match('/(.{2,20})について/u', $qNorm, $m)) {
+        $k = normalizeSearchKeyword(trim($m[1]));
+        if (mb_strlen($k) >= 2 && !isset($seen[$k])) {
+            $keywords[] = $k;
+            $seen[$k] = true;
+        }
+    }
+    if (preg_match('/(.{2,20})を教えて/u', $qNorm, $m)) {
+        $k = normalizeSearchKeyword(trim($m[1]));
+        if (mb_strlen($k) >= 2 && !isset($seen[$k])) {
+            $keywords[] = $k;
+            $seen[$k] = true;
+        }
+        // 「月曜日の基本送迎」→ 「月曜」「基本送迎」も追加
+        if (preg_match('/(月曜|火曜|水曜|木曜|金曜|土曜|日曜)/u', $m[1], $wd)) {
+            if (!isset($seen[$wd[1]])) {
+                $keywords[] = $wd[1];
+                $seen[$wd[1]] = true;
+            }
+        }
+        if (preg_match('/の(.{2,15})$/u', trim($m[1]), $sub)) {
+            $subk = normalizeSearchKeyword(trim($sub[1]));
+            if (mb_strlen($subk) >= 2 && !isset($seen[$subk])) {
+                $keywords[] = $subk;
+                $seen[$subk] = true;
+            }
+        }
+    }
+
+    // 曜日単体
+    if (preg_match_all('/(月曜|火曜|水曜|木曜|金曜|土曜|日曜)/u', $qNorm, $wd)) {
+        foreach (array_unique($wd[1]) as $w) {
+            if (!isset($seen[$w])) {
+                $keywords[] = $w;
+                $seen[$w] = true;
+            }
+        }
+    }
+
+    return array_slice($keywords, 0, 5);
 }
 
 /**
@@ -647,4 +709,64 @@ function searchMessagesForContext(PDO $pdo, int $user_id, string $keyword, int $
     }
 
     return ['messages' => $messages, 'summary' => $summary, 'keyword' => $keyword];
+}
+
+/**
+ * 複数キーワードでメッセージを検索し、結果をマージ（AI秘書の過去ログ検索用）
+ * いずれかのキーワードにヒットしたメッセージを重複なく返す
+ *
+ * @param PDO $pdo
+ * @param int $user_id
+ * @param array $keywords 検索キーワードの配列
+ * @param int $limit キーワードあたりの最大件数（合計はキーワード数×limit以内になるよう重複除去）
+ * @return array ['messages' => array, 'summary' => string]
+ */
+function searchMessagesForContextMultiKeyword(PDO $pdo, int $user_id, array $keywords, int $limit = 10): array {
+    $allMessages = [];
+    $seenIds = [];
+    $usedKeyword = [];
+
+    foreach ($keywords as $keyword) {
+        $kw = is_string($keyword) ? trim($keyword) : '';
+        if ($kw === '' || mb_strlen($kw) < 2) {
+            continue;
+        }
+        $res = searchMessagesForContext($pdo, $user_id, $kw, $limit);
+        foreach ($res['messages'] ?? [] as $msg) {
+            $id = (int)($msg['id'] ?? 0);
+            if ($id && !isset($seenIds[$id])) {
+                $seenIds[$id] = true;
+                $msg['_search_keyword'] = $kw;
+                $allMessages[] = $msg;
+            }
+        }
+    }
+
+    if (empty($allMessages)) {
+        return ['messages' => [], 'summary' => '', 'keywords' => $keywords];
+    }
+
+    $lines = [];
+    $lines[] = "【過去の会話・メッセージ検索結果（所属グループ内）: " . count($allMessages) . "件】";
+    foreach (array_slice($allMessages, 0, 15) as $i => $msg) {
+        $date = date('Y/m/d', strtotime($msg['created_at']));
+        $sender = $msg['sender_name'] ?? '不明';
+        $conv = $msg['conversation_name'] ?? '';
+        $kw = $msg['_search_keyword'] ?? '';
+        if (!empty($msg['extracted_text'])) {
+            $text = preg_replace('/[\r\n]+/', ' ', mb_substr($msg['extracted_text'], 0, 300));
+            $lines[] = ($i + 1) . ". [{$date}] {$sender}@{$conv}（「{$kw}」でヒット）: {$text}";
+        } else {
+            $text = preg_replace('/[\r\n]+/', ' ', mb_substr($msg['content'] ?? '', 0, 200));
+            $lines[] = ($i + 1) . ". [{$date}] {$sender}@{$conv}: {$text}";
+        }
+    }
+    if (count($allMessages) > 15) {
+        $lines[] = "... 他 " . (count($allMessages) - 15) . "件";
+    }
+    $summary = implode("\n", $lines);
+    foreach ($allMessages as &$m) {
+        unset($m['_search_keyword']);
+    }
+    return ['messages' => $allMessages, 'summary' => $summary, 'keywords' => $keywords];
 }

@@ -637,9 +637,49 @@ switch ($action) {
                         }
                         if ($taskMemoSearchResult) {
                             $_SESSION[$sessionKey] = ['summary' => $taskMemoSearchResult['summary'], 'keyword' => $searchParams['keyword'], 'ts' => time()];
-                            $taskMemoSearchInfo = defined('AI_TASK_MEMO_SEARCH_INSTRUCTIONS')
-                                ? str_replace('{task_memo_search_results}', $taskMemoSearchResult['summary'], AI_TASK_MEMO_SEARCH_INSTRUCTIONS)
-                                : "\n\n【タスク・メモ検索結果】\n" . $taskMemoSearchResult['summary'] . "\n" . (defined('AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS') ? AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS : '上記を元に報告してください。');
+                            $total = (int)($taskMemoSearchResult['total'] ?? 0);
+                            $msgCount = count($taskMemoSearchResult['messages'] ?? []);
+                            // タスク・メモで0件、またはメッセージが0件のときは過去ログ（複数キーワード）を追加検索
+                            if (($total === 0 || $msgCount === 0) && function_exists('extractMessageSearchKeywords') && function_exists('searchMessagesForContextMultiKeyword')) {
+                                $keywords = extractMessageSearchKeywords($question);
+                                if (!empty($searchParams['keyword']) && !in_array($searchParams['keyword'], $keywords, true)) {
+                                    array_unshift($keywords, $searchParams['keyword']);
+                                }
+                                $keywords = array_slice(array_unique($keywords), 0, 5);
+                                if (!empty($keywords)) {
+                                    try {
+                                        $ctxRes = searchMessagesForContextMultiKeyword($pdo, $user_id, $keywords, 10);
+                                        if (!empty($ctxRes['messages'])) {
+                                            $pastLogBlock = "\n\n【過去の会話・メッセージ検索（所属グループ内・PDF/長文の全文も検索済み）】\n以下を分析・再構成して質問に答えてください。\n\n" . $ctxRes['summary'] . "\n\n" . (defined('AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS') ? AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS : '上記のメッセージ内容を深く分析し、ユーザーが求める答えを抽出して詳しく回答してください。');
+                                            if ($total === 0) {
+                                                $taskMemoSearchInfo = "【検索結果】タスク・メモでは該当がありませんでした。過去の会話ログを検索した結果が以下にあります。この内容を分析して質問に答えてください。" . $pastLogBlock;
+                                            } else {
+                                                $taskMemoSearchInfo = defined('AI_TASK_MEMO_SEARCH_INSTRUCTIONS')
+                                                    ? str_replace('{task_memo_search_results}', $taskMemoSearchResult['summary'], AI_TASK_MEMO_SEARCH_INSTRUCTIONS)
+                                                    : "\n\n【タスク・メモ検索結果】\n" . $taskMemoSearchResult['summary'] . "\n" . (defined('AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS') ? AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS : '上記を元に報告してください。');
+                                                $taskMemoSearchInfo .= $pastLogBlock;
+                                            }
+                                        } else {
+                                            $taskMemoSearchInfo = defined('AI_TASK_MEMO_SEARCH_INSTRUCTIONS')
+                                                ? str_replace('{task_memo_search_results}', $taskMemoSearchResult['summary'], AI_TASK_MEMO_SEARCH_INSTRUCTIONS)
+                                                : "\n\n【タスク・メモ検索結果】\n" . $taskMemoSearchResult['summary'] . "\n" . (defined('AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS') ? AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS : '上記を元に報告してください。');
+                                        }
+                                    } catch (Exception $e) {
+                                        error_log("Message context (past log) search error: " . $e->getMessage());
+                                        $taskMemoSearchInfo = defined('AI_TASK_MEMO_SEARCH_INSTRUCTIONS')
+                                            ? str_replace('{task_memo_search_results}', $taskMemoSearchResult['summary'], AI_TASK_MEMO_SEARCH_INSTRUCTIONS)
+                                            : "\n\n【タスク・メモ検索結果】\n" . $taskMemoSearchResult['summary'] . "\n" . (defined('AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS') ? AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS : '上記を元に報告してください。');
+                                    }
+                                } else {
+                                    $taskMemoSearchInfo = defined('AI_TASK_MEMO_SEARCH_INSTRUCTIONS')
+                                        ? str_replace('{task_memo_search_results}', $taskMemoSearchResult['summary'], AI_TASK_MEMO_SEARCH_INSTRUCTIONS)
+                                        : "\n\n【タスク・メモ検索結果】\n" . $taskMemoSearchResult['summary'] . "\n" . (defined('AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS') ? AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS : '上記を元に報告してください。');
+                                }
+                            } else {
+                                $taskMemoSearchInfo = defined('AI_TASK_MEMO_SEARCH_INSTRUCTIONS')
+                                    ? str_replace('{task_memo_search_results}', $taskMemoSearchResult['summary'], AI_TASK_MEMO_SEARCH_INSTRUCTIONS)
+                                    : "\n\n【タスク・メモ検索結果】\n" . $taskMemoSearchResult['summary'] . "\n" . (defined('AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS') ? AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS : '上記を元に報告してください。');
+                            }
                         }
                     } catch (Exception $e) {
                         error_log("Task/memo search error: " . $e->getMessage());
@@ -650,19 +690,34 @@ switch ($action) {
 
         // メッセージコンテキスト検索（自然な質問でもメッセージやPDF内容を参照）
         $messageContextInfo = '';
-        if (empty($taskMemoSearchInfo) && !$searchLimitExceeded && function_exists('extractTopicKeyword') && function_exists('searchMessagesForContext')) {
-            $topicKeyword = extractTopicKeyword($question);
-            if ($topicKeyword) {
-                try {
-                    $contextResult = searchMessagesForContext($pdo, $user_id, $topicKeyword, 10);
-                    if (!empty($contextResult['messages'])) {
-                        $_SESSION[$sessionKey] = ['summary' => $contextResult['summary'], 'keyword' => $topicKeyword, 'ts' => time()];
-                        $analysisNote = defined('AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS') ? AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS : '上記のメッセージ内容を深く分析し、ユーザーが求める答えを抽出して詳しく回答してください。';
-                        $messageContextInfo = "\n\n【メッセージ検索結果】\n" . $contextResult['summary'] . "\n\n" . $analysisNote;
+        if (empty($taskMemoSearchInfo) && !$searchLimitExceeded && function_exists('searchMessagesForContext')) {
+            $contextResult = null;
+            if (function_exists('extractMessageSearchKeywords') && function_exists('searchMessagesForContextMultiKeyword')) {
+                $multiKw = extractMessageSearchKeywords($question);
+                if (!empty($multiKw)) {
+                    try {
+                        $contextResult = searchMessagesForContextMultiKeyword($pdo, $user_id, $multiKw, 10);
+                    } catch (Exception $e) {
+                        error_log("Message context multi-keyword search error: " . $e->getMessage());
                     }
-                } catch (Exception $e) {
-                    error_log("Message context search error: " . $e->getMessage());
                 }
+            }
+            if (($contextResult === null || empty($contextResult['messages'])) && function_exists('extractTopicKeyword') && function_exists('searchMessagesForContext')) {
+                $topicKeyword = extractTopicKeyword($question);
+                if ($topicKeyword) {
+                    try {
+                        $contextResult = searchMessagesForContext($pdo, $user_id, $topicKeyword, 10);
+                    } catch (Exception $e) {
+                        error_log("Message context search error: " . $e->getMessage());
+                    }
+                }
+            }
+            if ($contextResult && !empty($contextResult['messages'])) {
+                $summary = $contextResult['summary'] ?? '';
+                $kw = $contextResult['keyword'] ?? $contextResult['keywords'][0] ?? '';
+                $_SESSION[$sessionKey] = ['summary' => $summary, 'keyword' => $kw, 'ts' => time()];
+                $analysisNote = defined('AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS') ? AI_SEARCH_DEEP_ANALYSIS_INSTRUCTIONS : '上記のメッセージ内容を深く分析し、ユーザーが求める答えを抽出して詳しく回答してください。';
+                $messageContextInfo = "\n\n【過去の会話・メッセージ検索結果】\n" . $summary . "\n\n" . $analysisNote;
             }
         }
         
