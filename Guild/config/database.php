@@ -4,8 +4,15 @@
  * Social9と同じデータベースを使用
  */
 
-// Social9の設定を読み込み
-require_once __DIR__ . '/../../config/database.php';
+$guildParentConfig = __DIR__ . '/../../config/database.php';
+if (!is_file($guildParentConfig)) {
+    if (php_sapi_name() !== 'cli' && !headers_sent()) {
+        header('Location: setup.php');
+        exit;
+    }
+    throw new RuntimeException('Guild: config/database.php not found. Run from document root.');
+}
+require_once $guildParentConfig;
 
 /**
  * Guild専用のテーブルプレフィックス

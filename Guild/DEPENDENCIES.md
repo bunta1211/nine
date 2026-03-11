@@ -8,7 +8,7 @@ Guildは Social9 とは独立したサブシステムです。
 ```
 Guild/
 ├── DEPENDENCIES.md          ← このファイル
-├── index.php                ← エントリ。Social9ログイン済みなら home または setup（テーブル未作成時）へ
+├── index.php                ← エントリ。Fatal時は shutdown で setup へ。親 config 無い場合も setup へ。
 ├── home.php                 ← ダッシュボード
 ├── requests.php             ← 申請一覧
 ├── calendar.php             ← カレンダー
@@ -153,6 +153,17 @@ Guild/
 **Social9との違い**:
 - Social9: `includes/lang.php` に全言語を内包
 - Guild: `includes/lang/*.php` に言語別ファイル
+
+---
+
+## 本番で /Guild/ が 500 になる場合
+
+- **index.php** で Fatal Error 時は `register_shutdown_function` により **setup.php へリダイレクト**するようにしている。それでも 500 が出る場合は、PHP が Fatal の前に何か出力しているか、別原因。
+- **config/database.php**: 親の `config/database.php`（`../../config/database.php`）が存在しない場合は **setup.php へリダイレクト**。本番の rsync で `config/` はそのままなので、Guild と同階層に `config/` がある構成になっているか確認する。
+- **本番の PHP エラーログ**で原因を確認する（DOCS/PRODUCTION_500_ROOT_CAUSE.md 参照）:
+  - PHP-FPM: `sudo tail -n 100 /var/log/php-fpm/www-error.log`
+  - Apache: `sudo tail -n 100 /var/log/httpd/error_log`
+- デプロイ先が `/var/www/html/` の場合、`/var/www/html/config/database.php` と `/var/www/html/Guild/config/database.php` が両方存在する必要がある。
 
 ---
 

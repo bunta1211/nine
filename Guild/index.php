@@ -4,6 +4,17 @@
  * Social9のログイン状態を確認してリダイレクト
  */
 
+// Fatal Error 時も setup へ誘導（try-catch では捕まらないため）
+register_shutdown_function(function () {
+    $err = error_get_last();
+    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        if (!headers_sent()) {
+            header('Location: setup.php');
+            exit;
+        }
+    }
+});
+
 // 本番で500を出さないため、例外を捕まえて setup へ誘導
 try {
     require_once __DIR__ . '/config/database.php';
