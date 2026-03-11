@@ -318,6 +318,7 @@ sms_verification_codes (migration_phone_registration.sql)
 | `migration_search_default_public.sql` | 既存ユーザーの `exclude_from_search` を 0 に（携帯番号検索でヒットするように） | 上記に同じ |
 | `migration_vault.sql` | `vault_sessions`, `vault_items`, `webauthn_credentials`（金庫機能・WebAuthn 認証） | `api/vault.php`, `api/webauthn.php`, `includes/VaultCrypto.php` |
 | `migration_access_log.sql` | `access_log`（本日のアクセス・検索経由・離脱率集計用。visitor_key, path, referer_host, ip_address） | `includes/access_logger.php`, `admin/index.php` |
+| `migration_disable_admin_system_admin.sql` | 旧 admin@social9.jp を無効化（status=deleted、email リネーム）。システム管理は Bunta に統一 | 1回のみ本番で実行可 |
 | `migration_personality_json.sql` | `user_ai_settings` に personality_json, deliberation_max_seconds, proactive_message_enabled, proactive_message_hour 追加。`ai_conversations` に is_proactive 追加 | `api/ai.php`, `assets/js/ai-personality.js`, `cron/ai_proactive_daily.php` |
 | `migration_today_topics.sql` | `today_topic_clicks`, `user_topic_interests` テーブル作成。`user_ai_settings` に today_topics_morning_enabled, today_topics_evening_enabled, today_topics_morning_hour 追加 | `includes/today_topics_helper.php`, `cron/ai_proactive_daily.php`, `cron/ai_today_topics_evening.php`, `api/ai.php`（get_settings / update_settings） |
 | `migration_today_topics_paid_plan.sql` | `user_ai_settings.today_topics_paid_plan`（月額ニュース配信プラン加入 0/1）。200名超時の夜の個別配信・推しブロック対象判定に使用 | `includes/today_topics_helper.php`, `cron/ai_today_topics_evening.php`, `api/ai.php`（get_settings / update_settings） |

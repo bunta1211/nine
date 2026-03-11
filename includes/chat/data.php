@@ -296,11 +296,12 @@ function getGroupMembersForFriends($pdo, $userId) {
             (
                 SELECT u.id, u.display_name, u.avatar_path, 'システム管理者' as group_names
                 FROM users u
-                WHERE u.role = 'system_admin' AND u.id != ? AND u.status = 'active'
+                WHERE u.role = 'system_admin' AND u.status = 'active' AND u.email = ? AND u.id != ?
             )
             ORDER BY display_name ASC
         ");
-        $stmt->execute([$userId, $userId, $userId]);
+        $sysAdminEmail = defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp';
+        $stmt->execute([$userId, $userId, $sysAdminEmail, $userId]);
     }
     $raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
     

@@ -43,6 +43,11 @@ if (!defined('APP_URL')) {
     define('APP_URL', getenv('APP_URL') ?: 'http://localhost/nine');
 }
 
+// 個人アドレス帳・検索で表示するシステム管理者アカウント（1件に統一。Bunta）
+if (!defined('SYSTEM_ADMIN_EMAIL')) {
+    define('SYSTEM_ADMIN_EMAIL', 'saitanibunta@social9.jp');
+}
+
 // 認証レベル
 if (!defined('AUTH_LEVEL_EMAIL')) {
     define('AUTH_LEVEL_EMAIL', 1);

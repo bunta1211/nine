@@ -49,6 +49,7 @@ cp app.local.example.php app.local.php
 |-----|------|-----|
 | `APP_NAME` | アプリ名 | "Social9" |
 | `APP_URL` | ベースURL | "https://social9.jp" |
+| `SYSTEM_ADMIN_EMAIL` | 個人アドレス帳・検索で表示するシステム管理者アカウント（1件に統一。Bunta） | "saitanibunta@social9.jp"。app.local.php で上書き可 |
 | `APP_ENV` | 環境 | "production" / "development" |
 | `APP_DEBUG` | デバッグ・エラー表示 | true / false。本番では false で display_errors=0 |
 | `JITSI_DOMAIN` | Jitsi Meet のドメイン（自前サーバー時は app.local.php で上書き） | "meet.jit.si" / "meet.social9.jp" |

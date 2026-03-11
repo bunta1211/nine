@@ -189,7 +189,7 @@ try {
             $stmtTarget = $pdo->prepare("SELECT role, email FROM users WHERE id = ?");
             $stmtTarget->execute([$friend['id']]);
             $targetUser = $stmtTarget->fetch(PDO::FETCH_ASSOC);
-            if ($targetUser && ($targetUser['role'] === 'system_admin' || (isset($targetUser['email']) && $targetUser['email'] === 'saitanibunta@social9.jp'))) {
+            if ($targetUser && ($targetUser['role'] === 'system_admin' || (isset($targetUser['email']) && $targetUser['email'] === (defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp')))) {
                 $stmt = $pdo->prepare("INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'accepted') ON DUPLICATE KEY UPDATE status = 'accepted', updated_at = NOW()");
                 $stmt->execute([$user_id, $friend['id']]);
                 $stmt->execute([$friend['id'], $user_id]);
@@ -466,12 +466,13 @@ try {
                         'システム管理者' as group_names
                     FROM users u
                     WHERE u.role = 'system_admin'
-                    AND u.id != ?
                     AND u.status = 'active'
+                    AND u.email = ?
+                    AND u.id != ?
                 )
                 ORDER BY display_name ASC
             ");
-                $stmt->execute([$user_id, $user_id, $user_id]);
+                $stmt->execute([$user_id, $user_id, defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp', $user_id]);
             }
             $raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
@@ -624,16 +625,16 @@ try {
                 $user['last_activity_formatted'] = formatLastActivity($user['last_activity'] ?? '', $lang);
             }
 
-            // 新規ユーザーが最初に検索で見つけられるよう、システム管理者（saitanibunta@social9.jp を優先）を先頭に追加。申請不要でDM可能にするため friendship_status = 'accepted' で返す
+            // 新規ユーザーが最初に検索で見つけられるよう、システム管理者（SYSTEM_ADMIN_EMAIL の1件）を先頭に追加。申請不要でDM可能にするため friendship_status = 'accepted' で返す
             try {
+                $sysEmail = defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp';
                 $stmtSys = $pdo->prepare("
                     SELECT u.id, u.display_name, u.email, u.avatar_path as avatar, u.online_status, $lastActivityCol as last_activity
                     FROM users u
-                    WHERE u.role = 'system_admin' AND u.status = 'active' AND u.id != ?
-                    ORDER BY (u.email = 'saitanibunta@social9.jp') DESC, u.display_name
+                    WHERE u.role = 'system_admin' AND u.status = 'active' AND u.email = ? AND u.id != ?
                     LIMIT 1
                 ");
-                $stmtSys->execute([$user_id]);
+                $stmtSys->execute([$sysEmail, $user_id]);
                 $sa = $stmtSys->fetch(PDO::FETCH_ASSOC);
                 if ($sa) {
                     $sa['id'] = (int) $sa['id'];

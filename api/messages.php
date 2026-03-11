@@ -1905,7 +1905,9 @@ switch ($action) {
 
                 $params = [$user_id, $user_id, "%{$keyword}%", "%{$keyword}%"];
                 if ($phonePat !== null) { $params[] = $phonePat; }
-                $params[] = $user_id; $params[] = "%{$keyword}%"; $params[] = "%{$keyword}%";
+                $params[] = $user_id;
+                $params[] = (defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp');
+                $params[] = "%{$keyword}%"; $params[] = "%{$keyword}%";
                 if ($phonePat !== null) { $params[] = $phonePat; }
                 $stmt = $pdo->prepare("
                     SELECT * FROM (
@@ -1935,6 +1937,7 @@ switch ($action) {
                             SELECT u.id, u.display_name as name, 'user' as result_type
                             FROM users u
                             WHERE u.role = 'system_admin'
+                            AND u.email = ?
                             AND u.id != ?
                             AND u.status = 'active'
                             AND (u.display_name LIKE ? OR u.email LIKE ? $phoneCond)
