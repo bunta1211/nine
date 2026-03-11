@@ -18,6 +18,7 @@
 | `permissions.php` | 権限チェック | グループ管理 |
 | `roles.php` | ロール定義。組織メンバー系は `organization_members.left_at` の有無でクエリを分岐（本番スキーマ互換） | 権限システム, admin/api/members.php |
 | `friend_request_mail.php` | 友達申請通知メール送信（sendFriendRequestNotification）。相手メールに「承諾する」リンク付き案内 | api/friends.php |
+| `direct_chat_helper.php` | 2人用DM（グループチャット）の作成・取得（create_or_get_dm_between）。アドレス帳承認時や即時承認時に、お互いのチャット一覧に表示される会話を確保 | api/friends.php |
 | `logger.php` | ログ出力 | デバッグ |
 | `gemini_helper.php` | Gemini AI API連携（テキスト・画像・PDF対応）。`geminiChat`は`$imagePath`で画像またはPDFを`inlineData`形式で送信。PDFは application/pdf で送りスキャンPDFも解釈可能。パス解決は相対/絶対/UPLOAD_DIR/DOCUMENT_ROOT を試行。**APIキー未設定・無効時**: `getGeminiUnavailableMessage()` でユーザー向け共通メッセージを返却（api/ai.php で利用）。 | AI相談室, 翻訳, 画像分析, 自動返信提案 |
 | `task_memo_search_helper.php` | タスク・メモ・メッセージ検索（tableHasColumn, extractTaskMemoSearchParams, searchTasksAndMemos, formatTaskMemoSearchResultsForAI, extractTopicKeyword「〇〇を教えて」対応, extractMessageSearchKeywords, searchMessagesForContext, searchMessagesForContextMultiKeyword）。メモ検索は tasks テーブル（type='memo'）を参照（type カラムが無い場合は memos テーブルにフォールバック）。PDF・長文の extracted_text も検索対象。AI秘書はタスク・メモ0件時も過去ログ（所属グループの会話・extracted_text）を複数キーワードで検索して回答に利用 | api/ai.php（秘書のまとめ報告＋コンテキスト検索＋過去ログ検索） |

@@ -8,6 +8,7 @@ require_once __DIR__ . '/../includes/api-bootstrap.php';
 require_once __DIR__ . '/../includes/online_status.php';
 require_once __DIR__ . '/../includes/lang.php';
 require_once __DIR__ . '/../includes/friend_request_mail.php';
+require_once __DIR__ . '/../includes/direct_chat_helper.php';
 
 requireLogin();
 
@@ -193,7 +194,12 @@ try {
                 $stmt = $pdo->prepare("INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'accepted') ON DUPLICATE KEY UPDATE status = 'accepted', updated_at = NOW()");
                 $stmt->execute([$user_id, $friend['id']]);
                 $stmt->execute([$friend['id'], $user_id]);
-                echo json_encode(['success' => true, 'message' => 'アドレス帳に追加しました。DMで会話を始められます。', 'status' => 'accepted']);
+                $dm = create_or_get_dm_between($pdo, $user_id, (int)$friend['id']);
+                $payload = ['success' => true, 'message' => 'アドレス帳に追加しました。DMで会話を始められます。', 'status' => 'accepted'];
+                if ($dm) {
+                    $payload['conversation_id'] = $dm['conversation_id'];
+                }
+                echo json_encode($payload);
                 exit;
             }
             
@@ -224,7 +230,12 @@ try {
                 $stmt = $pdo->prepare("INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'accepted')");
                 $stmt->execute([$user_id, $friend['id']]);
                 
-                echo json_encode(['success' => true, 'message' => 'アドレス帳に追加済みになりました！', 'status' => 'accepted']);
+                $dm = create_or_get_dm_between($pdo, $user_id, (int)$friend['id']);
+                $payload = ['success' => true, 'message' => 'アドレス帳に追加済みになりました！', 'status' => 'accepted'];
+                if ($dm) {
+                    $payload['conversation_id'] = $dm['conversation_id'];
+                }
+                echo json_encode($payload);
                 exit;
             }
             
@@ -281,7 +292,13 @@ try {
             $stmt = $pdo->prepare("INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'accepted') ON DUPLICATE KEY UPDATE status = 'accepted', updated_at = NOW()");
             $stmt->execute([$user_id, $request['user_id']]);
             
-            echo json_encode(['success' => true, 'message' => 'アドレス追加申請を承認しました']);
+            // お互いのチャット一覧に表示される2人用グループチャットを取得または作成
+            $dm = create_or_get_dm_between($pdo, $user_id, (int)$request['user_id']);
+            $payload = ['success' => true, 'message' => 'アドレス追加申請を承認しました'];
+            if ($dm) {
+                $payload['conversation_id'] = $dm['conversation_id'];
+            }
+            echo json_encode($payload);
             break;
             
         case 'reject':

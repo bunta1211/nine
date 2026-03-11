@@ -9736,6 +9736,10 @@ window.submitChatTask = async function() {
                 if (data.success) {
                     const c = addFriendModalContacts.find(x => x.user_id === userId);
                     if (c) { c.is_pending = true; renderAddFriendContactsList(); }
+                    if (data.conversation_id) {
+                        const base = (window.__CHAT_BASE_URL != null && window.__CHAT_BASE_URL !== '') ? window.__CHAT_BASE_URL : '';
+                        window.location.href = base + 'chat.php?c=' + data.conversation_id;
+                    }
                 } else {
                     alert(data.error || 'アドレス追加申請に失敗しました');
                 }
@@ -10033,6 +10037,11 @@ window.submitChatTask = async function() {
                     // ステータスに応じてメッセージを表示
                     if (data.status === 'accepted') {
                         alert(data.message || '友達になりました！');
+                        if (data.conversation_id) {
+                            const base = (window.__CHAT_BASE_URL != null && window.__CHAT_BASE_URL !== '') ? window.__CHAT_BASE_URL : '';
+                            window.location.href = base + 'chat.php?c=' + data.conversation_id;
+                            return;
+                        }
                     } else {
                         alert(data.message || '友達リクエストを送信しました');
                     }
@@ -10082,6 +10091,12 @@ window.submitChatTask = async function() {
                 if (data.success) {
                     if (typeof performSearch === 'function') performSearch();
                     alert(data.message || successMsg);
+                    // 承認時に作成された2人用チャットがあればそのチャットを開く
+                    if (action === 'accept' && data.conversation_id) {
+                        const base = (window.__CHAT_BASE_URL != null && window.__CHAT_BASE_URL !== '') ? window.__CHAT_BASE_URL : '';
+                        window.location.href = base + 'chat.php?c=' + data.conversation_id;
+                        return;
+                    }
                 } else {
                     alert(data.error || failMsg);
                 }
@@ -10163,6 +10178,11 @@ window.submitChatTask = async function() {
                     closeFriendRequestModal();
                     if (data.status === 'accepted') {
                         alert(data.message || 'アドレス帳に追加済みになりました！');
+                        if (data.conversation_id) {
+                            const base = (window.__CHAT_BASE_URL != null && window.__CHAT_BASE_URL !== '') ? window.__CHAT_BASE_URL : '';
+                            window.location.href = base + 'chat.php?c=' + data.conversation_id;
+                            return;
+                        }
                     } else {
                         alert(data.message || 'アドレス追加申請を送信しました');
                     }

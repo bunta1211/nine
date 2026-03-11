@@ -4111,6 +4111,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     loadRequests();
                     loadFriendsList();
                     if (typeof window.updateFriendRequestBadge === 'function') window.updateFriendRequestBadge();
+                    // 承認時に作成された2人用チャットがあればそのチャットを開く
+                    if (data.conversation_id) {
+                        window.location.href = 'chat.php?c=' + data.conversation_id;
+                        return;
+                    }
                 } else {
                     alert(data.error || '承認に失敗しました');
                 }
