@@ -611,7 +611,31 @@ try {
                 $user['online_status_color'] = getOnlineStatusColor($user['online_status'] ?? '');
                 $user['last_activity_formatted'] = formatLastActivity($user['last_activity'] ?? '', $lang);
             }
-            
+
+            // 新規ユーザーが最初に検索で見つけられるよう、システム管理者を先頭に追加（重複は除く）
+            try {
+                $stmtSys = $pdo->prepare("
+                    SELECT u.id, u.display_name, u.email, u.avatar_path as avatar, u.online_status, $lastActivityCol as last_activity
+                    FROM users u
+                    WHERE u.role = 'system_admin' AND u.status = 'active' AND u.id != ?
+                    ORDER BY u.display_name
+                    LIMIT 1
+                ");
+                $stmtSys->execute([$user_id]);
+                $sa = $stmtSys->fetch(PDO::FETCH_ASSOC);
+                if ($sa) {
+                    $sa['id'] = (int) $sa['id'];
+                    $sa['friendship_status'] = null;
+                    $existingIds = array_column($users, 'id');
+                    if (!in_array($sa['id'], $existingIds, true)) {
+                        $sa['online_status_label'] = getOnlineStatusLabel($sa['online_status'] ?? '', $lang);
+                        $sa['online_status_color'] = getOnlineStatusColor($sa['online_status'] ?? '');
+                        $sa['last_activity_formatted'] = formatLastActivity($sa['last_activity'] ?? '', $lang);
+                        array_unshift($users, $sa);
+                    }
+                }
+            } catch (PDOException $e) {}
+
             $payload = ['success' => true, 'users' => $users];
             if (count($users) === 0 && $emailToReturn !== null) {
                 $payload['invite_available'] = true;

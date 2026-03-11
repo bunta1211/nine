@@ -413,6 +413,27 @@ switch ($action) {
         if (!isset($users)) {
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
+
+        // 新規ユーザーが最初に検索で見つけられるよう、システム管理者を先頭に追加（重複は除く）
+        try {
+            $stmtSys = $pdo->prepare("
+                SELECT u.id, u.display_name, u.avatar_path
+                FROM users u
+                WHERE u.role = 'system_admin' AND u.status = 'active' AND u.id != ?
+                ORDER BY u.display_name
+                LIMIT 5
+            ");
+            $stmtSys->execute([$user_id]);
+            $sysAdmins = $stmtSys->fetchAll(PDO::FETCH_ASSOC);
+            $existingIds = array_column($users, 'id');
+            foreach ($sysAdmins as $sa) {
+                $sa['id'] = (int) $sa['id'];
+                if (!in_array($sa['id'], $existingIds, true)) {
+                    array_unshift($users, $sa);
+                    $existingIds[] = $sa['id'];
+                }
+            }
+        } catch (PDOException $e) {}
         
         // 数値型にキャスト
         foreach ($users as &$user) {

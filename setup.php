@@ -114,7 +114,7 @@ try {
             VALUES ('admin@social9.jp', ?, 'システム管理者', 'system_admin', 3, NOW(), NOW())
         ")->execute([$hash]);
         echo "<div class='success'>✅ 管理者アカウントを作成しました</div>";
-        echo "<div class='info'>メール: admin@social9.jp / パスワード: Admin123!</div>";
+        echo "<div class='info'>メール: admin@social9.jp / パスワード: Admin123!<br>本番では <a href='admin/consolidate_system_admin.php'>admin/consolidate_system_admin.php</a> で saitanibunta@social9.jp（表示名・本名・パスワード設定）に統合できます。</div>";
     }
     
 } catch (PDOException $e) {

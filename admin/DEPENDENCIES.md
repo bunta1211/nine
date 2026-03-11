@@ -29,6 +29,7 @@
 | `monitor.php` | エラーチェック（エラーログ一覧・ヘルスチェック・チェックボックス一括解決・詳細展開・ユーザー/スタック/追加情報表示） | admin |
 | `security.php` | セキュリティ管理 | admin |
 | `attackers.php` | 攻撃者情報 | admin |
+| `consolidate_system_admin.php` | システム管理者アカウント統合（1回限り）。admin@social9.jp を saitanibunta@social9.jp に統合し、表示名・本名・パスワードを設定。org_admin 以上で実行可 | admin |
 | `set_test_passwords.php` | 会話テスト用アカウントのパスワード設定 | なし（一時セットアップ用） |
 | `storage_billing.php` | 利用料請求管理（**ストレージ料金表・AI利用料金表・その他サービス料金表**・契約一覧、**無制限組織は使用量/無制限表示**、請求生成、全銀データDL、口座情報管理） | |
 | `ai_memories.php` | AI記憶管理（組織の専門AIが自動収集した記憶の検索・確認・修正・追記・削除・復元） | org_admin |

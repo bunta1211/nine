@@ -113,9 +113,9 @@ $isSocial9 = (strpos($host, 'social9') !== false);
             <td style="padding:8px;">cloverkids456</td>
         </tr>
         <tr style="background:#f8fafc;">
-            <td style="padding:8px;">システム管理者</td>
-            <td style="padding:8px;">admin@social9.jp</td>
-            <td style="padding:8px;">cloverkids345</td>
+            <td style="padding:8px;">システム管理者（才谷文太）</td>
+            <td style="padding:8px;">saitanibunta@social9.jp</td>
+            <td style="padding:8px;">cloverkids456</td>
         </tr>
     </table>
 </div>
