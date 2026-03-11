@@ -1,8 +1,5 @@
 # Guild アプリケーション .htaccess
-
-# エラー表示を無効化（本番環境）
-php_flag display_errors off
-php_flag log_errors on
+# ※ php_flag / php_value は PHP-FPM では使えないため削除（本番 500 の原因になり得る）
 
 # 文字コード設定
 AddDefaultCharset UTF-8
