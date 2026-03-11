@@ -1,7 +1,7 @@
 /**
  * ログイン画面（ランディング）専用レイアウト・スタイル
- * 上パネル＋左・中央・右の4領域。既存セレクタと重複しないよう .page-login / .login-panel-* を付与。
- * 参照: DOCS/STANDARD_DESIGN_SPEC.md, includes/design_config.php
+ * 上パネル＋左・中央の3領域（右パネルは廃止済み・用途・使い方は中央に統合）。既存セレクタと重複しないよう .page-login / .login-panel-* を付与。
+ * 参照: DOCS/STANDARD_DESIGN_SPEC.md, includes/design_config.php, DOCS/LOGIN_LANDING_PLAN.md
  */
 
 /* ログイン画面用 :root（--header-height 70px を維持） */
@@ -55,6 +55,7 @@ body.page-login .center-panel {
     padding: 24px 28px;
 }
 
+/* 右パネルは廃止済み（用途・使い方は中央に統合）。index では未使用。互換のためスタイルのみ残す。 */
 body.page-login .right-panel {
     flex: 0 1 32%;
     min-width: 260px;
@@ -434,7 +435,7 @@ body.page-login .right-panel {
 }
 .page-login .login-landing-footer a:hover { text-decoration: underline; }
 
-/* モバイル: 768px 以下で左・中央・右を縦積み */
+/* モバイル: 768px 以下で左・中央を縦積み（右パネルは廃止済み） */
 @media (max-width: 768px) {
     body.page-login {
         padding-top: var(--mobile-header-height, 56px) !important;

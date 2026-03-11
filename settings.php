@@ -1070,6 +1070,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: block;
         }
         
+        .friends-tab-pending-badge {
+            display: inline-block !important;
+            margin-left: 4px;
+            padding: 2px 8px;
+            background: #f59e0b;
+            color: #fff;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .friends-tab.active .friends-tab-pending-badge {
+            background: rgba(255,255,255,0.9);
+            color: #92400e;
+        }
+        
         .friends-tab:hover {
             background: rgba(255,255,255,1);
             color: #10b981;
@@ -2664,7 +2679,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- タブナビゲーション -->
             <div class="friends-tabs">
                 <button class="friends-tab active" data-tab="list"><span>アドレス帳</span><span>リスト</span></button>
-                <button class="friends-tab" data-tab="requests">申請</button>
+                <button class="friends-tab" data-tab="requests">申請 <span class="friends-tab-pending-badge" id="friendsTabPendingBadge" style="display:none;">0</span></button>
                 <button class="friends-tab" data-tab="blocked">ブロック</button>
                 <button class="friends-tab" data-tab="import"><span>連絡先</span><span>インポート</span></button>
             </div>
@@ -3687,7 +3702,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     pendingContainer.innerHTML = '<div class="empty-text">受信した申請はありません</div>';
                 }
-                
+                var badgeEl = document.getElementById('friendsTabPendingBadge');
+                if (badgeEl) {
+                    var n = (pendingData.success && pendingData.requests) ? pendingData.requests.length : 0;
+                    if (n > 0) {
+                        badgeEl.textContent = n;
+                        badgeEl.style.display = 'inline';
+                    } else {
+                        badgeEl.style.display = 'none';
+                    }
+                }
+
                 // 送信した申請
                 const sentRes = await fetch('api/friends.php?action=sent');
                 const sentData = await sentRes.json();
@@ -4085,6 +4110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (data.success) {
                     loadRequests();
                     loadFriendsList();
+                    if (typeof window.updateFriendRequestBadge === 'function') window.updateFriendRequestBadge();
                 } else {
                     alert(data.error || '承認に失敗しました');
                 }
@@ -4105,6 +4131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if (data.success) {
                     loadRequests();
+                    if (typeof window.updateFriendRequestBadge === 'function') window.updateFriendRequestBadge();
                 } else {
                     alert(data.error || '拒否に失敗しました');
                 }
@@ -4126,6 +4153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (data.success) {
                     loadRequests();
                     alert(data.message || '申請を保留しました');
+                    if (typeof window.updateFriendRequestBadge === 'function') window.updateFriendRequestBadge();
                 } else {
                     alert(data.error || '保留に失敗しました');
                 }

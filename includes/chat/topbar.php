@@ -97,6 +97,12 @@ $topbar_header_id_attr = isset($topbar_header_id) && $topbar_header_id !== '' ? 
                     </div>
                 </div>
             </div>
+            <!-- 受信したアドレス追加申請があるときのみ表示（JSで件数取得して表示） -->
+            <a href="settings.php?section=friends#requests" id="topbarFriendRequestBadge" class="topbar-friend-request-badge" style="display:none;" title="<?= $currentLang === 'en' ? 'Friend requests' : ($currentLang === 'zh' ? '好友请求' : 'アドレス追加申請') ?>">
+                <span class="topbar-friend-request-icon">👋</span>
+                <span class="topbar-friend-request-label"><?= $currentLang === 'en' ? 'Requests' : ($currentLang === 'zh' ? '申请' : '申請') ?></span>
+                <span class="topbar-friend-request-count" id="topbarFriendRequestCount">0</span>
+            </a>
             <div class="language-selector" style="position: relative;">
                 <button class="top-btn" onclick="toggleLanguageMenu(event)" id="languageBtn">
                     <img src="assets/icons/line/globe.svg" alt="" class="icon-line" width="20" height="20"> <span class="btn-label"><?= $currentLang === 'en' ? 'EN' : ($currentLang === 'zh' ? '中' : 'JP') ?></span>
@@ -147,6 +153,7 @@ $topbar_header_id_attr = isset($topbar_header_id) && $topbar_header_id !== '' ? 
             
             <!-- ユーザーメニュードロップダウン -->
             <div class="user-dropdown" id="userDropdown">
+                <div id="userDropdownFriendRequestAlert" style="display:none;"></div>
                 <div class="user-dropdown-header">
                     <div class="user-icon" style="width:40px;height:40px;font-size:18px;cursor:pointer;background:<?= $avatarBg ?>;overflow:hidden;position:relative;" onclick="openUserAvatarModal(); closeUserMenu();" title="<?= $currentLang === 'en' ? 'Change Icon' : ($currentLang === 'zh' ? '更换图标' : 'アイコン変更') ?>">
                         <?php if (!empty($user['avatar_path'])): ?>
@@ -203,3 +210,39 @@ $topbar_header_id_attr = isset($topbar_header_id) && $topbar_header_id !== '' ? 
     </div>
     </div>
 </header>
+<script>
+(function() {
+    function updateFriendRequestBadge() {
+        var base = (typeof window.__CHAT_API_BASE !== 'undefined' && window.__CHAT_API_BASE) ? window.__CHAT_API_BASE.replace(/\/?$/, '') + '/' : '';
+        fetch(base + 'api/friends.php?action=pending_count', { credentials: 'include' })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.success || data.count === undefined) return;
+                var count = parseInt(data.count, 10) || 0;
+                var badgeEl = document.getElementById('topbarFriendRequestBadge');
+                var countEl = document.getElementById('topbarFriendRequestCount');
+                var alertEl = document.getElementById('userDropdownFriendRequestAlert');
+                if (!badgeEl || !countEl) return;
+                if (count > 0) {
+                    badgeEl.style.display = '';
+                    countEl.textContent = count;
+                    badgeEl.setAttribute('aria-label', '\u30a2\u30c9\u30ec\u30b9\u8ffd\u52a0\u7533\u8acb\u304c' + count + '\u4ef6');
+                    if (alertEl) {
+                        alertEl.style.display = 'block';
+                        alertEl.innerHTML = '<a href="settings.php?section=friends#requests" class="user-dropdown-friend-request-alert" style="display:block;padding:12px 15px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;font-weight:600;text-decoration:none;border-radius:8px;margin:8px;text-align:center;">\ud83d\udc4b \u30a2\u30c9\u30ec\u30b9\u8ffd\u52a0\u7533\u8acb\u304c' + count + '\u4ef6\u5c4a\u3044\u3066\u3044\u307e\u3059 \u2192</a>';
+                    }
+                } else {
+                    badgeEl.style.display = 'none';
+                    if (alertEl) alertEl.style.display = 'none';
+                }
+            })
+            .catch(function() {});
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateFriendRequestBadge);
+    } else {
+        updateFriendRequestBadge();
+    }
+    window.updateFriendRequestBadge = updateFriendRequestBadge;
+})();
+</script>

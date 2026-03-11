@@ -317,6 +317,34 @@
     background: #ef4444 !important;
 }
 
+/* 受信したアドレス追加申請バッジ（件数ありのときのみ表示） */
+.topbar-friend-request-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    border-radius: 10px;
+    border: 1px solid #f59e0b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    white-space: nowrap;
+}
+.topbar-friend-request-badge:hover {
+    background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+    color: #78350f;
+}
+.topbar-friend-request-count {
+    background: #f59e0b;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
 /* ========================================
    タスク・メモボタングループ: 凹みコンテナ + 横並び（アイコン左・ラベル右）
    ======================================== */

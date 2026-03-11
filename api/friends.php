@@ -95,6 +95,14 @@ try {
             
             echo json_encode(['success' => true, 'requests' => $requests]);
             break;
+
+        case 'pending_count':
+            // 受信したアドレス追加申請の件数（トップバー等のバッジ表示用）
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM friendships WHERE friend_id = ? AND status = 'pending'");
+            $stmt->execute([$user_id]);
+            $count = (int) $stmt->fetchColumn();
+            echo json_encode(['success' => true, 'count' => $count]);
+            break;
             
         case 'sent':
             // 送信した友だち申請
