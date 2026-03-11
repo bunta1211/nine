@@ -9821,10 +9821,20 @@ window.submitChatTask = async function() {
             const video = document.getElementById('qrVideo');
             
             try {
-                // カメラへのアクセスを要求
-                qrStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' } 
-                });
+                // カメラへのアクセスを要求（PCは背面がないので environment 失敗時は user / true にフォールバック）
+                let stream = null;
+                for (const c of [
+                    { video: { facingMode: 'environment' } },
+                    { video: { facingMode: 'user' } },
+                    { video: true }
+                ]) {
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia(c);
+                        break;
+                    } catch (_) { /* 次の制約を試す */ }
+                }
+                if (!stream) throw new Error('No camera');
+                qrStream = stream;
                 
                 video.srcObject = qrStream;
                 await video.play();
