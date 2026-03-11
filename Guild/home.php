@@ -64,8 +64,8 @@ $stmt = $pdo->prepare("
     SELECT t.*, 
            fu.display_name as from_user_name
     FROM guild_earth_transactions t
-    LEFT JOIN users fu ON t.related_user_id = fu.id
-    WHERE t.user_id = ?
+    LEFT JOIN users fu ON t.from_user_id = fu.id
+    WHERE t.to_user_id = ?
     ORDER BY t.created_at DESC
     LIMIT 5
 ");
@@ -196,11 +196,11 @@ $myGuildStats = $stmt->fetchAll();
                 <div class="transaction-icon">
                     <?php
                     $icons = ['earned' => '🌍', 'initial' => '🎁', 'tenure' => '⭐', 'role_bonus' => '👑', 'spent' => '💸', 'paid' => '💰'];
-                    echo $icons[$tx['type']] ?? '💰';
+                    echo $icons[$tx['transaction_type']] ?? '💰';
                     ?>
                 </div>
                 <div class="transaction-content">
-                    <div class="transaction-title"><?= h($tx['description'] ?? $tx['type']) ?></div>
+                    <div class="transaction-title"><?= h($tx['message'] ?? $tx['transaction_type']) ?></div>
                     <div class="transaction-date"><?= date('n/j H:i', strtotime($tx['created_at'])) ?></div>
                 </div>
                 <div class="transaction-amount positive">+<?= number_format($tx['amount']) ?></div>
