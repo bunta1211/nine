@@ -607,9 +607,13 @@
                                 </button>
                             </div>
                             <p id="qrScannerStatus" style="margin-top:8px;font-size:11px;color:var(--text-muted);"><?= $currentLang === 'en' ? 'Scan QR to add to address book' : ($currentLang === 'zh' ? '扫描二维码添加到通讯录' : '個人アドレス帳に追加するQRを読み取る') ?></p>
+                            <div id="qrScannedUserResult" class="qr-scanned-user-result" style="display:none; margin-top:16px; padding:12px; border-radius:12px; background:var(--bg-hover, #f0f4f8);">
+                                <p class="qr-scanned-label" style="margin:0 0 8px 0; font-size:12px; color:var(--text-muted);"><?= $currentLang === 'en' ? 'Scanned user' : ($currentLang === 'zh' ? '扫描到的用户' : '読み取った相手') ?></p>
+                                <div id="qrScannedUserCard"></div>
+                            </div>
                         </div>
                     </div>
-                    <p class="add-friend-note"><?= $currentLang === 'en' ? 'Scanning the QR code opens the invite page.' : ($currentLang === 'zh' ? '扫描二维码将打开邀请页面。' : 'QRコードをスキャンすると招待ページに移動します') ?></p>
+                    <p class="add-friend-note"><?= $currentLang === 'en' ? 'After scanning, the user will appear. Tap Add to add to your address book and start a chat.' : ($currentLang === 'zh' ? '扫描后将显示用户，点击添加即可加入通讯录并开始聊天。' : '読み取ると相手が表示されます。追加を押してアドレス帳に登録し、会話を始められます。') ?></p>
                 </div>
                 
                 <!-- メール・携帯で検索タブ（Email/携帯番号のみ） -->

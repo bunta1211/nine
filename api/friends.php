@@ -511,6 +511,46 @@ try {
             echo json_encode(['success' => true, 'members' => $members]);
             break;
             
+        case 'user_by_id':
+            // QRコード読み取り後など、招待URLの user id で相手を1件取得（友達状態含む）
+            $target_id = (int)($input['user_id'] ?? $_GET['user_id'] ?? 0);
+            if ($target_id < 1 || $target_id === $user_id) {
+                echo json_encode(['success' => false, 'error' => 'ユーザーが見つかりません']);
+                exit;
+            }
+            $stmt = $pdo->prepare("
+                SELECT u.id, u.display_name, u.avatar_path, u.online_status, u.last_activity
+                FROM users u
+                WHERE u.id = ? AND u.status = 'active'
+            ");
+            $stmt->execute([$target_id]);
+            $target = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$target) {
+                echo json_encode(['success' => false, 'error' => 'ユーザーが見つかりません']);
+                exit;
+            }
+            $stmt = $pdo->prepare("
+                SELECT status FROM friendships
+                WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)
+                ORDER BY (user_id = ? AND friend_id = ?) DESC
+                LIMIT 1
+            ");
+            $stmt->execute([$user_id, $target_id, $target_id, $user_id, $user_id, $target_id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $friendship_status = $row ? $row['status'] : '';
+            $stmt = $pdo->prepare("SELECT status FROM friendships WHERE user_id = ? AND friend_id = ? AND status = 'blocked'");
+            $stmt->execute([$target_id, $user_id]);
+            if ($stmt->fetch()) {
+                $friendship_status = 'blocked';
+            }
+            $target['id'] = (int)$target['id'];
+            $target['online_status_label'] = getOnlineStatusLabel($target['online_status'] ?? '', $lang);
+            $target['online_status_color'] = getOnlineStatusColor($target['online_status'] ?? '');
+            $target['last_activity_formatted'] = formatLastActivity($target['last_activity'] ?? '', $lang);
+            $target['friendship_status'] = $friendship_status;
+            echo json_encode(['success' => true, 'user' => $target]);
+            break;
+            
         case 'search':
             // 友達追加検索: Email または 携帯番号 のみで検索（表示名は使わない）
             $query = trim($input['query'] ?? $_GET['query'] ?? $_GET['q'] ?? '');
