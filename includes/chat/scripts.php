@@ -9908,12 +9908,27 @@ window.submitChatTask = async function() {
         function handleQRResult(data) {
             stopQRScanner();
             
-            // Social9の招待リンクかチェック
-            if (data.includes('/invite.php?u=')) {
-                if (confirm('個人アドレス帳の招待ページを開きますか？\n\n' + data)) {
-                    window.location.href = data;
+            // Social9の招待リンクかチェック（現在のサイトのURLで開くように正規化してページが表示されない問題を防ぐ）
+            if (data.includes('invite.php') && data.includes('u=')) {
+                var userId = null;
+                try {
+                    var url = data.startsWith('http') ? new URL(data) : new URL(data, window.location.origin);
+                    var u = url.searchParams.get('u');
+                    if (u) userId = parseInt(u, 10);
+                } catch (e) {
+                    var m = data.match(/[?&]u=(\d+)/);
+                    if (m) userId = parseInt(m[1], 10);
                 }
-            } else if (data.startsWith('http://') || data.startsWith('https://')) {
+                if (userId && userId > 0) {
+                    if (confirm('個人アドレス帳の招待ページを開きますか？\n\n読み取った相手をアドレス帳に追加するページを開きます。')) {
+                        var base = window.location.origin + (window.location.pathname.replace(/\/[^/]*$/, '') || '/');
+                        if (!base.endsWith('/')) base += '/';
+                        window.location.href = base + 'invite.php?u=' + userId;
+                    }
+                    return;
+                }
+            }
+            if (data.startsWith('http://') || data.startsWith('https://')) {
                 if (confirm('このURLを開きますか？\n\n' + data)) {
                     window.open(data, '_blank');
                 }
