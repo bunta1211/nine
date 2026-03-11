@@ -16,16 +16,11 @@ function guild_start_session() {
                 @mkdir($session_save_path, 0770, true);
             }
             if (is_dir($session_save_path) && is_writable($session_save_path)) {
-                session_save_path($session_save_path);
+                @session_save_path($session_save_path);
             }
-            // セッション設定
             @ini_set('session.cookie_httponly', 1);
             @ini_set('session.use_strict_mode', 1);
-            
-            // Social9と同じセッション名（PHPSESSID）を使用
-            // session_name() は呼び出さない（デフォルトのPHPSESSIDを使用）
-            
-            session_start();
+            @session_start();
         }
     }
 }
