@@ -405,11 +405,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['display_name'] = $display_name;
                 $_SESSION['language'] = $language;
                 $success_message = '基本設定を保存しました';
-                
-                // 再取得
+
+                // 再取得（トップバー等の表示名をこのリクエスト内で反映するため $user と $display_name を更新）
                 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
                 $stmt->execute([$user_id]);
                 $user = $stmt->fetch();
+                $display_name = $user['display_name'] ?? $display_name;
             }
         }
     } elseif ($action === 'update_password') {
