@@ -223,7 +223,7 @@ chat.php (317行)
 ✅ jsQR 遅延読み込み (QRスキャン)
    - loadJsQR() 関数を追加
    - QRスキャン開始時にのみ外部スクリプトを読み込む
-   - startQRScanner: PCでもカメラ起動するよう getUserMedia を environment → user → true の順でフォールバック
+   - startQRScanner: PCでは user 優先で getUserMedia（user→environment→true）、スマホは environment 優先。video は muted/playsinline で再生。mediaDevices 未対応・非HTTPS 時は案内メッセージを表示
 
 ✅ 画像遅延読み込み
    - loading="lazy" 属性を追加

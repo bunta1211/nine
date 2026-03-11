@@ -9803,6 +9803,15 @@ window.submitChatTask = async function() {
         }
         
         async function startQRScanner() {
+            // セキュアコンテキストと mediaDevices の事前チェック（PCで分かりやすいエラーに）
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                const msg = 'このブラウザではカメラにアクセスできません。\n' +
+                    (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1'
+                        ? 'カメラ利用には HTTPS または localhost で開いてください。'
+                        : 'Chrome / Edge / Firefox の最新版をご利用ください。');
+                alert(msg);
+                return;
+            }
             // jsQR がまだ読み込まれていない場合は読み込む
             if (typeof jsQR === 'undefined') {
                 try {
@@ -9821,13 +9830,13 @@ window.submitChatTask = async function() {
             const video = document.getElementById('qrVideo');
             
             try {
-                // カメラへのアクセスを要求（PCは背面がないので environment 失敗時は user / true にフォールバック）
+                // PCでは前面カメラ(user)を先に試す／スマホでは背面(environment)を先に
+                const isLikelyDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
+                const constraintsOrder = isLikelyDesktop
+                    ? [ { video: { facingMode: 'user' } }, { video: { facingMode: 'environment' } }, { video: true } ]
+                    : [ { video: { facingMode: 'environment' } }, { video: { facingMode: 'user' } }, { video: true } ];
                 let stream = null;
-                for (const c of [
-                    { video: { facingMode: 'environment' } },
-                    { video: { facingMode: 'user' } },
-                    { video: true }
-                ]) {
+                for (const c of constraintsOrder) {
                     try {
                         stream = await navigator.mediaDevices.getUserMedia(c);
                         break;
@@ -9836,6 +9845,8 @@ window.submitChatTask = async function() {
                 if (!stream) throw new Error('No camera');
                 qrStream = stream;
                 
+                video.muted = true;
+                video.setAttribute('playsinline', '');
                 video.srcObject = qrStream;
                 await video.play();
                 
@@ -9850,7 +9861,13 @@ window.submitChatTask = async function() {
             } catch (err) {
                 console.error('Camera error:', err);
                 status.textContent = 'カメラにアクセスできません';
-                alert('カメラへのアクセスが許可されていません。\nブラウザの設定でカメラを許可してください。');
+                let msg = 'カメラへのアクセスが許可されていません。\nブラウザの設定でカメラを許可してください。';
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    msg = 'カメラの使用が拒否されました。\nアドレスバー左の鍵アイコンから「カメラ」を許可してください。';
+                } else if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                    msg = 'カメラ利用には HTTPS で開くか、localhost でお試しください。';
+                }
+                alert(msg);
             }
         }
         
@@ -9880,6 +9897,10 @@ window.submitChatTask = async function() {
             const video = document.getElementById('qrVideo');
             
             if (!qrStream || video.readyState !== video.HAVE_ENOUGH_DATA) {
+                qrScanner = requestAnimationFrame(scanQRCode);
+                return;
+            }
+            if (video.videoWidth <= 0 || video.videoHeight <= 0) {
                 qrScanner = requestAnimationFrame(scanQRCode);
                 return;
             }
