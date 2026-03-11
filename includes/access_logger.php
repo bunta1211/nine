@@ -1,12 +1,12 @@
 <?php
 /**
  * アクセスログ（管理ダッシュボード用）
- * 本日のアクセス（同ドメイン除く）・検索経由・離脱率の集計に利用。
+ * 本日のアクセス・検索経由・離脱率の集計に利用。
  * 前提: config/database.php と config/app.php が読み込まれていること。
  */
 
 /**
- * 自ドメインのホスト名を返す（同ドメイン除外用）
+ * 自ドメインのホスト名を返す（検索経由・リファラー分析用）
  * @return string|null
  */
 function access_log_own_host() {
@@ -106,45 +106,33 @@ function log_page_access($path) {
  * @return array{ today_access: int, search_referral: int, bounce_rate: float|null }
  */
 function get_access_stats_today(PDO $pdo) {
-    $own = access_log_own_host();
     $search_hosts = access_log_search_hosts();
     $placeholders = implode(',', array_fill(0, count($search_hosts), '?'));
-
-    // 自ドメイン除外条件（APP_URL/HTTP_HOST が無い場合は全件対象）
-    $refererCondition = '1=1';
-    $refererParam = [];
-    if ($own !== null && $own !== '') {
-        $refererCondition = '(referer_host IS NULL OR referer_host != ?)';
-        $refererParam = [$own];
-    }
 
     $today_access = 0;
     $search_referral = 0;
     $bounce_rate = null;
 
     try {
-        // 本日のアクセス（同ドメイン除く）: 今日のユニーク訪問者で、リファラーが自ドメインでないもの
+        // 本日のアクセス: 今日のユニーク訪問者数（全訪問者）
         $sql_today = "
             SELECT COUNT(DISTINCT visitor_key) AS cnt
             FROM access_log
             WHERE DATE(created_at) = CURDATE()
-              AND $refererCondition
         ";
         $stmt = $pdo->prepare($sql_today);
-        $stmt->execute($refererParam);
+        $stmt->execute([]);
         $today_access = (int) $stmt->fetch(PDO::FETCH_ASSOC)['cnt'];
 
         // 検索経由: 本日のユニーク訪問者のうち、リファラーが検索エンジンのもの
-        $params_search = array_merge($refererParam, $search_hosts);
         $sql_search = "
             SELECT COUNT(DISTINCT visitor_key) AS cnt
             FROM access_log
             WHERE DATE(created_at) = CURDATE()
-              AND $refererCondition
               AND referer_host IN ($placeholders)
         ";
         $stmt = $pdo->prepare($sql_search);
-        $stmt->execute($params_search);
+        $stmt->execute($search_hosts);
         $search_referral = (int) $stmt->fetch(PDO::FETCH_ASSOC)['cnt'];
 
         // 離脱率: 本日1ページのみの訪問者数 / 本日の総ユニーク訪問者
@@ -156,12 +144,11 @@ function get_access_stats_today(PDO $pdo) {
                 SELECT visitor_key, COUNT(*) AS cnt
                 FROM access_log
                 WHERE DATE(created_at) = CURDATE()
-                  AND $refererCondition
                 GROUP BY visitor_key
             ) t
         ";
         $stmt = $pdo->prepare($sql_bounce);
-        $stmt->execute($refererParam);
+        $stmt->execute([]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $total = (int) $row['total'];
         $bounced = (int) $row['bounced'];

@@ -281,7 +281,7 @@ $recent_activities = $stmt->fetchAll();
                 <div class="stat-card">
                     <div class="icon yellow">🌐</div>
                     <div class="value"><?= number_format($stats['today_access']) ?></div>
-                    <div class="label">本日のアクセス（同ドメイン除く）</div>
+                    <div class="label">本日のアクセス</div>
                 </div>
                 <div class="stat-card">
                     <div class="icon purple">🔍</div>

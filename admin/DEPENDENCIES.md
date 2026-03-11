@@ -98,7 +98,7 @@ if (!hasSystemAdminRole()) {
 **表示内容**:
 - ユーザー統計
 - グループ統計
-- 本日のアクセス（同ドメイン除く）・検索経由・離脱率（access_log / includes/access_logger.php）
+- 本日のアクセス・検索経由・離脱率（access_log / includes/access_logger.php）
 - 最近のアクティビティ
 
 **依存関係**:
