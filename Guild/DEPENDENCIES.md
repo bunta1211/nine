@@ -8,7 +8,7 @@ Guildは Social9 とは独立したサブシステムです。
 ```
 Guild/
 ├── DEPENDENCIES.md          ← このファイル
-├── index.php                ← ログイン画面
+├── index.php                ← エントリ。Social9ログイン済みなら home または setup（テーブル未作成時）へ
 ├── home.php                 ← ダッシュボード
 ├── requests.php             ← 申請一覧
 ├── calendar.php             ← カレンダー
@@ -48,7 +48,7 @@ Guild/
 | リソース | Social9 | Guild | 備考 |
 |---------|---------|-------|------|
 | users テーブル | ○ | 参照のみ | ユーザー認証に使用 |
-| セッション | 独自 | 独自 | 別々に管理 |
+| セッション | ○ | 共有 | 同一 session_save_path（tmp/sessions）でログイン状態を共有。Guild/config/session.php で path を設定 |
 | CSS | assets/css/ | Guild/assets/css/ | 完全に独立 |
 | JS | assets/js/ | Guild/assets/js/ | 完全に独立 |
 

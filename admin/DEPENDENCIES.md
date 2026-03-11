@@ -98,14 +98,14 @@ if (!hasSystemAdminRole()) {
 **表示内容**:
 - ユーザー統計
 - グループ統計
-- 本日のアクセス・検索経由・離脱率（access_log / includes/access_logger.php）
+- 本日のアクセス・検索経由・離脱率（access_log / includes/access_logger.php）。テーブル未作成時は「migration_access_log.sql を実行してください」の案内を表示
 - 最近のアクティビティ
 
 **依存関係**:
 | カテゴリ | 依存先 |
 |---------|-------|
 | DB | `users`, `conversations`, `messages`, `access_log`（migration_access_log.sql） |
-| 共通 | `config/app.php`, `includes/access_logger.php`（get_access_stats_today） |
+| 共通 | `config/app.php`, `includes/access_logger.php`（get_access_stats_today, access_log_table_exists） |
 | CSS | 管理画面共通CSS（インライン） |
 | 認証 | `includes/auth.php`, `includes/roles.php` |
 

@@ -41,19 +41,22 @@ function access_log_search_hosts() {
 
 /**
  * 現在の訪問者キー（同一訪問者の識別用）
- * セッションがある場合は session_id、なければ IP+User-Agent のハッシュ
+ * セッションがある場合は session_id、なければ IP+User-Agent のハッシュ。
+ * 戻り値は必ず64文字以内（access_log.visitor_key の VARCHAR(64) に合わせる）。
  * @return string
  */
 function access_log_visitor_key() {
     if (function_exists('session_id')) {
         $sid = session_id();
         if ($sid !== '' && $sid !== null) {
-            return 's:' . $sid;
+            $key = 's:' . $sid;
+            return strlen($key) > 64 ? substr($key, 0, 64) : $key;
         }
     }
     $ip = $_SERVER['REMOTE_ADDR'] ?? '';
     $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
-    return 'a:' . hash('sha256', $ip . "\n" . $ua);
+    $hash = hash('sha256', $ip . "\n" . $ua);
+    return 'a:' . substr($hash, 0, 62);
 }
 
 /**
@@ -70,6 +73,20 @@ function access_log_referer_host() {
         return null;
     }
     return strtolower($host);
+}
+
+/**
+ * access_log テーブルが存在するかどうか（管理画面の案内用）
+ * @param PDO $pdo
+ * @return bool
+ */
+function access_log_table_exists(PDO $pdo) {
+    try {
+        $pdo->query("SELECT 1 FROM access_log LIMIT 1");
+        return true;
+    } catch (PDOException $e) {
+        return false;
+    }
 }
 
 /**
@@ -102,6 +119,8 @@ function log_page_access($path) {
 
 /**
  * 本日のアクセス・検索経由・離脱率を取得（管理ダッシュボード用）
+ * 「本日」は PHP のデフォルトタイムゾーン（Asia/Tokyo）で判定する。
+ * DB の created_at が UTC の場合は、その範囲を PHP で計算して比較する（CONVERT_TZ 非依存）。
  * @param PDO $pdo
  * @return array{ today_access: int, search_referral: int, bounce_rate: float|null }
  */
@@ -113,26 +132,33 @@ function get_access_stats_today(PDO $pdo) {
     $search_referral = 0;
     $bounce_rate = null;
 
+    $tz_app = new DateTimeZone(date_default_timezone_get());
+    $tz_storage = defined('DB_STORAGE_TIMEZONE') ? DB_STORAGE_TIMEZONE : 'UTC';
+    $tz_storage_obj = new DateTimeZone($tz_storage);
+    $today_start = (new DateTime('today', $tz_app))->setTimezone($tz_storage_obj)->format('Y-m-d H:i:s');
+    $today_end = (new DateTime('tomorrow', $tz_app))->modify('-1 second')->setTimezone($tz_storage_obj)->format('Y-m-d H:i:s');
+
     try {
-        // 本日のアクセス: 今日のユニーク訪問者数（全訪問者）
+        // 本日のアクセス: 今日のユニーク訪問者数（アプリタイムゾーンの「今日」で集計）
         $sql_today = "
             SELECT COUNT(DISTINCT visitor_key) AS cnt
             FROM access_log
-            WHERE DATE(created_at) = CURDATE()
+            WHERE created_at >= ? AND created_at <= ?
         ";
         $stmt = $pdo->prepare($sql_today);
-        $stmt->execute([]);
+        $stmt->execute([$today_start, $today_end]);
         $today_access = (int) $stmt->fetch(PDO::FETCH_ASSOC)['cnt'];
 
         // 検索経由: 本日のユニーク訪問者のうち、リファラーが検索エンジンのもの
         $sql_search = "
             SELECT COUNT(DISTINCT visitor_key) AS cnt
             FROM access_log
-            WHERE DATE(created_at) = CURDATE()
+            WHERE created_at >= ? AND created_at <= ?
               AND referer_host IN ($placeholders)
         ";
+        $params_search = array_merge([$today_start, $today_end], $search_hosts);
         $stmt = $pdo->prepare($sql_search);
-        $stmt->execute($search_hosts);
+        $stmt->execute($params_search);
         $search_referral = (int) $stmt->fetch(PDO::FETCH_ASSOC)['cnt'];
 
         // 離脱率: 本日1ページのみの訪問者数 / 本日の総ユニーク訪問者
@@ -143,12 +169,12 @@ function get_access_stats_today(PDO $pdo) {
             FROM (
                 SELECT visitor_key, COUNT(*) AS cnt
                 FROM access_log
-                WHERE DATE(created_at) = CURDATE()
+                WHERE created_at >= ? AND created_at <= ?
                 GROUP BY visitor_key
             ) t
         ";
         $stmt = $pdo->prepare($sql_bounce);
-        $stmt->execute([]);
+        $stmt->execute([$today_start, $today_end]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $total = (int) $row['total'];
         $bounced = (int) $row['bounced'];
@@ -157,6 +183,8 @@ function get_access_stats_today(PDO $pdo) {
         }
     } catch (PDOException $e) {
         // テーブル未作成時
+    } catch (Exception $e) {
+        // タイムゾーン等の例外
     }
 
     return [

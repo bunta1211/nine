@@ -10,6 +10,14 @@
 function guild_start_session() {
     if (session_status() == PHP_SESSION_NONE) {
         if (!headers_sent()) {
+            // Social9と同じセッション保存先を使用（ログイン状態を共有するため）
+            $session_save_path = __DIR__ . '/../../tmp/sessions';
+            if (!is_dir($session_save_path)) {
+                @mkdir($session_save_path, 0770, true);
+            }
+            if (is_dir($session_save_path) && is_writable($session_save_path)) {
+                session_save_path($session_save_path);
+            }
             // セッション設定
             @ini_set('session.cookie_httponly', 1);
             @ini_set('session.use_strict_mode', 1);
@@ -92,8 +100,8 @@ function isGuildSystemAdmin() {
             $stmt = $pdo->prepare("SELECT is_system_admin FROM guild_system_permissions WHERE user_id = ?");
             $stmt->execute([$userId]);
             $result = $stmt->fetch();
-            $isAdmin = $result && $result['is_system_admin'] == 1;
-        } catch (Exception $e) {
+            $isAdmin = $result && (int)$result['is_system_admin'] === 1;
+        } catch (PDOException $e) {
             $isAdmin = false;
         }
     }
@@ -132,8 +140,8 @@ function isGuildPayrollAdmin() {
             $stmt = $pdo->prepare("SELECT is_payroll_admin FROM guild_system_permissions WHERE user_id = ?");
             $stmt->execute([$userId]);
             $result = $stmt->fetch();
-            $isPayroll = $result && $result['is_payroll_admin'] == 1;
-        } catch (Exception $e) {
+            $isPayroll = $result && (int)$result['is_payroll_admin'] === 1;
+        } catch (PDOException $e) {
             $isPayroll = false;
         }
     }

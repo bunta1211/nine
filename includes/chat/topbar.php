@@ -50,7 +50,7 @@ $topbar_header_id_attr = isset($topbar_header_id) && $topbar_header_id !== '' ? 
                     <div class="app-dropdown-header">
                         <span><?= $currentLang === 'en' ? 'Apps' : ($currentLang === 'zh' ? '应用' : 'アプリ') ?></span>
                     </div>
-                    <a href="Guild/" class="app-dropdown-item">
+                    <a href="<?= (function_exists('getBaseUrl') && getBaseUrl() !== '') ? htmlspecialchars(rtrim(getBaseUrl(), '/') . '/Guild/', ENT_QUOTES, 'UTF-8') : 'Guild/'; ?>" class="app-dropdown-item">
                         <span class="app-dropdown-icon">🍀</span>
                         <span><?= $currentLang === 'en' ? 'Guild' : ($currentLang === 'zh' ? '公会' : 'ギルド') ?></span>
                     </a>

@@ -7,8 +7,16 @@
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/session.php';
 
-// Social9にログイン済みならホームへリダイレクト
+// Social9にログイン済みならGuild側へ
 if (isGuildLoggedIn()) {
+    // Guild用テーブルが未作成の場合はセットアップページへ
+    try {
+        $pdo = getDB();
+        $pdo->query("SELECT 1 FROM guild_system_permissions LIMIT 1");
+    } catch (PDOException $e) {
+        header('Location: setup.php');
+        exit;
+    }
     header('Location: home.php');
     exit;
 }

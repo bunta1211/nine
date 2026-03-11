@@ -108,6 +108,7 @@ $accessStats = get_access_stats_today($pdo);
 $stats['today_access'] = $accessStats['today_access'];
 $stats['search_referral'] = $accessStats['search_referral'];
 $stats['bounce_rate'] = $accessStats['bounce_rate'];
+$access_log_table_exists = access_log_table_exists($pdo);
 
 // 最近のアクティビティ
 $stmt = $pdo->query("
@@ -261,6 +262,12 @@ $recent_activities = $stmt->fetchAll();
                 <p style="margin: 0 0 8px 0;">2026年4月1日にプレオープンする予定です。</p>
                 <p style="margin: 0;">サーバーへの負荷が高いサービス、容量を確保する実費が必要なサービス等に関する一部有料サービスの提供は、準備ができ次第開始します。</p>
             </div>
+            <?php if (!$access_log_table_exists): ?>
+            <div class="admin-dashboard-notice admin-access-log-migration-notice" style="background: #e0f2fe; border: 1px solid #0284c7; border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; font-size: 14px; line-height: 1.6;">
+                <p style="margin: 0 0 8px 0; font-weight: 600;">本日のアクセス数を表示するには</p>
+                <p style="margin: 0;">データベースに <code>access_log</code> テーブルを作成してください。SQL: <code>database/migration_access_log.sql</code> を実行してください。</p>
+            </div>
+            <?php endif; ?>
             
             <div class="stats-grid">
                 <div class="stat-card">
