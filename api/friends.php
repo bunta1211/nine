@@ -184,6 +184,18 @@ try {
                 }
                 exit;
             }
+
+            // システム管理者（saitanibunta@social9.jp 等）への申請は受諾不要で即時承諾
+            $stmtTarget = $pdo->prepare("SELECT role, email FROM users WHERE id = ?");
+            $stmtTarget->execute([$friend['id']]);
+            $targetUser = $stmtTarget->fetch(PDO::FETCH_ASSOC);
+            if ($targetUser && ($targetUser['role'] === 'system_admin' || (isset($targetUser['email']) && $targetUser['email'] === 'saitanibunta@social9.jp'))) {
+                $stmt = $pdo->prepare("INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'accepted') ON DUPLICATE KEY UPDATE status = 'accepted', updated_at = NOW()");
+                $stmt->execute([$user_id, $friend['id']]);
+                $stmt->execute([$friend['id'], $user_id]);
+                echo json_encode(['success' => true, 'message' => 'アドレス帳に追加しました。DMで会話を始められます。', 'status' => 'accepted']);
+                exit;
+            }
             
             // 未成年同士の友達申請制限：search 経由は不可、qr/invite_link のみ可
             $cutoff = date('Y-m-d', strtotime('-15 years'));
@@ -612,20 +624,20 @@ try {
                 $user['last_activity_formatted'] = formatLastActivity($user['last_activity'] ?? '', $lang);
             }
 
-            // 新規ユーザーが最初に検索で見つけられるよう、システム管理者を先頭に追加（重複は除く）
+            // 新規ユーザーが最初に検索で見つけられるよう、システム管理者（saitanibunta@social9.jp を優先）を先頭に追加。申請不要でDM可能にするため friendship_status = 'accepted' で返す
             try {
                 $stmtSys = $pdo->prepare("
                     SELECT u.id, u.display_name, u.email, u.avatar_path as avatar, u.online_status, $lastActivityCol as last_activity
                     FROM users u
                     WHERE u.role = 'system_admin' AND u.status = 'active' AND u.id != ?
-                    ORDER BY u.display_name
+                    ORDER BY (u.email = 'saitanibunta@social9.jp') DESC, u.display_name
                     LIMIT 1
                 ");
                 $stmtSys->execute([$user_id]);
                 $sa = $stmtSys->fetch(PDO::FETCH_ASSOC);
                 if ($sa) {
                     $sa['id'] = (int) $sa['id'];
-                    $sa['friendship_status'] = null;
+                    $sa['friendship_status'] = 'accepted';
                     $existingIds = array_column($users, 'id');
                     if (!in_array($sa['id'], $existingIds, true)) {
                         $sa['online_status_label'] = getOnlineStatusLabel($sa['online_status'] ?? '', $lang);

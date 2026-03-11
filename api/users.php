@@ -414,13 +414,13 @@ switch ($action) {
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        // 新規ユーザーが最初に検索で見つけられるよう、システム管理者を先頭に追加（重複は除く）
+        // 新規ユーザーが最初に検索で見つけられるよう、システム管理者（saitanibunta@social9.jp を優先）を先頭に追加
         try {
             $stmtSys = $pdo->prepare("
                 SELECT u.id, u.display_name, u.avatar_path
                 FROM users u
                 WHERE u.role = 'system_admin' AND u.status = 'active' AND u.id != ?
-                ORDER BY u.display_name
+                ORDER BY (u.email = 'saitanibunta@social9.jp') DESC, u.display_name
                 LIMIT 5
             ");
             $stmtSys->execute([$user_id]);
