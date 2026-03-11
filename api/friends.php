@@ -439,7 +439,9 @@ try {
                     }
                 } catch (PDOException $e) {}
                 // 自分が所属するグループのメンバー + システム管理者を取得（重複排除）
+                // 機能しているシステム管理者（SYSTEM_ADMIN_EMAIL）のみ表示。指定外の system_admin（例: admin）は除外
                 // allow_member_dm=1 のグループのメンバーのみ（メンバー間DM許可のグループ）
+                $sysAdminEmail = defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp';
                 $stmt = $pdo->prepare("
                 (
                     SELECT DISTINCT
@@ -454,6 +456,7 @@ try {
                     INNER JOIN conversation_members my_cm ON c.id = my_cm.conversation_id 
                         AND my_cm.user_id = ? AND my_cm.left_at IS NULL
                     WHERE u.id != ?
+                    AND (u.role != 'system_admin' OR u.email = ?)
                     GROUP BY u.id, u.display_name, u.avatar_path, u.online_status
                 )
                 UNION
@@ -472,7 +475,7 @@ try {
                 )
                 ORDER BY display_name ASC
             ");
-                $stmt->execute([$user_id, $user_id, defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp', $user_id]);
+                $stmt->execute([$user_id, $user_id, $sysAdminEmail, $sysAdminEmail, $user_id]);
             }
             $raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
             

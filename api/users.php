@@ -246,8 +246,9 @@ switch ($action) {
                 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         } elseif ($searchRestricted) {
-            // 保護者による検索制限：グループメンバー + システム管理者を検索可能
+            // 保護者による検索制限：グループメンバー + 機能しているシステム管理者（SYSTEM_ADMIN_EMAIL）のみ検索可能
             $phoneCond = $phonePattern !== null ? " OR u.phone LIKE ?" : "";
+            $sysEmail = defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp';
             $stmt = $pdo->prepare("
                 SELECT DISTINCT u.id, u.display_name, u.avatar_path
                 FROM users u
@@ -257,7 +258,7 @@ switch ($action) {
                 AND u.status = 'active'
                 AND (u.display_name LIKE ? OR u.email LIKE ?" . $phoneCond . ")
                 AND (
-                    u.role = 'system_admin'
+                    (u.role = 'system_admin' AND u.email = ?)
                     OR (
                         cm.user_id IS NOT NULL
                         AND cm.conversation_id IN (
@@ -272,6 +273,7 @@ switch ($action) {
             ");
             $params = [$user_id, $searchPattern, $searchPattern];
             if ($phonePattern !== null) $params[] = $phonePattern;
+            $params[] = $sysEmail;
             $params[] = $user_id;
             $stmt->execute($params);
         } elseif (!$forGroupAdd && !$searchRestricted && strlen($phoneDigits) >= 10) {
@@ -332,7 +334,8 @@ switch ($action) {
                 }
             } catch (Exception $e) {}
             if ($orgSubquery === "") {
-                // 組織テーブルなし: 従来どおり (表示名・email・phone) AND (同じグループ or システム管理者)
+                // 組織テーブルなし: 従来どおり (表示名・email・phone) AND (同じグループ or 機能しているシステム管理者のみ)
+                $sysEmail = defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp';
                 $stmt = $pdo->prepare("
                     SELECT DISTINCT u.id, u.display_name, u.avatar_path
                     FROM users u
@@ -351,7 +354,7 @@ switch ($action) {
                             AND c.type = 'group'
                             AND c.allow_member_dm = 1
                         )
-                        OR u.role = 'system_admin'
+                        OR (u.role = 'system_admin' AND u.email = :sys_admin_email)
                       )
                       AND u.id NOT IN (SELECT blocked_user_id FROM blocked_users WHERE user_id = :current_user_id3)
                       AND u.id NOT IN (SELECT friend_id FROM friendships WHERE user_id = :current_user_id4 AND status = 'blocked')
@@ -363,11 +366,13 @@ switch ($action) {
                     ':current_user_id2' => $user_id,
                     ':current_user_id3' => $user_id,
                     ':current_user_id4' => $user_id,
-                    ':query' => $searchPattern
+                    ':query' => $searchPattern,
+                    ':sys_admin_email' => $sysEmail
                 ];
                 if ($phonePattern !== null) $executeParams[':phone_query'] = $phonePattern;
                 $stmt->execute($executeParams);
             } else {
+                $sysEmail = defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp';
                 $stmt = $pdo->prepare("
                     SELECT DISTINCT u.id, u.display_name, u.avatar_path
                     FROM users u
@@ -389,7 +394,7 @@ switch ($action) {
                               AND c.type = 'group'
                               AND c.allow_member_dm = 1
                           )
-                          OR u.role = 'system_admin'
+                          OR (u.role = 'system_admin' AND u.email = :sys_admin_email)
                         )
                       )
                       )
@@ -404,7 +409,8 @@ switch ($action) {
                     ':current_user_id3' => $user_id,
                     ':current_user_id4' => $user_id,
                     ':current_user_org' => $user_id,
-                    ':query' => $searchPattern
+                    ':query' => $searchPattern,
+                    ':sys_admin_email' => $sysEmail
                 ];
                 if ($phonePattern !== null) $executeParams[':phone_query'] = $phonePattern;
                 $stmt->execute($executeParams);

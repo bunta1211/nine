@@ -279,7 +279,7 @@ function getGroupMembersForFriends($pdo, $userId) {
             // 無視
         }
         $dmCondition = $hasAllowMemberDmColumn ? "AND (c.allow_member_dm IS NULL OR c.allow_member_dm = 1)" : "";
-        
+        $sysAdminEmail = defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp';
         $stmt = $pdo->prepare("
             (
                 SELECT DISTINCT u.id, u.display_name, u.avatar_path,
@@ -290,6 +290,7 @@ function getGroupMembersForFriends($pdo, $userId) {
                 INNER JOIN conversation_members my_cm ON c.id = my_cm.conversation_id
                     AND my_cm.user_id = ? AND my_cm.left_at IS NULL
                 WHERE u.id != ?
+                AND (u.role != 'system_admin' OR u.email = ?)
                 GROUP BY u.id, u.display_name, u.avatar_path
             )
             UNION
@@ -300,8 +301,7 @@ function getGroupMembersForFriends($pdo, $userId) {
             )
             ORDER BY display_name ASC
         ");
-        $sysAdminEmail = defined('SYSTEM_ADMIN_EMAIL') ? SYSTEM_ADMIN_EMAIL : 'saitanibunta@social9.jp';
-        $stmt->execute([$userId, $userId, $sysAdminEmail, $userId]);
+        $stmt->execute([$userId, $userId, $sysAdminEmail, $sysAdminEmail, $userId]);
     }
     $raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
