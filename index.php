@@ -145,16 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
             <?php endif; ?>
         </div>
         
-        <p class="philosophy">
-            人として 人のために動き<br>
-            明るい豊かな社会を創造する
-        </p>
-        
-        <div class="section-header">
-            <span>Our Philosophy</span>
-            <span class="brand"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></span>
-        </div>
-        
         <div id="alertArea">
             <?php if ($error): ?>
                 <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>

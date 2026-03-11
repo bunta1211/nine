@@ -14,7 +14,7 @@ $landing_lang = isset($currentLang) ? $currentLang : 'ja';
         <?php else: ?>
             町内会・部活・サークル・趣味の会から、家族の連絡・会社の業務報告まで。さまざまなシーンで、無料で使えるソーシャルアプリが Social9 です。
         <?php endif; ?>
-    </h2>
+    </h1>
 
     <p class="landing-catch-april">
         <?php if ($landing_lang === 'en'): ?>
@@ -76,4 +76,20 @@ $landing_lang = isset($currentLang) ? $currentLang : 'ja';
         <li><strong><?= $landing_lang === 'en' ? 'Voice & video calls' : ($landing_lang === 'zh' ? '语音与视频通话' : '音声・ビデオ通話') ?></strong> — <?= $landing_lang === 'en' ? 'Browser-based calls via Jitsi; incoming notifications and settings.' : ($landing_lang === 'zh' ? '通过 Jitsi 在浏览器内通话；来电通知与设置。' : 'Jitsi 連携でブラウザから通話。着信通知・通知設定あり。') ?></li>
         <li><strong><?= $landing_lang === 'en' ? 'More' : ($landing_lang === 'zh' ? '其他' : 'その他') ?></strong> — <?= $landing_lang === 'en' ? 'Design settings, Japanese / English / Chinese, push notifications, Guild rewards, search (in-org policy).' : ($landing_lang === 'zh' ? '设计设置、日英中多语言、推送通知、Guild 奖励、搜索（组织内策略）。' : 'デザイン設定、多言語（日本語・英語・中国語）、プッシュ通知、Guild（報酬分配）、検索（組織内表示名・グループ追加は組織内などポリシーあり）。') ?></li>
     </ul>
+
+    <div class="landing-philosophy-block" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.08);">
+        <p class="landing-philosophy-text" style="font-size: 14px; line-height: 1.7; color: var(--dt-text-muted, #555); margin-bottom: 8px;">
+            <?php if ($landing_lang === 'en'): ?>
+                Moving as humans, for humans.<br>Creating a bright and prosperous society.
+            <?php elseif ($landing_lang === 'zh'): ?>
+                作为人，为了人而行动。<br>创造光明富足的社会。
+            <?php else: ?>
+                人として 人のために動き<br>明るい豊かな社会を創造する
+            <?php endif; ?>
+        </p>
+        <div class="landing-section-header" style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <span style="font-size: 12px; color: #888;">Our Philosophy</span>
+            <span class="brand" style="font-size: 15px; font-weight: 600; color: #6b8e23;"><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?></span>
+        </div>
+    </div>
 </div>
