@@ -372,6 +372,9 @@ body.page-login .right-panel {
     color: var(--dt-text-primary, #1a1a1a);
     margin-bottom: 12px;
 }
+.page-login .landing-section-title-use-cases {
+    margin-top: 24px;
+}
 .page-login .landing-catch-title {
     font-size: 1.15rem;
     font-weight: 600;

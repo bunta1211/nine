@@ -10,7 +10,7 @@
 | `conversations.php` | 会話/グループ管理 | 必須 |
 | `gif.php` | GIF検索（GIPHY連携） | 不要 |
 | `users.php` | ユーザー情報（検索: 表示名・メール・携帯電話）。**グループ追加**: for_group_add 時・list_group_members(include_dm_restricted=1) 時は**同一組織メンバー**を返却（組織未所属時は従来どおり同じグループのメンバー）。**通常検索**: 表示名でのヒットは同一組織に限定（DOCS/SEARCH_POLICY.md）。scope=org で組織内検索対応。システム管理者は誰でも検索可能 | 必須 |
-| `friends.php` | 個人アドレス帳・アドレス追加申請。**search**: Email または 携帯番号 のみで検索（表示名は使わない）。0件かつ有効なメール形式のとき `invite_available: true`, `contact` を返し、フロントで未登録メールに招待送信可能。申請メッセージ付き・source経路記録・未成年同士制限対応。**send_invite** で招待メール送信（件名・本文は「〇〇の個人アドレス帳に追加受諾」。DOCS/SEARCH_POLICY.md） | 必須 |
+| `friends.php` | 個人アドレス帳・アドレス追加申請。**search**: Email または 携帯番号 のみで検索（表示名は使わない）。登録ユーザーがヒットするよう、last_activity/last_seen の環境差異対応・user_privacy_settings.exclude_from_search 考慮（0 または未設定のみ表示）・メール LOWER/TRIM マッチ・携帯番号は先頭0あり/なし両方でマッチ。0件かつ有効なメール形式のとき `invite_available: true`, `contact` を返し、フロントで未登録メールに招待送信可能。申請メッセージ付き・source経路記録・未成年同士制限対応。**send_invite** で招待メール送信（件名・本文は「〇〇の個人アドレス帳に追加受諾」。DOCS/SEARCH_POLICY.md） | 必須 |
 | `auth.php` | ログイン/ログアウト（メールまたは携帯電話番号でユーザー検索） | 不要 |
 | `auth_otp.php` | OTP/SMS認証（send_code: メール or 電話で認証コード送信、verify_code、set_password）。電話の場合は SmsSender と sms_verification_codes を使用 | 不要 |
 | `upload.php` | ファイルアップロード | 必須 |

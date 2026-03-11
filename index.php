@@ -296,13 +296,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
             </button>
         </div>
         </div>
-        <!-- 中央パネル：キャッチ・主な機能 -->
+        <!-- 中央パネル：キャッチ・主な機能・用途・使い方 -->
         <div class="center-panel">
             <?php include __DIR__ . '/includes/login_landing_center.php'; ?>
-        </div>
-        <!-- 右パネル：用途・使い方 -->
-        <div class="right-panel">
-            <?php include __DIR__ . '/includes/login_landing_right.php'; ?>
         </div>
     </div>
     

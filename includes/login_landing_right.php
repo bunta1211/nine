@@ -2,6 +2,7 @@
 /**
  * ログイン画面・右パネル：用途・使い方（利用シーン）
  * 計画 3.3 に基づく。
+ * ※表示は index.php では行わず、同内容は中央パネル（login_landing_center.php）に統合済み。
  */
 $landing_lang = isset($currentLang) ? $currentLang : 'ja';
 ?>

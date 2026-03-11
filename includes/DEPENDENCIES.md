@@ -38,8 +38,8 @@
 | `ai_safety_reporter.php` | AI安全通報機能（checkAndReport, createSafetyReport, askSecretaryQuestion, answerSecretaryQuestion, getSafetyReports）。社会通念違反・生命の危機・いじめ等を自動検知し運営に通報 | api/ai.php, api/ai-safety.php, admin/ai_safety_reports.php |
 | `ai_file_reader.php` | AI秘書用ファイル読み取り（extractFileText, isAiFileAllowed, isImageFile）。テキスト・CSV・JSON・PDF・DOCX・XLSX・PPTXからテキスト抽出。PDFは readPdfFile でストリーム＋括弧/hex フォールバック後に filterPdfExtractedText でノイズ除去。**抽出が空のときは pdf_helper の extractPdfTextFromPath（smalot/pdfparser）で再試行**。パス解決は絶対パス（DOCUMENT_ROOT 結合フォールバック）・相対パス（プロジェクトルート・DOCUMENT_ROOT・UPLOAD_DIR 親・getcwd）を試行。実行ファイルブロック | api/ai.php |
 | `login_topbar.php` | ログイン画面専用上パネル（ゲスト用）。ロゴ・言語切替・「ログイン」表示。見た目は topbar に合わせる | index.php |
-| `login_landing_center.php` | ログイン画面中央パネル：キャッチコピー・4月祝意・改善希望案内・AI注意・運営連絡方法・推奨環境・主な機能一覧 | index.php |
-| `login_landing_right.php` | ログイン画面右パネル：用途・使い方（利用シーン）一覧 | index.php |
+| `login_landing_center.php` | ログイン画面中央パネル：キャッチコピー・4月祝意・改善希望案内・AI注意・運営連絡方法・推奨環境・主な機能一覧・理念・用途・使い方（右パネル分を統合） | index.php |
+| `login_landing_right.php` | 用途・使い方の元ソース（表示は中央パネルに統合済み。index.php では未 include） | — |
 | `ai_memory_batch.php` | グループチャット自動検証・分類・記憶バッチ（processOrgChatMemories, extractAndClassifyChunk, runAllOrgMemoryBatch）。LLM/ルールベースで情報抽出し専門AI記憶ストアに蓄積 | cron/ai_memory_batch_run.php |
 
 ---

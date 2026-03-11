@@ -509,6 +509,25 @@ try {
             
             $users = [];
             $emailToReturn = null;
+            $privacyJoin = '';
+            $privacyWhere = '';
+            try {
+                $chkPrivacy = $pdo->query("SELECT 1 FROM user_privacy_settings LIMIT 1");
+                if ($chkPrivacy && $chkPrivacy->rowCount() >= 0) {
+                    $privacyJoin = " LEFT JOIN user_privacy_settings ups ON u.id = ups.user_id ";
+                    $privacyWhere = " AND (ups.id IS NULL OR ups.exclude_from_search = 0) ";
+                }
+            } catch (Exception $e) {}
+            $lastActivityCol = 'u.last_activity';
+            try {
+                $chkLast = $pdo->query("SHOW COLUMNS FROM users LIKE 'last_activity'");
+                if (!$chkLast || $chkLast->rowCount() === 0) {
+                    $chkSeen = $pdo->query("SHOW COLUMNS FROM users LIKE 'last_seen'");
+                    if ($chkSeen && $chkSeen->rowCount() > 0) {
+                        $lastActivityCol = 'u.last_seen';
+                    }
+                }
+            } catch (Exception $e) {}
             if ($isEmail) {
                 $emailNorm = strtolower(trim($query));
                 $stmt = $pdo->prepare("
@@ -518,13 +537,15 @@ try {
                         u.email,
                         u.avatar_path as avatar,
                         u.online_status,
-                        u.last_active_at as last_activity,
+                        $lastActivityCol as last_activity,
                         f.status as friendship_status
                     FROM users u
+                    $privacyJoin
                     LEFT JOIN friendships f ON (f.user_id = ? AND f.friend_id = u.id) OR (f.user_id = u.id AND f.friend_id = ?)
                     WHERE u.id != ? AND u.status = 'active'
-                    AND (u.email = ? OR u.email LIKE ?)
+                    AND (LOWER(TRIM(u.email)) = ? OR LOWER(TRIM(u.email)) LIKE ?)
                     $ageCond
+                    $privacyWhere
                     ORDER BY u.display_name ASC
                     LIMIT 20
                 ");
@@ -538,10 +559,17 @@ try {
             if (count($users) === 0 && $isPhone) {
                 $phonePat = '%' . $phoneDigits . '%';
                 $phoneCond = '';
+                $phoneParams = [$user_id, $user_id, $user_id];
                 try {
                     $chkPhone = $pdo->query("SHOW COLUMNS FROM users LIKE 'phone'");
                     if ($chkPhone && $chkPhone->rowCount() > 0) {
-                        $phoneCond = " AND u.phone LIKE ?";
+                        $phoneCond = " AND (u.phone LIKE ?";
+                        $phoneParams[] = $phonePat;
+                        if (strlen($phoneDigits) === 10 && $phoneDigits[0] !== '0') {
+                            $phoneCond .= " OR u.phone LIKE ?";
+                            $phoneParams[] = '%0' . $phoneDigits . '%';
+                        }
+                        $phoneCond .= ")";
                     }
                 } catch (Exception $e) {}
                 if ($phoneCond) {
@@ -552,17 +580,19 @@ try {
                             u.email,
                             u.avatar_path as avatar,
                             u.online_status,
-                            u.last_active_at as last_activity,
+                            $lastActivityCol as last_activity,
                             f.status as friendship_status
                         FROM users u
+                        $privacyJoin
                         LEFT JOIN friendships f ON (f.user_id = ? AND f.friend_id = u.id) OR (f.user_id = u.id AND f.friend_id = ?)
                         WHERE u.id != ? AND u.status = 'active'
                         $phoneCond
                         $ageCond
+                        $privacyWhere
                         ORDER BY u.display_name ASC
                         LIMIT 20
                     ");
-                    $stmt->execute([$user_id, $user_id, $user_id, $phonePat]);
+                    $stmt->execute($phoneParams);
                     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }
             }
