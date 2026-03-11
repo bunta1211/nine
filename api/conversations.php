@@ -256,21 +256,31 @@ switch ($action) {
         break;
         
     case 'mark_read':
-        // 会話を既読にする（DBに永続化し、次回ログイン時も既読を維持）
+        // 会話を既読にする（表示したメッセージIDまでを既読化）
         $conversation_id = (int)($input['conversation_id'] ?? $_GET['conversation_id'] ?? 0);
+        $upto_message_id = (int)($input['upto_message_id'] ?? $_GET['upto_message_id'] ?? 0);
         if ($conversation_id <= 0) {
             errorResponse('会話IDが必要です');
         }
         try {
+            // up-to 指定がない場合のみ、従来どおり会話内の最新まで既読化
             $stmt = $pdo->prepare("SELECT COALESCE(MAX(id), 0) FROM messages WHERE conversation_id = ? AND deleted_at IS NULL");
             $stmt->execute([$conversation_id]);
             $max_msg_id = (int) $stmt->fetchColumn();
+            if ($upto_message_id > 0) {
+                $max_msg_id = min($max_msg_id, $upto_message_id);
+            }
             $stmt = $pdo->prepare("
                 UPDATE conversation_members
-                SET last_read_at = NOW(), last_read_message_id = ?
+                SET last_read_at = NOW(),
+                    last_read_message_id = CASE
+                        WHEN last_read_message_id IS NULL THEN ?
+                        WHEN last_read_message_id < ? THEN ?
+                        ELSE last_read_message_id
+                    END
                 WHERE conversation_id = ? AND user_id = ? AND left_at IS NULL
             ");
-            $stmt->execute([$max_msg_id, $conversation_id, (int)$user_id]);
+            $stmt->execute([$max_msg_id, $max_msg_id, $max_msg_id, $conversation_id, (int)$user_id]);
         } catch (PDOException $e) {
             if (strpos($e->getMessage(), 'last_read_message_id') !== false || strpos($e->getMessage(), 'Unknown column') !== false) {
                 $stmt = $pdo->prepare("

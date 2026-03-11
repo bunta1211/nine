@@ -423,13 +423,57 @@ if (typeof Chat !== 'undefined' && Chat.config && Chat.config.init) {
     });
 }
 
-// 既読をAPIでも送信（DB永続化の二重化：次回ログイン時も既読を維持）
-(function() {
-    const cid = <?= $selected_conversation_id ? (int)$selected_conversation_id : 'null' ?>;
-    if (cid) {
-        fetch((window.__CHAT_API_BASE||'')+'api/conversations.php?action=mark_read&conversation_id=' + cid, { method: 'POST', credentials: 'same-origin' }).catch(function() {});
+// 既読は「実際に表示されたメッセージIDまで」進める（読んだ分だけ未読数を減らす）
+window.__lastReadAckConversationId = <?= $selected_conversation_id ? (int)$selected_conversation_id : 'null' ?>;
+window.__lastReadAckMessageId = <?= isset($last_read_message_id) && $last_read_message_id !== null ? (int)$last_read_message_id : 0 ?>;
+window.__readAckTimer = null;
+
+window.getVisibleReadUptoMessageId = function() {
+    const area = document.getElementById('messagesArea');
+    if (!area) return 0;
+    const areaRect = area.getBoundingClientRect();
+    const readBoundary = areaRect.top + (area.clientHeight * 0.85);
+    let maxVisibleId = 0;
+    area.querySelectorAll('[data-message-id]').forEach(function(el) {
+        const id = parseInt(el.getAttribute('data-message-id') || '0', 10);
+        if (!id) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= readBoundary) {
+            if (id > maxVisibleId) maxVisibleId = id;
+        }
+    });
+    return maxVisibleId;
+};
+
+window.markConversationReadUptoVisible = function(force) {
+    const cid = Number(window.currentConversationId || <?= $selected_conversation_id ? (int)$selected_conversation_id : 'null' ?> || 0);
+    if (!cid) return Promise.resolve();
+    const uptoId = window.getVisibleReadUptoMessageId();
+    if (!uptoId) return Promise.resolve();
+    if (!force && window.__lastReadAckConversationId === cid && uptoId <= (window.__lastReadAckMessageId || 0)) {
+        return Promise.resolve();
     }
-})();
+    return fetch((window.__CHAT_API_BASE||'')+'api/conversations.php', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'mark_read', conversation_id: cid, upto_message_id: uptoId })
+    }).then(function() {
+        window.__lastReadAckConversationId = cid;
+        window.__lastReadAckMessageId = uptoId;
+        if (typeof PushNotifications !== 'undefined' && typeof PushNotifications.updateBadgeFromServer === 'function') {
+            PushNotifications.updateBadgeFromServer();
+        }
+    }).catch(function() {});
+};
+
+window.scheduleMarkReadVisible = function(delayMs) {
+    const ms = typeof delayMs === 'number' ? delayMs : 220;
+    if (window.__readAckTimer) clearTimeout(window.__readAckTimer);
+    window.__readAckTimer = setTimeout(function() {
+        window.markConversationReadUptoVisible(false);
+    }, ms);
+};
 
 // ========================================
 // チャット内タスク依頼機能
@@ -887,6 +931,17 @@ window.submitChatTask = async function() {
         window.currentConversationId = conversationId; // 右パネルタスク一覧（loadConversationTasks）用
         let conversationType = 'dm';
         let selectedUsers = [];
+
+        // 「読んだ分だけ」既読にする: 可視化後・スクロール後に既読を進める
+        setTimeout(function() { window.scheduleMarkReadVisible(180); }, 180);
+        const _messagesAreaForRead = document.getElementById('messagesArea');
+        if (_messagesAreaForRead) {
+            _messagesAreaForRead.addEventListener('scroll', function() { window.scheduleMarkReadVisible(180); }, { passive: true });
+        }
+        window.addEventListener('focus', function() { window.scheduleMarkReadVisible(80); });
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) window.scheduleMarkReadVisible(80);
+        });
         
         // ========== オンライン状態ハートビート ==========
         // 2分ごとにサーバーにハートビートを送信してオンライン状態を維持
@@ -984,13 +1039,9 @@ window.submitChatTask = async function() {
             if (isAISecretaryActive && newConvId) {
                 try { localStorage.removeItem(DRAFT_KEY_PREFIX + newConvId); } catch (e) {}
             }
-            // 別会話へ移るときに、今の会話を既読にしてからタスクバーバッジを更新し、遷移
+            // 別会話へ移るときは、表示済みメッセージ分だけ既読化してから遷移
             if (conversationId && newConvId && Number(newConvId) !== Number(conversationId)) {
-                fetch((window.__CHAT_API_BASE||'')+'api/conversations.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'mark_read', conversation_id: conversationId })
-                }).then(function() {
+                window.markConversationReadUptoVisible(true).then(function() {
                     if (typeof PushNotifications !== 'undefined' && typeof PushNotifications.updateBadgeFromServer === 'function') {
                         return PushNotifications.updateBadgeFromServer();
                     }

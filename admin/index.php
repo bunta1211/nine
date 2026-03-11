@@ -24,6 +24,7 @@ $stats = [
     'total_users' => 0,
     'new_users_week' => 0,
     'online_users' => 0,
+    'active_users_24h' => 0,
     'messages_today' => 0,
     'calls_today' => 0,
     'pending_reports' => 0,
@@ -43,6 +44,22 @@ try {
     // オンラインユーザー
     $stmt = $pdo->query("SELECT COUNT(*) as count FROM users WHERE online_status = 'online'");
     $stats['online_users'] = $stmt->fetch()['count'];
+
+    // 直近24時間アクティブユーザー（last_activity がある場合）
+    try {
+        $stmt = $pdo->query("SELECT COUNT(*) as count FROM users WHERE last_activity >= DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+        if ($stmt) {
+            $stats['active_users_24h'] = (int)$stmt->fetch()['count'];
+        }
+    } catch (PDOException $e) {}
+    if ($stats['active_users_24h'] === 0) {
+        try {
+            $stmt = $pdo->query("SELECT COUNT(DISTINCT sender_id) as count FROM messages WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+            if ($stmt) {
+                $stats['active_users_24h'] = (int)$stmt->fetch()['count'];
+            }
+        } catch (PDOException $e) {}
+    }
 
     // メッセージ数
     $stmt = $pdo->query("SELECT COUNT(*) as count FROM messages WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)");
@@ -228,6 +245,12 @@ $recent_activities = $stmt->fetchAll();
                 <h2>ダッシュボード</h2>
             </div>
             
+            <div class="admin-dashboard-notice" style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; font-size: 14px; line-height: 1.6;">
+                <p style="margin: 0 0 8px 0; font-weight: 600;">現在は試験運用の段階です。</p>
+                <p style="margin: 0 0 8px 0;">2026年4月1日にプレオープンする予定です。</p>
+                <p style="margin: 0;">サーバーへの負荷が高いサービス、容量を確保する実費が必要なサービス等に関する一部有料サービスの提供は、準備ができ次第開始します。</p>
+            </div>
+            
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="icon blue">👥</div>
@@ -238,6 +261,23 @@ $recent_activities = $stmt->fetchAll();
                     <div class="icon green">🟢</div>
                     <div class="value"><?= number_format($stats['online_users']) ?></div>
                     <div class="label">オンラインユーザー</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon blue">📊</div>
+                    <div class="value"><?= number_format($stats['active_users_24h']) ?></div>
+                    <div class="label">直近24時間アクティブ</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon yellow">🌐</div>
+                    <div class="value">—</div>
+                    <div class="label">本日のアクセス（同ドメイン除く）</div>
+                    <div class="label" style="font-size: 11px; color: #999;">集計準備中</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon purple">🔍</div>
+                    <div class="value">—</div>
+                    <div class="label">検索経由・離脱率</div>
+                    <div class="label" style="font-size: 11px; color: #999;">集計準備中</div>
                 </div>
                 <div class="stat-card">
                     <div class="icon yellow">💬</div>

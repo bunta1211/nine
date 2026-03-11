@@ -10,7 +10,8 @@ body.page-chat,
 body.design-page,
 body.page-settings,
 body.tasks-page,
-body.notifications-page {
+body.notifications-page,
+body.page-login {
     padding-top: 70px !important;
     min-height: 100vh !important;
     height: auto !important; /* design_loader の height:100% を上書きし下端余白を防ぐ */
@@ -21,7 +22,8 @@ body.page-chat .main-container,
 body.design-page .main-container,
 body.page-settings .main-container,
 body.tasks-page .main-container,
-body.notifications-page .main-container {
+body.notifications-page .main-container,
+body.page-login .main-container {
     border-radius: var(--ui-border-radius, 20px);
     box-sizing: border-box !important;
     overflow: hidden;

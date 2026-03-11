@@ -381,6 +381,28 @@ switch ($action) {
             errorResponse('質問を入力するか、ファイルを添付してください');
         }
         
+        // 運営への連絡：ユーザーが「運営に連絡して」等と送った場合は improvement_reports に記録（管理者がデバッグページで確認）
+        $operatorContactPatterns = ['運営に連絡して', '運営へ連絡して', '運営に連絡', '運営へ連絡', '運営に連絡する', 'contact operator', '運営に伝えて'];
+        $isOperatorContact = false;
+        foreach ($operatorContactPatterns as $pat) {
+            if (mb_strpos($question, $pat) !== false) {
+                $isOperatorContact = true;
+                break;
+            }
+        }
+        if ($isOperatorContact) {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO improvement_reports (user_id, title, problem_summary, ui_location, suspected_location, suggested_fix, related_files, status, source) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, 'pending', 'ai_chat')");
+                $title = '【運営への連絡】';
+                $summary = mb_strlen($question) > 2000 ? mb_substr($question, 0, 1997) . '...' : $question;
+                $stmt->execute([$user_id, $title, $summary]);
+            } catch (PDOException $e) {
+                if ($e->getCode() !== '42S02') {
+                    error_log('AI api operator contact save error: ' . $e->getMessage());
+                }
+            }
+        }
+        
         $questionLimit = empty($fileContext) ? 2000 : 35000;
         if (mb_strlen($question) > $questionLimit) {
             errorResponse('質問が長すぎます');

@@ -23,6 +23,16 @@ if (isLoggedIn()) {
 }
 
 $currentLang = getCurrentLanguage();
+
+// ログイン画面での言語切替（GET lang=ja|en|zh でセッションに保存してリダイレクト）
+if (isset($_GET['lang']) && in_array($_GET['lang'], ['ja', 'en', 'zh'], true)) {
+    setLanguage($_GET['lang']);
+    $base = getBaseUrl();
+    $url = ($base !== '' ? $base . '/index.php' : 'index.php');
+    header('Location: ' . $url);
+    exit;
+}
+
 $pdo = getDB();
 $auth = new Auth($pdo);
 
@@ -91,25 +101,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
 }
 ?>
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="<?= $currentLang === 'en' ? 'en' : ($currentLang === 'zh' ? 'zh' : 'ja') ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?> - <?= __('login') ?></title>
+    <meta name="description" content="<?= $currentLang === 'en' ? 'Social9: Free social app for business, family, community, clubs, and hobbies. Group chat, AI secretary, tasks, file sharing, voice and video calls. Japanese, English, Chinese.' : ($currentLang === 'zh' ? 'Social9：面向公司、家庭、社区、社团与兴趣小组的免费社交应用。群聊、AI秘书、任务、文件共享、音视频通话。日英中多语言。' : 'Social9は町内会・部活・サークル・趣味の会から家族の連絡・会社の業務報告まで無料で使えるソーシャルアプリ。グループチャット、AI秘書、タスク・メモ、共有フォルダ、音声・ビデオ通話。日英中対応。') ?>">
+    <meta name="keywords" content="<?= $currentLang === 'en' ? 'free chat app, group chat, business communication, family chat, community app, AI secretary, task management, file sharing, video call, Japanese English Chinese' : ($currentLang === 'zh' ? '免费聊天应用,群聊,商务沟通,家庭联络,社区应用,AI秘书,任务管理,文件共享,视频通话,日英中' : '無料チャットアプリ,グループチャット,業務連絡,家族チャット,町内会,部活 連絡,サークル 連絡,AI秘書,タスク管理,ファイル共有,ビデオ通話,日本語 英語 中国語') ?>">
     
     <?php $pwa_icon_v = file_exists(__DIR__.'/assets/icons/icon-192x192.png') ? filemtime(__DIR__.'/assets/icons/icon-192x192.png') : '1'; ?>
-    <!-- PWA対応: マニフェストとアイコン（?v= でキャッシュ無効化し、ロゴ差し替え後に反映） -->
     <link rel="manifest" href="manifest.php">
     <meta name="theme-color" content="#4a6741">
     <meta name="application-name" content="<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>">
     
-    <!-- iOS Safari対応: ホーム画面追加 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="<?= defined('APP_NAME') ? htmlspecialchars(APP_NAME) : 'Social9' ?>">
     <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png?v=<?= $pwa_icon_v ?>">
     
-    <!-- ファビコン（SVGフォールバック付き） -->
     <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png?v=<?= $pwa_icon_v ?>">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192x192.png?v=<?= $pwa_icon_v ?>">
@@ -118,311 +127,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/pwa-install.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: linear-gradient(180deg, #f5f5f5 0%, #e8e8e8 100%);
-        }
-        
-        .login-container {
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            padding: 48px 56px;
-            width: 100%;
-            max-width: 480px;
-            text-align: center;
-        }
-        
-        .logo { margin-bottom: 24px; }
-        .logo img { width: 140px; height: 140px; object-fit: contain; }
-        .logo .logo-text { display: inline-block; font-size: 2.5rem; font-weight: 700; color: var(--dt-header-logo-text, #345678); letter-spacing: 0.05em; }
-        
-        .philosophy {
-            font-size: 15px;
-            color: #333;
-            line-height: 1.8;
-            margin-bottom: 32px;
-            font-weight: 300;
-            letter-spacing: 0.5px;
-        }
-        
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-        
-        .section-header span { font-size: 13px; color: #888; font-weight: 400; letter-spacing: 1px; }
-        .section-header .brand { font-size: 18px; font-weight: 600; color: #6b8e23; }
-        
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            text-align: left;
-        }
-        
-        .alert-error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-        .alert-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
-        
-        .form-section { display: none; }
-        .form-section.active { display: block; }
-        
-        .form-group { margin-bottom: 20px; text-align: left; }
-        
-        .form-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .form-label .icon { font-size: 16px; }
-        
-        .form-input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background: #fafafa;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #6b8e23;
-            box-shadow: 0 0 0 3px rgba(107, 142, 35, 0.1);
-            background: white;
-        }
-        
-        .otp-inputs {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin: 20px 0;
-        }
-        
-        .otp-input {
-            width: 48px;
-            height: 56px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: 600;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            transition: all 0.2s;
-        }
-        
-        .otp-input:focus {
-            outline: none;
-            border-color: #6b8e23;
-            box-shadow: 0 0 0 3px rgba(107, 142, 35, 0.1);
-        }
-        
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 14px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #6b8e23 0%, #7aa329 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #5a7a1e 0%, #6b8e23 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(107, 142, 35, 0.3);
-        }
-        
-        .btn-primary:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .btn-secondary {
-            background: #f5f5f5;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-        
-        .btn-secondary:hover {
-            background: #eee;
-            border-color: #ccc;
-        }
-        
-        .btn-google {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 14px 24px;
-            border: 1px solid #dadce0;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 500;
-            color: #3c4043;
-            background: #fff;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-google:hover {
-            background: #f8f9fa;
-            border-color: #dadce0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-        
-        .google-login-hint {
-            font-size: 12px;
-            color: #888;
-            margin-top: 10px;
-            margin-bottom: 0;
-            line-height: 1.5;
-            text-align: center;
-        }
-        
-        .btn .arrow { font-size: 18px; }
-        
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 28px 0;
-            color: #999;
-            font-size: 13px;
-        }
-        
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e0e0e0;
-        }
-        
-        .divider span { padding: 0 16px; }
-        
-        .alt-login {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: #666;
-            font-size: 14px;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 8px;
-            transition: background 0.2s;
-            text-decoration: none;
-            background: none;
-            border: none;
-            width: 100%;
-        }
-        
-        .alt-login:hover { background: #f5f5f5; color: #333; }
-        .alt-login .icon { font-size: 16px; }
-        
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: #888;
-            font-size: 13px;
-            text-decoration: none;
-            margin-bottom: 20px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-        
-        .back-link:hover { color: #333; }
-        
-        .timer {
-            font-size: 13px;
-            color: #888;
-            margin: 16px 0;
-        }
-        
-        .timer.expired { color: #dc2626; }
-        
-        .resend-link {
-            color: #6b8e23;
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        
-        .resend-link:hover { text-decoration: underline; }
-        .resend-link.disabled { color: #999; cursor: not-allowed; }
-        
-        .password-requirements {
-            font-size: 12px;
-            color: #888;
-            text-align: left;
-            margin-top: 8px;
-        }
-        
-        .password-requirements li { margin: 4px 0; }
-        
-        .form-subtitle {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .loading {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .loading.show { display: flex; }
-        
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ddd;
-            border-top-color: #6b8e23;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .hidden { display: none !important; }
-    </style>
+    <!-- 上パネル共有ルール: header.css → panel-panels-unified.css → login-landing.css -->
+    <link rel="stylesheet" href="assets/css/layout/header.css">
+    <link rel="stylesheet" href="assets/css/panel-panels-unified.css">
+    <link rel="stylesheet" href="assets/css/login-landing.css">
 </head>
-<body>
-    <div class="login-container">
+<body class="page-login">
+    <?php include __DIR__ . '/includes/login_topbar.php'; ?>
+    <div class="main-container" id="loginMainContainer">
+        <div class="left-panel" id="loginFormPanel">
+            <div class="login-panel-form" id="login-form">
         <div class="logo">
             <?php if (file_exists(__DIR__ . '/assets/images/logo-socialnine.png')): ?>
                 <img src="assets/images/logo-socialnine.png" alt="Social Nine">
@@ -591,8 +305,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
                 </span>
             </button>
         </div>
-        
+        </div>
+        <!-- 中央パネル：キャッチ・主な機能 -->
+        <div class="center-panel">
+            <?php include __DIR__ . '/includes/login_landing_center.php'; ?>
+        </div>
+        <!-- 右パネル：用途・使い方 -->
+        <div class="right-panel">
+            <?php include __DIR__ . '/includes/login_landing_right.php'; ?>
+        </div>
     </div>
+    
+    <footer class="login-landing-footer" role="contentinfo">
+        <p><a href="terms.php"><?= __('terms_of_service') ?></a> · <a href="terms.php#privacy"><?= __('privacy_policy') ?></a></p>
+        <p>© Social9</p>
+        <p><?= $currentLang === 'en' ? 'This service is in trial operation. Please see the terms of use.' : ($currentLang === 'zh' ? '本服务处于试运行阶段，请参阅利用规约。' : '本サービスは試験運用の段階です。利用規約をご確認の上ご利用ください。') ?></p>
+        <p><?= $currentLang === 'en' ? 'Recommended: Chrome, Safari or other browsers.' : ($currentLang === 'zh' ? '推荐使用 Chrome、Safari 等浏览器。' : '推奨: Chrome、Safari 等のブラウザでご利用ください。') ?></p>
+    </footer>
     
     <script>
         // 状態管理（メール or 携帯でコード送信時に設定）

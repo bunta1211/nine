@@ -1165,29 +1165,6 @@ switch ($action) {
             return !empty($m['task_detail']);
         }));
         
-        // 既読を更新（last_read_at と last_read_message_id の両方で永続化）
-        try {
-            $maxMsgWhere = "conversation_id = ?" . ($hasDeletedAt ? " AND deleted_at IS NULL" : "") . ($hasIsDeleted ? " AND (is_deleted = 0 OR is_deleted IS NULL)" : "");
-            $stmt = $pdo->prepare("SELECT COALESCE(MAX(id), 0) FROM messages WHERE {$maxMsgWhere}");
-            $stmt->execute([(int)$conversation_id]);
-            $max_msg_id = (int) $stmt->fetchColumn();
-            $cmWhere = "conversation_id = ? AND user_id = ?" . ($hasCmLeftAt ? " AND left_at IS NULL" : "");
-            $pdo->prepare("
-                UPDATE conversation_members
-                SET last_read_at = NOW(), last_read_message_id = ?
-                WHERE {$cmWhere}
-            ")->execute([$max_msg_id, (int)$conversation_id, (int)$user_id]);
-        } catch (PDOException $e) {
-            if (strpos($e->getMessage(), 'last_read_message_id') === false && strpos($e->getMessage(), 'Unknown column') === false) {
-                throw $e;
-            }
-            $cmWhere = "conversation_id = ? AND user_id = ?" . ($hasCmLeftAt ? " AND left_at IS NULL" : "");
-            $pdo->prepare("
-                UPDATE conversation_members SET last_read_at = NOW()
-                WHERE {$cmWhere}
-            ")->execute([(int)$conversation_id, (int)$user_id]);
-        }
-        
         // クライアント用に日時をISO 8601で統一（現在時刻とずれない表示のため）
         if (function_exists('formatDatetimeForClient')) {
             foreach ($messages as &$m) {
