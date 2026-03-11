@@ -67,10 +67,16 @@ class SmtpSender {
         $mailFrom = $this->command($sock, 'MAIL FROM:<' . $this->fromEmail . '>');
         if (substr($mailFrom, 0, 3) !== '250') {
             error_log('SmtpSender: MAIL FROM rejected: ' . $mailFrom);
+            $this->command($sock, 'QUIT');
+            $this->close($sock);
+            return false;
         }
         $rcptTo = $this->command($sock, 'RCPT TO:<' . $to . '>');
         if (substr($rcptTo, 0, 3) !== '250') {
             error_log('SmtpSender: RCPT TO rejected: ' . $rcptTo);
+            $this->command($sock, 'QUIT');
+            $this->close($sock);
+            return false;
         }
         $dataReply = $this->command($sock, 'DATA');
         if (substr($dataReply, 0, 3) !== '354') {

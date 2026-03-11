@@ -47,6 +47,23 @@ define('MAIL_FROM_NAME', 'Social9');
 4. **サーバーのエラーログ**  
    PHP の error_log に `Mailer: PHP mail() failed...` や `Mailer SMTP error: ...` が出ていないか確認する。
 
+## 新規登録で認証メールが届かない場合
+
+認証コード送信APIは、**送信に失敗した場合は「メールの送信に失敗しました」とエラーを返す**ようになっています。届かないのに成功メッセージが出る場合は、本番サーバーに最新の `api/auth_otp.php` が反映されているか確認してください。
+
+届かないうえに「メールの送信に失敗しました」と表示される場合は、以下を確認してください。
+
+1. **本番サーバー（EC2）に `config/mail.local.php` が存在するか**  
+   存在しない場合、`MAIL_DRIVER` は `php`（PHP の `mail()`）のままになり、多くの EC2 環境では送信されません。必ず `mail.local.php` を配置し、`MAIL_DRIVER=smtp` と SES の SMTP 認証情報を設定してください。
+2. **SES の送信元（From）が検証済みか**  
+   `MAIL_FROM_EMAIL` に指定しているアドレス（またはそのドメイン）を、SES コンソールの「検証済みの ID」で検証してください。サンドボックス解除後も、送信元の検証は必要です。
+3. **SMTP 認証情報**  
+   IAM の API キーではなく、SES の「SMTP 設定」で作成した **SMTP ユーザー名・SMTP パスワード** を `MAIL_SMTP_USER` / `MAIL_SMTP_PASS` に設定してください。
+4. **リージョン**  
+   東京リージョンなら `MAIL_SMTP_HOST` は `email-smtp.ap-northeast-1.amazonaws.com`、ポート 587、`MAIL_SMTP_ENCRYPTION` は `tls` にしてください。
+5. **エラーログ**  
+   本番の PHP error_log に `OTP Send: ... result=FAIL` や `SmtpSender: MAIL FROM rejected` 等が出ていないか確認し、出ている場合はその内容で原因を切り分けてください。
+
 ## 参考
 
 - [SES SMTP エンドポイント一覧](https://docs.aws.amazon.com/ses/latest/dg/smtp-connect.html)

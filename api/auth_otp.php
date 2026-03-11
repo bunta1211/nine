@@ -95,6 +95,10 @@ function sendVerificationCode($pdo, $input) {
 
     error_log("OTP Send: email={$email}, code={$code}, driver=" . (defined('MAIL_DRIVER') ? MAIL_DRIVER : 'undefined') . ", host=" . (defined('MAIL_SMTP_HOST') ? MAIL_SMTP_HOST : 'undefined') . ", from=" . (defined('MAIL_FROM_EMAIL') ? MAIL_FROM_EMAIL : 'undefined') . ", result=" . ($sent ? 'OK' : 'FAIL'));
 
+    if (!$sent) {
+        jsonError('メールの送信に失敗しました。しばらく経ってからお試しください。迷惑メールフォルダもご確認ください。送信設定の確認は管理者へお問い合わせください。');
+    }
+
     jsonSuccess([
         'message' => '認証コードを送信しました',
         'is_new_user' => $isNewUser,
