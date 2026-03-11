@@ -17,6 +17,9 @@ require_once __DIR__ . '/config/push.php';
 require_once __DIR__ . '/includes/design_loader.php';
 require_once __DIR__ . '/includes/lang.php';
 require_once __DIR__ . '/includes/chat/data.php';
+require_once __DIR__ . '/includes/access_logger.php';
+
+log_page_access('/chat.php');
 
 // ログインを要求
 requireLogin();

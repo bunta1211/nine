@@ -12,6 +12,9 @@ require_once __DIR__ . '/config/app.php';
 require_once __DIR__ . '/config/google_login.php';
 require_once __DIR__ . '/includes/auth/Auth.php';
 require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/access_logger.php';
+
+log_page_access('/index.php');
 
 // 既にログイン済みの場合はチャットへリダイレクト（絶対URLで移転後も確実）
 // 携帯版ではグループチャット一覧がトップページの役割のため、常に chat.php（会話未指定）へ

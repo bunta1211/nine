@@ -97,12 +97,14 @@ if (!hasSystemAdminRole()) {
 **表示内容**:
 - ユーザー統計
 - グループ統計
+- 本日のアクセス（同ドメイン除く）・検索経由・離脱率（access_log / includes/access_logger.php）
 - 最近のアクティビティ
 
 **依存関係**:
 | カテゴリ | 依存先 |
 |---------|-------|
-| DB | `users`, `conversations`, `messages` |
+| DB | `users`, `conversations`, `messages`, `access_log`（migration_access_log.sql） |
+| 共通 | `config/app.php`, `includes/access_logger.php`（get_access_stats_today） |
 | CSS | 管理画面共通CSS（インライン） |
 | 認証 | `includes/auth.php`, `includes/roles.php` |
 

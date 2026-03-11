@@ -40,6 +40,7 @@
 | `login_topbar.php` | ログイン画面専用上パネル（ゲスト用）。ロゴ・言語切替・「ログイン」表示。見た目は topbar に合わせる | index.php |
 | `login_landing_center.php` | ログイン画面中央パネル：キャッチコピー・4月祝意・改善希望案内・AI注意・運営連絡方法・推奨環境・主な機能一覧・理念・用途・使い方（右パネル分を統合）。計画 3.1/3.2 に基づく。DOCS/LOGIN_LANDING_PLAN.md 参照 | index.php |
 | `login_landing_right.php` | 用途・使い方の元ソース（表示は中央パネルに統合済み。index.php では未 include）。DOCS/LOGIN_LANDING_PLAN.md 参照 | — |
+| `access_logger.php` | アクセスログ記録・集計（log_page_access, get_access_stats_today）。本日のアクセス（同ドメイン除く）・検索経由・離脱率。access_log テーブル利用。config/database.php と config/app.php 前提 | index.php, chat.php, admin/index.php |
 | `ai_memory_batch.php` | グループチャット自動検証・分類・記憶バッチ（processOrgChatMemories, extractAndClassifyChunk, runAllOrgMemoryBatch）。LLM/ルールベースで情報抽出し専門AI記憶ストアに蓄積 | cron/ai_memory_batch_run.php |
 
 ---

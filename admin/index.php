@@ -6,7 +6,9 @@
 
 session_start();
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/app.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/access_logger.php';
 
 $currentPage = 'index';
 require_once __DIR__ . '/_sidebar.php';
@@ -30,7 +32,10 @@ $stats = [
     'pending_reports' => 0,
     'active_requests' => 0,
     'total_organizations' => 0,
-    'total_group_chats' => 0
+    'total_group_chats' => 0,
+    'today_access' => 0,
+    'search_referral' => 0,
+    'bounce_rate' => null,
 ];
 
 try {
@@ -97,6 +102,12 @@ try {
     $stmt = $pdo->query("SELECT COUNT(*) as count FROM conversations WHERE type = 'group'");
     $stats['total_group_chats'] = (int)$stmt->fetch()['count'];
 } catch (PDOException $e) {}
+
+// 本日のアクセス・検索経由・離脱率（access_log テーブル）
+$accessStats = get_access_stats_today($pdo);
+$stats['today_access'] = $accessStats['today_access'];
+$stats['search_referral'] = $accessStats['search_referral'];
+$stats['bounce_rate'] = $accessStats['bounce_rate'];
 
 // 最近のアクティビティ
 $stmt = $pdo->query("
@@ -269,15 +280,13 @@ $recent_activities = $stmt->fetchAll();
                 </div>
                 <div class="stat-card">
                     <div class="icon yellow">🌐</div>
-                    <div class="value">—</div>
+                    <div class="value"><?= number_format($stats['today_access']) ?></div>
                     <div class="label">本日のアクセス（同ドメイン除く）</div>
-                    <div class="label" style="font-size: 11px; color: #999;">集計準備中</div>
                 </div>
                 <div class="stat-card">
                     <div class="icon purple">🔍</div>
-                    <div class="value">—</div>
+                    <div class="value">検索 <?= number_format($stats['search_referral']) ?> ・ 離脱 <?= $stats['bounce_rate'] !== null ? number_format($stats['bounce_rate'], 1) . '%' : '—' ?></div>
                     <div class="label">検索経由・離脱率</div>
-                    <div class="label" style="font-size: 11px; color: #999;">集計準備中</div>
                 </div>
                 <div class="stat-card">
                     <div class="icon yellow">💬</div>
