@@ -9803,10 +9803,6 @@ window.submitChatTask = async function() {
         }
         
         async function startQRScanner() {
-            const resultEl = document.getElementById('qrScannedUserResult');
-            const cardEl = document.getElementById('qrScannedUserCard');
-            if (resultEl) resultEl.style.display = 'none';
-            if (cardEl) cardEl.innerHTML = '';
             // jsQR がまだ読み込まれていない場合は読み込む
             if (typeof jsQR === 'undefined') {
                 try {
@@ -9912,23 +9908,12 @@ window.submitChatTask = async function() {
         function handleQRResult(data) {
             stopQRScanner();
             
-            // Social9の個人アドレス帳招待リンク（invite.php?u=ユーザーID）
-            if (data.includes('/invite.php') && data.includes('u=')) {
-                let userId = null;
-                try {
-                    const url = data.startsWith('http') ? new URL(data) : new URL(data, window.location.origin);
-                    const u = url.searchParams.get('u');
-                    if (u) userId = parseInt(u, 10);
-                } catch (e) {
-                    const m = data.match(/[?&]u=(\d+)/);
-                    if (m) userId = parseInt(m[1], 10);
+            // Social9の招待リンクかチェック
+            if (data.includes('/invite.php?u=')) {
+                if (confirm('個人アドレス帳の招待ページを開きますか？\n\n' + data)) {
+                    window.location.href = data;
                 }
-                if (userId && userId > 0) {
-                    showQRScannedUser(userId);
-                    return;
-                }
-            }
-            if (data.startsWith('http://') || data.startsWith('https://')) {
+            } else if (data.startsWith('http://') || data.startsWith('https://')) {
                 if (confirm('このURLを開きますか？\n\n' + data)) {
                     window.open(data, '_blank');
                 }
@@ -9936,76 +9921,6 @@ window.submitChatTask = async function() {
                 alert('読み取り結果:\n' + data);
             }
         }
-        
-        async function showQRScannedUser(userId) {
-            const resultEl = document.getElementById('qrScannedUserResult');
-            const cardEl = document.getElementById('qrScannedUserCard');
-            const statusEl = document.getElementById('qrScannerStatus');
-            if (!resultEl || !cardEl) return;
-            statusEl.textContent = '<?= $currentLang === "en" ? "Loading..." : ($currentLang === "zh" ? "加载中..." : "取得中...") ?>';
-            cardEl.innerHTML = '';
-            resultEl.style.display = 'block';
-            try {
-                const res = await fetch((window.__CHAT_API_BASE||'')+'api/friends.php?action=user_by_id&user_id=' + userId);
-                const data = await res.json();
-                statusEl.textContent = '<?= $currentLang === "en" ? "Scan QR to add to address book" : ($currentLang === "zh" ? "扫描二维码添加到通讯录" : "個人アドレス帳に追加するQRを読み取る") ?>';
-                if (!data.success || !data.user) {
-                    cardEl.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">' + (data.error || '<?= $currentLang === "en" ? "User not found." : ($currentLang === "zh" ? "未找到用户。" : "ユーザーが見つかりません。") ?>') + '</p>';
-                    return;
-                }
-                const user = data.user;
-                const getLbl = (typeof window.getSearchLabel === 'function') ? window.getSearchLabel : function(k) { return (window.__SEARCH_LABELS && window.__SEARCH_LABELS[k]) || ''; };
-                let btnHtml = '';
-                if (user.friendship_status === 'accepted') {
-                    btnHtml = '<button class="add-btn" style="background:#10b981;cursor:pointer;" onclick="event.stopPropagation();startDmFromSearch(' + user.id + ', \'' + (escapeHtml(user.display_name || '').replace(/'/g, "\\'") + '\')">💬 DM</button>';
-                } else if (user.friendship_status === 'pending') {
-                    btnHtml = '<button class="add-btn add-btn-pending-cancel" type="button" onclick="event.stopPropagation();cancelSentFriendRequest(' + user.id + ')" title="<?= $currentLang === "en" ? "Cancel request" : ($currentLang === "zh" ? "取消申请" : "申請を取り消す") ?>" style="background:#f59e0b;">⏳ <?= $currentLang === "en" ? "Pending" : ($currentLang === "zh" ? "申请中" : "申請中（取り消し）") ?></button>';
-                } else if (user.friendship_status === 'blocked') {
-                    btnHtml = '<button class="add-btn" disabled style="background:#6b7280;cursor:default;"><?= $currentLang === "en" ? "Blocked" : ($currentLang === "zh" ? "已屏蔽" : "ブロック中") ?></button>';
-                } else {
-                    btnHtml = '<button class="add-btn add-btn-qr-add" type="button" onclick="addFriendFromQR(' + user.id + ', \'' + (escapeHtml(user.display_name || '').replace(/'/g, "\\'") + '\')">➕ <?= $currentLang === "en" ? "Add" : ($currentLang === "zh" ? "添加" : "追加") ?></button>';
-                }
-                const statusColor = user.online_status_color || '#9ca3af';
-                cardEl.innerHTML = `
-                    <div class="search-user-item qr-scanned-user-item">
-                        <div class="user-avatar">${user.display_name ? user.display_name.substring(0, 1) : '?'}</div>
-                        <div class="user-info">
-                            <div class="user-name">${escapeHtml(user.display_name || 'Unknown')}</div>
-                            <div class="user-meta" style="font-size:12px;color:var(--text-muted);">${escapeHtml(user.online_status_label || '')}</div>
-                        </div>
-                        <div class="user-actions">${btnHtml}</div>
-                    </div>
-                `;
-            } catch (err) {
-                console.error('QR user fetch error:', err);
-                statusEl.textContent = '<?= $currentLang === "en" ? "Scan QR to add to address book" : ($currentLang === "zh" ? "扫描二维码添加到通讯录" : "個人アドレス帳に追加するQRを読み取る") ?>';
-                cardEl.innerHTML = '<p style="color:#dc2626;font-size:13px;"><?= $currentLang === "en" ? "Failed to load user." : ($currentLang === "zh" ? "加载用户失败。" : "ユーザーを取得できませんでした。") ?></p>';
-            }
-        }
-        
-        window.addFriendFromQR = async function(userId, displayName) {
-            try {
-                const res = await fetch((window.__CHAT_API_BASE||'')+'api/friends.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'add', friend_id: userId, source: 'qr' })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    if (data.conversation_id) {
-                        const base = (window.__CHAT_BASE_URL != null && window.__CHAT_BASE_URL !== '') ? window.__CHAT_BASE_URL : '';
-                        window.location.href = base + 'chat.php?c=' + data.conversation_id;
-                        return;
-                    }
-                    alert(data.message || '<?= $currentLang === "en" ? "Added to address book." : ($currentLang === "zh" ? "已添加到通讯录。" : "アドレス帳に追加しました。") ?>');
-                    showQRScannedUser(userId);
-                } else {
-                    alert(data.error || '<?= $currentLang === "en" ? "Failed to add." : ($currentLang === "zh" ? "添加失败。" : "追加に失敗しました。") ?>');
-                }
-            } catch (e) {
-                alert('<?= $currentLang === "en" ? "An error occurred." : ($currentLang === "zh" ? "发生错误。" : "エラーが発生しました。") ?>');
-            }
-        };
         
         // モーダルを閉じたときにスキャナーを停止
         const originalCloseModal = closeModal;
