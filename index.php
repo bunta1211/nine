@@ -218,12 +218,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
                     パスワードを忘れた方
                 </a>
             </div>
-            <div style="margin-top: 8px; text-align: center;">
-                <a href="multi_account_login.php" class="alt-login" style="display: inline-flex; width: auto;">
-                    <span class="icon">👥</span>
-                    複数アカウントで同時ログイン（会話テスト用）
-                </a>
-            </div>
         </div>
         
         <!-- ② 認証コード入力 -->
