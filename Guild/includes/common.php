@@ -168,6 +168,29 @@ function getUserGuilds($userId = null) {
 }
 
 /**
+ * ギルド長またはサブリーダーであるか（いずれかのギルドで）
+ */
+function isGuildLeaderOrSubLeader($userId = null) {
+    $guilds = getUserGuilds($userId);
+    foreach ($guilds as $g) {
+        if (in_array($g['role'], ['leader', 'sub_leader'], true)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * ギルド長ページ用：リーダー・サブリーダーを務めるギルド一覧を取得
+ */
+function getGuildsWhereLeaderOrSubLeader($userId = null) {
+    $guilds = getUserGuilds($userId);
+    return array_filter($guilds, function ($g) {
+        return in_array($g['role'], ['leader', 'sub_leader'], true);
+    });
+}
+
+/**
  * 依頼発行権限チェック
  */
 function canIssueRequest($userId, $guildId, $requestType) {

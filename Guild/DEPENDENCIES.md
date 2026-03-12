@@ -10,6 +10,7 @@ Guild/
 ├── DEPENDENCIES.md          ← このファイル
 ├── index.php                ← エントリ。Fatal時は shutdown で setup へ。親 config 無い場合も setup へ。
 ├── home.php                 ← ダッシュボード
+├── leader.php               ← ギルド長ページ（リーダー・サブリーダー用。担当ギルドの管理入口）
 ├── requests.php             ← 申請一覧
 ├── calendar.php             ← カレンダー
 │

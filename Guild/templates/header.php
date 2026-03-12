@@ -13,6 +13,10 @@ $earthBalance = getUserEarthBalance();
 $showSettlementWarning = shouldShowSettlementWarning();
 $isFreezeZone = isFreezeZPeriod();
 
+// テスト運用期間（3月31日まで。4月1日から新年度運用）
+$guildTestPeriodEnd = new DateTime('2026-04-01', new DateTimeZone(date_default_timezone_get()));
+$isGuildTestPeriod = (new DateTime('now', new DateTimeZone(date_default_timezone_get()))) < $guildTestPeriodEnd;
+
 // ダークモード
 $darkMode = isDarkMode();
 
@@ -123,6 +127,19 @@ $baseUrl = getGuildBaseUrl();
                 <?php endif; ?>
             </a>
         </nav>
+        
+        <!-- ギルド長ページ（リーダー・サブリーダーのみ表示） -->
+        <?php if (isGuildLeaderOrSubLeader()): ?>
+        <div class="sidebar-section">
+            <div class="section-title"><?= __('guild_leader') ?></div>
+            <nav class="sidebar-nav">
+                <a href="<?= $baseUrl ?>/leader.php" class="nav-item <?= $currentPage === 'leader' ? 'active' : '' ?>">
+                    <span class="nav-icon">👑</span>
+                    <span class="nav-text">ギルド長ページ</span>
+                </a>
+            </nav>
+        </div>
+        <?php endif; ?>
         
         <!-- 管理者メニュー -->
         <?php if (isGuildSystemAdmin() || isGuildPayrollAdmin()): ?>
@@ -241,6 +258,13 @@ $baseUrl = getGuildBaseUrl();
         <div class="warning-banner warning-danger">
             <span class="warning-icon">🚫</span>
             <span class="warning-text"><?= __('freeze_period') ?></span>
+        </div>
+        <?php endif; ?>
+        
+        <?php if ($isGuildTestPeriod): ?>
+        <div class="warning-banner guild-test-period-banner" style="background:#e0f2fe;border:1px solid #0284c7;color:#0369a1;">
+            <span class="warning-icon">📋</span>
+            <span class="warning-text">3月31日までテスト運用期間です。4月1日から新年度運用が始まります。</span>
         </div>
         <?php endif; ?>
         
