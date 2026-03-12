@@ -261,9 +261,14 @@
                 if (localStorage.getItem('memosRightPanelCollapsed') === 'true') rightPanel.classList.add('collapsed');
             } catch (e) {}
         }
-        // 上パネル: 初期値はボタン収納（デザイン・アプリ・タスク等を非表示）
+        // 上パネル: 初期値は開いた状態。localStorage で「収納」を選んでいるときだけ非表示
         var taskMemoEl = document.getElementById('taskMemoButtons');
-        if (taskMemoEl) taskMemoEl.classList.add('hidden');
+        var toggleTaskMemoBtn = document.getElementById('toggleTaskMemoBtn');
+        if (taskMemoEl && toggleTaskMemoBtn) {
+            try {
+                if (localStorage.getItem('taskMemoHidden') === 'true') taskMemoEl.classList.add('hidden');
+            } catch (e) {}
+        }
         var searchInput = document.getElementById('topBarSearchInput');
         if (searchInput) {
             var searchBox = searchInput.closest('.search-box');

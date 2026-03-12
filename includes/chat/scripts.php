@@ -7623,9 +7623,17 @@ window.submitChatTask = async function() {
             const btn = document.getElementById('taskMemoButtons');
             const toggleBtn = document.getElementById('toggleTaskMemoBtn');
             if (btn && toggleBtn) {
-                // 初期値は収納（ボタン群を非表示）。≡ クリックで展開できる
-                btn.classList.add('hidden');
-                toggleBtn.title = '<?= $currentLang === 'en' ? 'Show menu' : ($currentLang === 'zh' ? '显示菜单' : 'メニューを表示') ?>';
+                // 初期値は開いた状態。localStorage で「収納」を選んでいるときだけ非表示
+                try {
+                    if (localStorage.getItem('taskMemoHidden') === 'true') {
+                        btn.classList.add('hidden');
+                        toggleBtn.title = '<?= $currentLang === 'en' ? 'Show menu' : ($currentLang === 'zh' ? '显示菜单' : 'メニューを表示') ?>';
+                    } else {
+                        toggleBtn.title = '<?= $currentLang === 'en' ? 'Hide menu' : ($currentLang === 'zh' ? '收起菜单' : 'メニューを収納') ?>';
+                    }
+                } catch (e) {
+                    toggleBtn.title = '<?= $currentLang === 'en' ? 'Hide menu' : ($currentLang === 'zh' ? '收起菜单' : 'メニューを収納') ?>';
+                }
             }
         });
         
