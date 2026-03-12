@@ -55,7 +55,7 @@ assets/css/
 | `secretary-rightpanel.css` | AI秘書（AIクローン）専用右パネル（訓練言語・判断材料ツリー・会話記憶・自動返信統計・アイテム編集モーダル） | chat.php |
 | `ai-reply-suggest.css` | AIクローン返信提案カードUI（提案ボタン・ローディング・**To行**（.ai-reply-suggest-to-row / .ai-reply-suggest-to-btn）・テキストエリア・送信/閉じる・送信完了）。モバイル: body.ai-reply-suggest-open で入力欄・input-show-btn 非表示、textarea は max-height+overflow-y でスクロール可能、.ai-reply-suggest-overlay で固定オーバーレイ表示 | chat.php |
 | `storage.css` | 共有フォルダUI（エクスプローラー風一覧、**表示切替** テキストリスト/画像サムネイルグリッド `.sv-grid-mode`・`.sv-file-card-grid`、プレビュー、共有モーダル、容量バー）。色は `--dt-accent` / `--dt-input-focus-border` / `--dt-btn-primary-bg` でデザイン統一 | chat.php |
-| `login-landing.css` | ログイン画面（ランディング）専用。body.page-login の上パネル余白・main-container 左・中央パネルレイアウト（右パネルは廃止済み）、左パネル内ログインフォーム（.login-panel-form）、中央のキャッチ・機能・用途コンテンツ。フッターは中央パネル内に配置し一画面に集約（body overflow:hidden、パネル内のみスクロール）。768px 以下で縦積み。DOCS/LOGIN_LANDING_PLAN.md 参照 | index.php |
+| `login-landing.css` | ログイン画面（ランディング）専用。body.page-login の上パネル直下にメイン（余白なし margin-top:0）、左・中央パネル、フッター中央内。背景グラデ・カード影・タイポグラフィ調整。768px 以下で縦積み。DOCS/LOGIN_LANDING_PLAN.md 参照 | index.php |
 
 ## 移行状況
 

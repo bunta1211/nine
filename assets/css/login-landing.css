@@ -16,7 +16,7 @@ body.page-login {
     overflow: hidden;
 }
 
-/* レイアウト: 上パネル分の余白 */
+/* レイアウト: 上パネル直下にメインコンテンツ（余白なし）、左右下のみ余白 */
 body.page-login {
     margin: 0;
     padding: 0;
@@ -24,40 +24,50 @@ body.page-login {
     min-height: 100vh !important;
     box-sizing: border-box;
     font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
-    background: linear-gradient(180deg, #f5f5f5 0%, #e8e8e8 100%);
+    background: linear-gradient(165deg, #f0f2f5 0%, #e4e8ec 50%, #dce2e8 100%);
 }
 
+/* 上パネルとメインの間の空白をなくす: margin-top は 0、左右下のみ 8px */
 body.page-login .main-container {
     display: flex;
-    gap: 8px;
-    margin: 8px;
-    padding: 8px;
-    min-height: calc(100vh - var(--header-height) - 16px) !important;
-    max-height: calc(100vh - var(--header-height) - 16px) !important;
+    gap: 12px;
+    margin: 0 8px 8px 8px !important;
+    padding: 12px;
+    min-height: calc(100vh - var(--header-height) - 8px) !important;
+    max-height: calc(100vh - var(--header-height) - 8px) !important;
     box-sizing: border-box;
     border-radius: var(--ui-border-radius, 20px);
     overflow: hidden;
-    background: var(--theme-panel-bg, rgba(248, 252, 249, 0.98));
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    background: var(--theme-panel-bg, rgba(255, 255, 255, 0.97));
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.8) inset,
+        0 4px 20px rgba(0, 0, 0, 0.06),
+        0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 body.page-login .left-panel {
     flex: 0 0 380px;
     min-width: 320px;
     overflow-y: auto;
-    border-radius: 10px;
+    border-radius: 14px;
     background: #fff;
-    box-shadow: var(--login-panel-shadow);
-    padding: 24px;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 2px 12px rgba(0, 0, 0, 0.06),
+        0 1px 4px rgba(0, 0, 0, 0.04);
+    padding: 28px 26px;
 }
 
 body.page-login .center-panel {
     flex: 1 1 40%;
     min-width: 280px;
     overflow-y: auto;
-    border-radius: 10px;
-    background: var(--dt-center-bg, #fafafa);
-    padding: 20px 24px;
+    border-radius: 14px;
+    background: var(--dt-center-bg, #fafbfc);
+    padding: 24px 28px;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
 /* 右パネルは廃止済み（用途・使い方は中央に統合）。index では未使用。互換のためスタイルのみ残す。 */
@@ -380,27 +390,29 @@ body.page-login .right-panel {
     margin-top: 0;
 }
 /* 中央・右パネル共通 */
-.page-login .landing-section-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--dt-text-primary, #1a1a1a);
-    margin-bottom: 12px;
-}
-.page-login .landing-section-title-use-cases {
-    margin-top: 18px;
-}
 .page-login .landing-catch-title {
-    font-size: 1.15rem;
-    font-weight: 600;
-    line-height: 1.6;
+    font-size: 1.22rem;
+    font-weight: 700;
+    line-height: 1.55;
     color: var(--dt-text-primary, #1a1a1a);
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+    letter-spacing: 0.02em;
 }
 .page-login .landing-catch-april {
     font-size: 13px;
-    line-height: 1.6;
+    line-height: 1.65;
     color: var(--dt-text-muted, #555);
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+}
+.page-login .landing-section-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--dt-text-primary, #1a1a1a);
+    margin-bottom: 10px;
+    letter-spacing: 0.01em;
+}
+.page-login .landing-section-title-use-cases {
+    margin-top: 20px;
 }
 .page-login .landing-notice-block {
     background: rgba(0,0,0,0.03);
@@ -435,12 +447,13 @@ body.page-login .right-panel {
 
 /* フッター（中央パネル内に配置して一画面に集約） */
 .page-login .login-landing-footer {
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(0,0,0,0.08);
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(0,0,0,0.06);
     font-size: 12px;
     color: var(--dt-text-muted, #666);
     text-align: center;
+    line-height: 1.6;
 }
 .page-login .center-panel > .login-landing-footer {
     margin-bottom: 0;
