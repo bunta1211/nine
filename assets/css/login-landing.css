@@ -4,9 +4,9 @@
  * 参照: DOCS/STANDARD_DESIGN_SPEC.md, includes/design_config.php, DOCS/LOGIN_LANDING_PLAN.md
  */
 
-/* ログイン画面用 :root（--header-height 70px を維持） */
+/* ログイン画面用: 上パネル下端にメインを接着（余白ゼロ）。上パネルは top:8px + 高さ≒68px のため 68px 確保 */
 body.page-login {
-    --header-height: 70px;
+    --header-height: 68px;
     --login-panel-radius: 24px;
     --login-panel-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
@@ -27,12 +27,12 @@ body.page-login {
     background: linear-gradient(165deg, #f0f2f5 0%, #e4e8ec 50%, #dce2e8 100%);
 }
 
-/* 上パネルとメインの間の空白をなくす: margin-top は 0、左右下のみ 8px */
+/* 上パネルとメインの間の空白を完全になくす: main-container の padding-top を 0 に（unified の 8px を上書き） */
 body.page-login .main-container {
     display: flex;
     gap: 12px;
     margin: 0 8px 8px 8px !important;
-    padding: 12px;
+    padding: 0 12px 12px 12px !important;
     min-height: calc(100vh - var(--header-height) - 8px) !important;
     max-height: calc(100vh - var(--header-height) - 8px) !important;
     box-sizing: border-box;
