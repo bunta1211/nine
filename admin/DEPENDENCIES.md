@@ -98,7 +98,7 @@ if (!hasSystemAdminRole()) {
 **表示内容**:
 - ユーザー統計
 - グループ統計
-- 本日のアクセス・検索経由・離脱率（access_log / includes/access_logger.php）。テーブル未作成時は「migration_access_log.sql を実行してください」の案内を表示
+- 本日のアクセス・検索経由・離脱率（access_log / includes/access_logger.php）。テーブル未作成時は「migration_access_log.sql を実行してください」の案内を表示（本番の場合は本番DBで実行する旨を記載）。テーブル存在時は当ページのアクセスも log_page_access('/admin/index.php') で記録する。
 - 最近のアクティビティ
 
 **依存関係**:

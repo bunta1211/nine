@@ -110,6 +110,11 @@ $stats['search_referral'] = $accessStats['search_referral'];
 $stats['bounce_rate'] = $accessStats['bounce_rate'];
 $access_log_table_exists = access_log_table_exists($pdo);
 
+// テーブルがある場合のみ管理画面のアクセスも記録（集計対象に含める）
+if ($access_log_table_exists) {
+    log_page_access('/admin/index.php');
+}
+
 // 最近のアクティビティ
 $stmt = $pdo->query("
     SELECT 
@@ -265,7 +270,8 @@ $recent_activities = $stmt->fetchAll();
             <?php if (!$access_log_table_exists): ?>
             <div class="admin-dashboard-notice admin-access-log-migration-notice" style="background: #e0f2fe; border: 1px solid #0284c7; border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; font-size: 14px; line-height: 1.6;">
                 <p style="margin: 0 0 8px 0; font-weight: 600;">本日のアクセス数を表示するには</p>
-                <p style="margin: 0;">データベースに <code>access_log</code> テーブルを作成してください。SQL: <code>database/migration_access_log.sql</code> を実行してください。</p>
+                <p style="margin: 0 0 8px 0;">データベースに <code>access_log</code> テーブルを作成してください。SQL: <code>database/migration_access_log.sql</code> を実行してください。</p>
+                <p style="margin: 0; font-size: 13px; color: #0369a1;">※ 本番環境（social9.jp）で表示している場合は、<strong>本番サーバーが利用しているデータベース</strong>で同じ SQL を実行する必要があります。テーブル作成後、トップページ（index.php）やチャット（chat.php）へのアクセスが自動で記録され、本日のアクセス数に反映されます。</p>
             </div>
             <?php endif; ?>
             

@@ -11,6 +11,11 @@ body.page-login {
     --login-panel-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
 
+/* 一画面に集約：ページ全体のスクロールをなくし、左・中央パネルのみ内部スクロール */
+body.page-login {
+    overflow: hidden;
+}
+
 /* レイアウト: 上パネル分の余白 */
 body.page-login {
     margin: 0;
@@ -52,7 +57,7 @@ body.page-login .center-panel {
     overflow-y: auto;
     border-radius: 10px;
     background: var(--dt-center-bg, #fafafa);
-    padding: 24px 28px;
+    padding: 20px 24px;
 }
 
 /* 右パネルは廃止済み（用途・使い方は中央に統合）。index では未使用。互換のためスタイルのみ残す。 */
@@ -366,6 +371,14 @@ body.page-login .right-panel {
 
 .page-login .login-panel-form .hidden { display: none !important; }
 
+.page-login .login-landing-center {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.page-login .login-landing-center .landing-catch-title {
+    margin-top: 0;
+}
 /* 中央・右パネル共通 */
 .page-login .landing-section-title {
     font-size: 1.1rem;
@@ -374,7 +387,7 @@ body.page-login .right-panel {
     margin-bottom: 12px;
 }
 .page-login .landing-section-title-use-cases {
-    margin-top: 24px;
+    margin-top: 18px;
 }
 .page-login .landing-catch-title {
     font-size: 1.15rem;
@@ -384,31 +397,31 @@ body.page-login .right-panel {
     margin-bottom: 12px;
 }
 .page-login .landing-catch-april {
-    font-size: 14px;
-    line-height: 1.65;
+    font-size: 13px;
+    line-height: 1.6;
     color: var(--dt-text-muted, #555);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 .page-login .landing-notice-block {
     background: rgba(0,0,0,0.03);
     border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 20px;
-    font-size: 13px;
-    line-height: 1.6;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    line-height: 1.55;
     color: var(--dt-text-muted, #555);
 }
-.page-login .landing-notice-block p { margin: 8px 0; }
+.page-login .landing-notice-block p { margin: 6px 0; }
 .page-login .landing-notice-block p:first-child { margin-top: 0; }
 .page-login .landing-notice-block p:last-child { margin-bottom: 0; }
 .page-login .landing-feature-list {
     margin: 0 0 0 1em;
     padding-left: 0.5em;
-    font-size: 14px;
-    line-height: 1.65;
+    font-size: 13px;
+    line-height: 1.55;
     color: var(--dt-text-muted, #555);
 }
-.page-login .landing-feature-list li { margin: 10px 0; }
+.page-login .landing-feature-list li { margin: 6px 0; }
 .page-login .landing-section-body {
     font-size: 14px;
     line-height: 1.7;
@@ -420,14 +433,20 @@ body.page-login .right-panel {
 }
 .page-login .landing-list li { margin: 6px 0; }
 
-/* フッター */
+/* フッター（中央パネル内に配置して一画面に集約） */
 .page-login .login-landing-footer {
-    margin-top: 24px;
+    margin-top: 20px;
     padding-top: 16px;
     border-top: 1px solid rgba(0,0,0,0.08);
     font-size: 12px;
     color: var(--dt-text-muted, #666);
     text-align: center;
+}
+.page-login .center-panel > .login-landing-footer {
+    margin-bottom: 0;
+}
+.page-login .login-landing-footer p {
+    margin: 4px 0;
 }
 .page-login .login-landing-footer a {
     color: var(--dt-accent, #6b8e23);

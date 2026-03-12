@@ -41,7 +41,18 @@ mysql -h database-1.cjgimse22md1.ap-northeast-1.rds.amazonaws.com -P 3306 -u adm
 
 - **詳細**: 本番 DB への接続・実行方法の詳細は [PRODUCTION_DB_ACCESS.md](./PRODUCTION_DB_ACCESS.md) を参照。
 
-### 2.3 プライベートグループ・組織アドレス帳で使うマイグレーション
+### 2.3 管理ダッシュボード「本日のアクセス」を有効にする
+
+「本日のアクセス数」を表示するには、本番 DB で次の SQL を **1 回** 実行する。
+
+```bash
+mysql -h database-1.cjgimse22md1.ap-northeast-1.rds.amazonaws.com -P 3306 -u admin -p social9 < /var/www/html/database/migration_access_log.sql
+```
+
+- 実行後、index.php・chat.php・管理画面へのアクセスが自動で記録され、管理パネルの「本日のアクセス」に反映される。
+- 詳細: `includes/access_logger.php`、`admin/index.php`（テーブル未作成時は画面上で案内表示）。
+
+### 2.4 プライベートグループ・組織アドレス帳で使うマイグレーション
 
 次の SQL は [PRIVATE_GROUP_AND_ADDRESS_BOOK_IMPLEMENTATION_LOG.md](./PRIVATE_GROUP_AND_ADDRESS_BOOK_IMPLEMENTATION_LOG.md) の Phase 1.3 で手動適用する想定です。
 

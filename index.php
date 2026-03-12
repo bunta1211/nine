@@ -302,15 +302,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
         <!-- 中央パネル：キャッチ・主な機能・用途・使い方 -->
         <div class="center-panel">
             <?php include __DIR__ . '/includes/login_landing_center.php'; ?>
+            <footer class="login-landing-footer" role="contentinfo">
+                <p><a href="terms.php"><?= __('terms_of_service') ?></a> · <a href="terms.php#privacy"><?= __('privacy_policy') ?></a></p>
+                <p>© Social9</p>
+                <p><?= $currentLang === 'en' ? 'This service is in trial operation. Please see the terms of use.' : ($currentLang === 'zh' ? '本服务处于试运行阶段，请参阅利用规约。' : '本サービスは試験運用の段階です。利用規約をご確認の上ご利用ください。') ?></p>
+                <p><?= $currentLang === 'en' ? 'Recommended: Chrome, Safari or other browsers.' : ($currentLang === 'zh' ? '推荐使用 Chrome、Safari 等浏览器。' : '推奨: Chrome、Safari 等のブラウザでご利用ください。') ?></p>
+            </footer>
         </div>
     </div>
-    
-    <footer class="login-landing-footer" role="contentinfo">
-        <p><a href="terms.php"><?= __('terms_of_service') ?></a> · <a href="terms.php#privacy"><?= __('privacy_policy') ?></a></p>
-        <p>© Social9</p>
-        <p><?= $currentLang === 'en' ? 'This service is in trial operation. Please see the terms of use.' : ($currentLang === 'zh' ? '本服务处于试运行阶段，请参阅利用规约。' : '本サービスは試験運用の段階です。利用規約をご確認の上ご利用ください。') ?></p>
-        <p><?= $currentLang === 'en' ? 'Recommended: Chrome, Safari or other browsers.' : ($currentLang === 'zh' ? '推荐使用 Chrome、Safari 等浏览器。' : '推奨: Chrome、Safari 等のブラウザでご利用ください。') ?></p>
-    </footer>
     
     <script>
         // 状態管理（メール or 携帯でコード送信時に設定）
