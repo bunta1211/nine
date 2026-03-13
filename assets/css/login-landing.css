@@ -4,9 +4,9 @@
  * 参照: DOCS/STANDARD_DESIGN_SPEC.md, includes/design_config.php, DOCS/LOGIN_LANDING_PLAN.md
  */
 
-/* ログイン画面用: 上パネル下端にメインを接着（余白ゼロ）。上パネルは top:8px + 高さ≒68px のため 68px 確保 */
+/* ログイン画面用: unified と統一（70px）で上端・高さのずれを防ぎ、上パネル下端にメインを接着 */
 body.page-login {
-    --header-height: 68px;
+    --header-height: 70px;
     --login-panel-radius: 24px;
     --login-panel-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
@@ -31,8 +31,9 @@ body.page-login {
 body.page-login .main-container {
     display: flex;
     gap: 12px;
-    margin: 0 8px 0 8px !important;
+    margin: -4px 8px 0 8px !important;
     padding: 0 12px 12px 12px !important;
+    height: calc(100vh - var(--header-height)) !important;
     min-height: calc(100vh - var(--header-height)) !important;
     max-height: calc(100vh - var(--header-height)) !important;
     box-sizing: border-box;
@@ -61,13 +62,22 @@ body.page-login .left-panel {
 body.page-login .center-panel {
     flex: 1 1 40%;
     min-width: 280px;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     border-radius: 14px;
     background: var(--dt-center-bg, #fafbfc);
     padding: 24px 28px;
     box-shadow:
         0 1px 0 rgba(255, 255, 255, 0.9) inset,
         0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* 中央パネル内：説明エリアのみスクロール、フッターは下端に固定 */
+body.page-login .center-panel > .login-landing-center {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 /* 右パネルは廃止済み（用途・使い方は中央に統合）。index では未使用。互換のためスタイルのみ残す。 */
@@ -456,6 +466,7 @@ body.page-login .right-panel {
     line-height: 1.6;
 }
 .page-login .center-panel > .login-landing-footer {
+    flex-shrink: 0;
     margin-bottom: 0;
 }
 .page-login .login-landing-footer p {

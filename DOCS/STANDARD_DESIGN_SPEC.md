@@ -279,6 +279,14 @@
 - `.top-panel { position: fixed; ... }` は書かない（`header.css` が管理）
 - ドロップダウン（`.user-dropdown`, `.language-dropdown`, `.task-dropdown-menu`, `.notification-dropdown`）は書かない（`header.css` が共通定義）
 
+### ログイン画面（index.php）のレイアウト
+
+`body.page-login` は `assets/css/login-landing.css` で専用指定する。上パネルと下（メイン・フッター）をくっつけた一体表示とする。
+
+- **上パネルとメイン**: `--header-height: 70px` で unified と統一。`body` の `padding-top` と `.main-container` の `height: calc(100vh - var(--header-height))` を一致させ、必要に応じて `.main-container` に `margin-top: -4px` で視覚的に接着。
+- **メインと画面下端**: `.main-container` の高さを `100vh - 70px` に固定し、下端をビューポートに一致させる（余白なし）。
+- **中央パネル・フッター**: `.center-panel` を `display: flex; flex-direction: column; min-height: 0` にし、`.login-landing-center` に `flex: 1; min-height: 0; overflow-y: auto`、`.login-landing-footer` に `flex-shrink: 0` を指定。コンテンツが少ないときもフッターを画面下端付近に固定する。
+
 ### PC版タスク/通知ボタンの動作
 
 画面幅 > 768px では、上パネルのタスクアイコンと通知アイコンをクリックすると、ドロップダウンではなく `tasks.php` / `notifications.php` へ直接ページ遷移する。モバイル（768px 以下）では従来のドロップダウン動作を維持。
