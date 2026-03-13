@@ -156,7 +156,7 @@
 | 入力エリアラッパー（`.input-area`）最大高さ | 380px | chat-main.css |
 | 保存高さの復元下限 | 168px | input-area-resize.js で 168 未満は 168 にクランプしてから適用 |
 
-- **デフォルト位置**: 中央パネル（PC）またはビューポート（携帯）の**下端に接着**。下余白はゼロとする。
+- **デフォルト位置**: 中央パネル（PC）またはビューポート（携帯）の**下端から2mm（約8px）だけ上に接着**（`body.page-chat .center-panel .input-area { bottom: 8px; }`）。文字入力できない余白は設けない。
 - **拡大方向**: リサイズ時は下辺を動かさず、**上方向にのみ**伸ばす（`top` は指定しない。高さは `style.height` のみで変更する）。
 - **詳細度**: チャット用の position / bottom は `body.page-chat .center-panel .input-area` で指定し、将来 `input-area.css` / `center-panel.css` が読み込まれても上書きされないようにする。
 

@@ -2542,10 +2542,10 @@
             color: var(--dt-msg-self-time, var(--dt-text-muted, #1a1a2e)); 
         }
         
-        /* 下辺を中央パネル下端に固定。拡大時は上方向にのみ伸ばす。top は指定しない。詳細度を上げて input-area.css / center-panel.css の将来の import に負けないようにする。 */
+        /* 入力欄の下辺をアプリ下端から2mm（約8px）だけ上に接着。拡大時は上方向にのみ伸ばす。top は指定しない。 */
         body.page-chat .center-panel .input-area {
             position: absolute;
-            bottom: 0;
+            bottom: 8px;
             left: 0;
             right: 0;
             z-index: 10;
@@ -2556,7 +2556,7 @@
             overflow: hidden;
         }
         
-        /* グループチャットもAI秘書同様に入力欄を画面下端に接着（下余白なし） */
+        /* メイン・中央パネルは下端まで使い、入力欄は上記 bottom: 8px で2mm余白を確保 */
         body.page-chat .main-container {
             padding-bottom: 0 !important;
         }
