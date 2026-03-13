@@ -27,14 +27,14 @@ body.page-login {
     background: linear-gradient(165deg, #f0f2f5 0%, #e4e8ec 50%, #dce2e8 100%);
 }
 
-/* 上パネルとメインの間の空白を完全になくす: main-container を上に引き寄せ（負の margin-top で視覚的に接着） */
+/* 上パネルとメインをくっつけて表示: 上端はヘッダー直下・下端はビューポート底まで（余白なし） */
 body.page-login .main-container {
     display: flex;
     gap: 12px;
-    margin: -6px 8px 8px 8px !important;
+    margin: 0 8px 0 8px !important;
     padding: 0 12px 12px 12px !important;
-    min-height: calc(100vh - var(--header-height) + 6px - 8px) !important;
-    max-height: calc(100vh - var(--header-height) + 6px - 8px) !important;
+    min-height: calc(100vh - var(--header-height)) !important;
+    max-height: calc(100vh - var(--header-height)) !important;
     box-sizing: border-box;
     border-radius: var(--ui-border-radius, 20px);
     overflow: hidden;
