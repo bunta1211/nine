@@ -136,9 +136,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
     <link rel="stylesheet" href="assets/css/login-landing.css">
 </head>
 <body class="page-login">
-    <?php include __DIR__ . '/includes/login_topbar.php'; ?>
     <div class="main-container" id="loginMainContainer">
         <div class="left-panel" id="loginFormPanel">
+            <?php
+            $login_index_path = (function_exists('getBaseUrl') && getBaseUrl() !== '') ? getBaseUrl() . '/index.php' : 'index.php';
+            ?>
+            <nav class="login-panel-lang" aria-label="<?= $currentLang === 'en' ? 'Language' : ($currentLang === 'zh' ? '语言' : '言語') ?>">
+                <a href="<?= htmlspecialchars($login_index_path) ?>?lang=ja" class="login-lang-link <?= $currentLang === 'ja' ? 'active' : '' ?>">日本語</a>
+                <span class="login-lang-sep">|</span>
+                <a href="<?= htmlspecialchars($login_index_path) ?>?lang=en" class="login-lang-link <?= $currentLang === 'en' ? 'active' : '' ?>">English</a>
+                <span class="login-lang-sep">|</span>
+                <a href="<?= htmlspecialchars($login_index_path) ?>?lang=zh" class="login-lang-link <?= $currentLang === 'zh' ? 'active' : '' ?>">中文</a>
+            </nav>
             <div class="login-panel-form" id="login-form">
         <div class="logo">
             <?php if (file_exists(__DIR__ . '/assets/images/logo-socialnine.png')): ?>

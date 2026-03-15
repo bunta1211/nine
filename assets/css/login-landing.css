@@ -4,9 +4,8 @@
  * 参照: DOCS/STANDARD_DESIGN_SPEC.md, includes/design_config.php, DOCS/LOGIN_LANDING_PLAN.md
  */
 
-/* ログイン画面用: unified と統一（70px）で上端・高さのずれを防ぎ、上パネル下端にメインを接着 */
+/* ログイン画面用: 上パネルなし・左・右（中央）パネルのみフルビュー */
 body.page-login {
-    --header-height: 70px;
     --login-panel-radius: 24px;
     --login-panel-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
@@ -16,26 +15,26 @@ body.page-login {
     overflow: hidden;
 }
 
-/* レイアウト: 上パネル直下にメインコンテンツ（余白なし）、左右下のみ余白 */
+/* レイアウト: 上パネルなし。メインをビューポート全体に表示（左・右パネルのみ） */
 body.page-login {
     margin: 0;
     padding: 0;
-    padding-top: var(--header-height) !important;
+    padding-top: 0 !important;
     min-height: 100vh !important;
     box-sizing: border-box;
     font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
     background: linear-gradient(165deg, #f0f2f5 0%, #e4e8ec 50%, #dce2e8 100%);
 }
 
-/* 上パネルとメインをくっつけて表示: 上端はヘッダー直下・下端はビューポート底まで（余白なし） */
+/* メインコンテナ: ビューポート全体（上端・下端とも余白なし） */
 body.page-login .main-container {
     display: flex;
     gap: 12px;
-    margin: -4px 8px 0 8px !important;
+    margin: 0 8px 0 8px !important;
     padding: 0 12px 12px 12px !important;
-    height: calc(100vh - var(--header-height)) !important;
-    min-height: calc(100vh - var(--header-height)) !important;
-    max-height: calc(100vh - var(--header-height)) !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
     box-sizing: border-box;
     border-radius: var(--ui-border-radius, 20px);
     overflow: hidden;
@@ -102,6 +101,35 @@ body.page-login .right-panel {
     font-weight: 500;
     color: var(--dt-text-primary, #333);
     margin-left: 12px;
+}
+
+/* 左パネル内：言語切替（上パネル廃止に伴い左パネル上部に配置） */
+.page-login .login-panel-lang {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+.page-login .login-panel-lang a {
+    color: var(--dt-text-muted, #666);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+.page-login .login-panel-lang a:hover {
+    color: var(--dt-accent, #6b8e23);
+    background: rgba(0, 0, 0, 0.04);
+}
+.page-login .login-panel-lang a.active {
+    font-weight: 600;
+    color: var(--dt-text-primary, #333);
+}
+.page-login .login-panel-lang .login-lang-sep {
+    color: var(--dt-text-muted, #999);
+    margin: 0 2px;
+    user-select: none;
 }
 
 /* 左パネル内：ログインフォーム（既存 .login-container のスタイルを移行） */
@@ -478,17 +506,15 @@ body.page-login .right-panel {
 }
 .page-login .login-landing-footer a:hover { text-decoration: underline; }
 
-/* モバイル: 768px 以下で左・中央を縦積み（右パネルは廃止済み） */
+/* モバイル: 768px 以下で左・中央を縦積み（上パネルなしのまま） */
 @media (max-width: 768px) {
-    body.page-login {
-        padding-top: var(--mobile-header-height, 56px) !important;
-    }
     body.page-login .main-container {
         flex-direction: column;
-        margin: 0;
+        margin: 0 8px !important;
         padding: 8px;
-        min-height: calc(100vh - var(--mobile-header-height, 56px) - 16px) !important;
-        max-height: none !important;
+        min-height: calc(100vh - 16px) !important;
+        max-height: calc(100vh - 16px) !important;
+        height: calc(100vh - 16px) !important;
         border-radius: 0;
     }
     body.page-login .left-panel {
