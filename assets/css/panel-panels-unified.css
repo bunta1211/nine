@@ -5,24 +5,25 @@
  * 上パネル立体デザイン: top 8px + パネル高さ（padding 7px*2 + コンテンツ）≒ 70px を確保。
  */
 
-/* 上パネル共有ページ: body の padding で上パネル分を確保（立体パネルは 8+約60px のため 70px 確保）。ログインは上パネルなしのため除外 */
+/* 上パネル共有ページ: body の padding で上パネル分を確保（立体パネルは 8+約60px のため 70px 確保）。ログインも上パネルあり */
 body.page-chat,
 body.design-page,
 body.page-settings,
 body.tasks-page,
-body.notifications-page {
+body.notifications-page,
+body.page-login {
     padding-top: 70px !important;
     min-height: 100vh !important;
     height: auto !important; /* design_loader の height:100% を上書きし下端余白を防ぐ */
     box-sizing: border-box !important;
 }
 
-/* ログインは上パネルなしのため .main-container の高さ・余白は login-landing.css で指定 */
 body.page-chat .main-container,
 body.design-page .main-container,
 body.page-settings .main-container,
 body.tasks-page .main-container,
-body.notifications-page .main-container {
+body.notifications-page .main-container,
+body.page-login .main-container {
     border-radius: var(--ui-border-radius, 20px);
     box-sizing: border-box !important;
     overflow: hidden;
@@ -81,7 +82,8 @@ body:not(.page-chat):not(.design-page):not(.page-settings):not(.tasks-page):not(
     body.design-page,
     body.page-settings,
     body.tasks-page,
-    body.notifications-page {
+    body.notifications-page,
+    body.page-login {
         padding-top: var(--mobile-header-height, 56px) !important;
     }
     
@@ -89,7 +91,8 @@ body:not(.page-chat):not(.design-page):not(.page-settings):not(.tasks-page):not(
     body.design-page .main-container,
     body.page-settings .main-container,
     body.tasks-page .main-container,
-    body.notifications-page .main-container {
+    body.notifications-page .main-container,
+    body.page-login .main-container {
         margin-top: 0 !important;
         margin-left: 0 !important;
         margin-right: 0 !important;

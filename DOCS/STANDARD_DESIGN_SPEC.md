@@ -281,10 +281,10 @@
 
 ### ログイン画面（index.php）のレイアウト
 
-`body.page-login` は `assets/css/login-landing.css` で専用指定する。**上パネルは廃止**し、左パネル（ログインフォーム）と右（中央）パネル（説明・フッター）のみのフルビュー表示とする。
+`body.page-login` は `includes/login_topbar.php`（上パネル）＋ `assets/css/login-landing.css` で専用指定する。**上パネルあり**で、他ページと同様に `panel-panels-unified.css` の `body` の `padding-top: 70px` と `.main-container` の高さ `calc(100vh - 70px)` を適用する。
 
-- **上パネルなし**: ヘッダーは表示しない。言語切替は左パネル上部の `.login-panel-lang`（日本語 | English | 中文 のリンク）で行う。
-- **メインをビューポート全体に**: `body` の `padding-top: 0`、`.main-container` の `height: 100vh` で上端・下端とも余白なく表示する。
+- **上パネル**: ゲスト用ヘッダー（ロゴ・検索プレースホルダー・言語ドロップダウン・「ログイン」表示）を `includes/login_topbar.php` で表示。言語切替は上パネル右側のドロップダウンで行う。
+- **メイン**: `.main-container` は unified で `height: calc(100vh - 70px)`。左パネル（ログインフォーム）と右（中央）パネル（説明・フッター）。
 - **中央パネル・フッター**: `.center-panel` を `display: flex; flex-direction: column; min-height: 0` にし、`.login-landing-center` に `flex: 1; min-height: 0; overflow-y: auto`、`.login-landing-footer` に `flex-shrink: 0` を指定。コンテンツが少ないときもフッターを画面下端付近に固定する。
 
 ### PC版タスク/通知ボタンの動作

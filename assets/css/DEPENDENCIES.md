@@ -26,7 +26,7 @@ assets/css/
 | `chat-main.css` | チャット画面メインスタイル（レガシー）。メッセージカード・conv-avatar は標準デザイン（DOCS/STANDARD_DESIGN_SPEC.md）に準拠。会話リストのAI秘書を最上部固定（order: -9999）。左パネル会話リストは `.conversation-list` に `min-height: 0` を指定し「他○件を表示」展開時に下にスクロール可能にしている。右パネル概要欄は保存後も表示を左上揃え（`.overview-body-readonly` に `display:flex; justify-content:flex-start; align-items:flex-start`）。右パネル概要欄のリンク（`.overview-link`）は :link/:visited/:hover/:active/:focus でアクティブ表示（改善提案 ID:5）。**朝のニュース動画**: `.ai-morning-news-embed`（16:9・max-width 560px）、`.ai-morning-news-video-list`／`.ai-morning-news-video-item`／`-active`、`.ai-morning-news-greeting`／`.ai-morning-news-no-videos` | chat.php |
 | `ai-voice-input.css` | AI秘書ツールバー・マイクボタン・入力行（送信ボタン右配置をグループチャットと統一）。常時起動は削除済み | chat.php |
 | `panel-resize.css` | 左右パネルリサイズハンドル | chat.php |
-| `panel-panels-unified.css` | パネル間空間の統一・page-chatレイアウト。上パネル共有4ページ（settings/design/tasks/notifications）の `body padding-top` と `.main-container` を管理。**body.page-login は除外**（ログインは上パネルなしのため login-landing.css で専用指定） | chat.php, settings.php, design.php, tasks.php, notifications.php, index.php |
+| `panel-panels-unified.css` | パネル間空間の統一・page-chatレイアウト。上パネル共有5ページ（settings/design/tasks/notifications/**login**）の `body padding-top: 70px` と `.main-container` の高さを管理。ログインも上パネルありで同様に適用。 | chat.php, settings.php, design.php, tasks.php, notifications.php, index.php |
 | `chat-new.css` | 新コンポーネント分離CSS | chat.php |
 | `tokens/base.css` | CSS変数・デザイントークン（`--dt-focus-ring` 等）。フォーカスリングは `var(--dt-input-focus-border)` を参照 | chat-new.css |
 | `layout/main-container.css` | メインコンテナレイアウト | chat-new.css |
@@ -55,7 +55,7 @@ assets/css/
 | `secretary-rightpanel.css` | AI秘書（AIクローン）専用右パネル（訓練言語・判断材料ツリー・会話記憶・自動返信統計・アイテム編集モーダル） | chat.php |
 | `ai-reply-suggest.css` | AIクローン返信提案カードUI（提案ボタン・ローディング・**To行**（.ai-reply-suggest-to-row / .ai-reply-suggest-to-btn）・テキストエリア・送信/閉じる・送信完了）。モバイル: body.ai-reply-suggest-open で入力欄・input-show-btn 非表示、textarea は max-height+overflow-y でスクロール可能、.ai-reply-suggest-overlay で固定オーバーレイ表示 | chat.php |
 | `storage.css` | 共有フォルダUI（エクスプローラー風一覧、**表示切替** テキストリスト/画像サムネイルグリッド `.sv-grid-mode`・`.sv-file-card-grid`、プレビュー、共有モーダル、容量バー）。色は `--dt-accent` / `--dt-input-focus-border` / `--dt-btn-primary-bg` でデザイン統一 | chat.php |
-| `login-landing.css` | ログイン画面（ランディング）専用。**上パネル廃止**・左・右（中央）パネルのみ：body.page-login は `padding-top: 0`、`.main-container` は `height: 100vh` でフルビュー。左パネル上部に `.login-panel-lang`（言語切替リンク）。中央パネルは縦 flex で `.login-landing-center` のみスクロール・`.login-landing-footer` を下端固定。背景グラデ・カード影・タイポグラフィ。768px 以下で縦積み。DOCS/LOGIN_LANDING_PLAN.md・STANDARD_DESIGN_SPEC.md「ログイン画面のレイアウト」参照 | index.php |
+| `login-landing.css` | ログイン画面（ランディング）専用。**上パネルあり**（login_topbar.php）。body の padding-top と .main-container 高さは panel-panels-unified.css で 70px 確保。左・右（中央）パネルの見た目・gap・背景・中央パネル縦 flex（.login-landing-center のみスクロール・.login-landing-footer 下端固定）。背景グラデ・カード影・タイポグラフィ。768px 以下で縦積み。DOCS/LOGIN_LANDING_PLAN.md・STANDARD_DESIGN_SPEC.md「ログイン画面のレイアウト」参照 | index.php |
 
 ## 移行状況
 
