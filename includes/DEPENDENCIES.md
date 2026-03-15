@@ -171,6 +171,8 @@ $darkBgImages = ['sample_fuji.jpg', 'sample_night.jpg', 'sample_galaxy.jpg'];
 - `en` - English
 - `zh` - 中文
 
+**ログイン画面**: index.php も同じ仕組み（`getCurrentLanguage()` / `setLanguage()` / `__($key)`）を使用。上パネルの言語切替リンク（`?lang=ja|en|zh`）でセッションを切り替え、全ラベル・メッセージが選択言語で表示される。
+
 ---
 
 ## API共通

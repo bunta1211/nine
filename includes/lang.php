@@ -937,6 +937,146 @@ $translations = [
         'en' => 'Send Auth Code',
         'zh' => '发送验证码'
     ],
+    'email_or_phone' => [
+        'ja' => 'メールアドレスまたは携帯電話番号',
+        'en' => 'Email or phone number',
+        'zh' => '邮箱或手机号'
+    ],
+    'placeholder_email_phone' => [
+        'ja' => 'example@email.com または 09012345678',
+        'en' => 'example@email.com or 09012345678',
+        'zh' => 'example@email.com 或 09012345678'
+    ],
+    'placeholder_password' => [
+        'ja' => 'パスワードを入力',
+        'en' => 'Enter password',
+        'zh' => '请输入密码'
+    ],
+    'google_login' => [
+        'ja' => 'Googleでログイン',
+        'en' => 'Login with Google',
+        'zh' => '使用 Google 登录'
+    ],
+    'google_login_hint' => [
+        'ja' => '※アプリ内ブラウザではGoogleがブロックする場合があります。その場合はChromeやSafariで social9.jp を開いてログインしてください。',
+        'en' => 'Google login may be blocked in in-app browsers. Please open social9.jp in Chrome or Safari to log in.',
+        'zh' => '应用内浏览器可能无法使用 Google 登录。请在 Chrome 或 Safari 中打开 social9.jp 登录。'
+    ],
+    'send_code_register' => [
+        'ja' => 'コード送信（新規登録）',
+        'en' => 'Send code (Register)',
+        'zh' => '发送验证码（注册）'
+    ],
+    'sending' => [
+        'ja' => '送信中...',
+        'en' => 'Sending...',
+        'zh' => '发送中...'
+    ],
+    'otp_sent_to' => [
+        'ja' => '%s に認証コードを送信しました',
+        'en' => 'Verification code sent to %s',
+        'zh' => '已向 %s 发送验证码'
+    ],
+    'otp_expiry' => [
+        'ja' => '有効期限: %s',
+        'en' => 'Expires: %s',
+        'zh' => '有效期：%s'
+    ],
+    'verifying' => [
+        'ja' => '確認中...',
+        'en' => 'Verifying...',
+        'zh' => '验证中...'
+    ],
+    'resend_code' => [
+        'ja' => 'コードを再送信',
+        'en' => 'Resend code',
+        'zh' => '重新发送验证码'
+    ],
+    'set_password_title' => [
+        'ja' => '認証完了！',
+        'en' => 'Verification complete!',
+        'zh' => '验证完成！'
+    ],
+    'set_password_subtitle' => [
+        'ja' => 'パスワードを設定してください',
+        'en' => 'Please set your password',
+        'zh' => '请设置密码'
+    ],
+    'email_optional' => [
+        'ja' => 'メールアドレス（任意）',
+        'en' => 'Email (optional)',
+        'zh' => '邮箱（选填）'
+    ],
+    'register_login_hint' => [
+        'ja' => '登録するとメール・携帯のどちらでもログインできます',
+        'en' => 'You can log in with email or phone after registration',
+        'zh' => '注册后可使用邮箱或手机登录'
+    ],
+    'password_min_length' => [
+        'ja' => '8文字以上',
+        'en' => '8 characters or more',
+        'zh' => '8个字符以上'
+    ],
+    'password_confirm' => [
+        'ja' => 'パスワード（確認）',
+        'en' => 'Password (confirm)',
+        'zh' => '确认密码'
+    ],
+    'placeholder_password_confirm' => [
+        'ja' => 'もう一度入力',
+        'en' => 'Enter again',
+        'zh' => '再次输入'
+    ],
+    'complete_registration' => [
+        'ja' => '登録を完了する',
+        'en' => 'Complete registration',
+        'zh' => '完成注册'
+    ],
+    'setting' => [
+        'ja' => '設定中...',
+        'en' => 'Setting...',
+        'zh' => '设置中...'
+    ],
+    'otp_expired' => [
+        'ja' => 'コードの有効期限が切れました',
+        'en' => 'Verification code has expired',
+        'zh' => '验证码已过期'
+    ],
+    'enter_email_phone' => [
+        'ja' => 'メールアドレスまたは携帯電話番号を入力してください',
+        'en' => 'Please enter your email or phone number',
+        'zh' => '请输入邮箱或手机号'
+    ],
+    'invalid_email_phone' => [
+        'ja' => '有効なメールアドレスまたは10桁以上の携帯電話番号を入力してください',
+        'en' => 'Please enter a valid email or phone number (at least 10 digits)',
+        'zh' => '请输入有效的邮箱或至少10位手机号'
+    ],
+    'enter_4_digits' => [
+        'ja' => '4桁のコードを入力してください',
+        'en' => 'Please enter the 4-digit code',
+        'zh' => '请输入4位验证码'
+    ],
+    'password_min_8' => [
+        'ja' => 'パスワードは8文字以上で設定してください',
+        'en' => 'Password must be at least 8 characters',
+        'zh' => '密码请至少设置8个字符'
+    ],
+    'password_mismatch' => [
+        'ja' => 'パスワードが一致しません',
+        'en' => 'Passwords do not match',
+        'zh' => '两次输入的密码不一致'
+    ],
+    'trial_notice' => [
+        'ja' => '本サービスは試験運用の段階です。利用規約をご確認の上ご利用ください。',
+        'en' => 'This service is in trial operation. Please see the terms of use.',
+        'zh' => '本服务处于试运行阶段，请参阅利用规约。'
+    ],
+    'browser_recommend' => [
+        'ja' => '推奨: Chrome、Safari 等のブラウザでご利用ください。',
+        'en' => 'Recommended: Chrome, Safari or other browsers.',
+        'zh' => '推荐使用 Chrome、Safari 等浏览器。'
+    ],
     
     // ============================================
     // 通話ページ

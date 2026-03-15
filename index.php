@@ -165,27 +165,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
                 <div class="form-group">
                     <label class="form-label">
                         <span class="icon">📧</span>
-                        メールアドレスまたは携帯電話番号
+                        <?= htmlspecialchars(__('email_or_phone')) ?>
                     </label>
-                    <input type="text" name="email" id="loginEmail" class="form-input" placeholder="example@email.com または 09012345678" autocomplete="username" required>
+                    <input type="text" name="email" id="loginEmail" class="form-input" placeholder="<?= htmlspecialchars(__('placeholder_email_phone')) ?>" autocomplete="username" required>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">
                         <span class="icon">🔑</span>
-                        パスワード
+                        <?= htmlspecialchars(__('password')) ?>
                     </label>
-                    <input type="password" name="password" class="form-input" placeholder="パスワードを入力" autocomplete="current-password" required>
+                    <input type="password" name="password" class="form-input" placeholder="<?= htmlspecialchars(__('placeholder_password')) ?>" autocomplete="current-password" required>
                 </div>
                 
                 <button type="submit" class="btn btn-primary">
-                    ログイン
+                    <?= htmlspecialchars(__('login')) ?>
                     <span class="arrow">→</span>
                 </button>
             </form>
             
             <div class="divider">
-                <span>または</span>
+                <span><?= htmlspecialchars(__('or')) ?></span>
             </div>
             
             <?php if (isGoogleLoginEnabled()): ?>
@@ -196,26 +196,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                Googleでログイン
+                <?= htmlspecialchars(__('google_login')) ?>
             </a>
-            <p class="google-login-hint">※アプリ内ブラウザではGoogleがブロックする場合があります。その場合はChromeやSafariで social9.jp を開いてログインしてください。</p>
+            <p class="google-login-hint"><?= htmlspecialchars(__('google_login_hint')) ?></p>
             <div class="divider">
-                <span>または</span>
+                <span><?= htmlspecialchars(__('or')) ?></span>
             </div>
             <?php endif; ?>
             
             <button type="button" class="btn btn-secondary" id="sendCodeBtn" onclick="sendVerificationCodeFromLogin()">
-                <span id="sendCodeText">📧 コード送信（新規登録）</span>
+                <span id="sendCodeText">📧 <?= htmlspecialchars(__('send_code_register')) ?></span>
                 <span class="loading" id="sendCodeLoading">
                     <span class="spinner"></span>
-                    送信中...
+                    <?= htmlspecialchars(__('sending')) ?>
                 </span>
             </button>
             
             <div style="margin-top: 16px; text-align: center;">
                 <a href="forgot_password.php" class="alt-login" style="display: inline-flex; width: auto;">
                     <span class="icon">🔓</span>
-                    パスワードを忘れた方
+                    <?= htmlspecialchars(__('forgot_password')) ?>
                 </a>
             </div>
         </div>
@@ -223,12 +223,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
         <!-- ② 認証コード入力 -->
         <div class="form-section <?= $mode === 'otp' ? 'active' : '' ?>" id="otpSection">
             <button type="button" class="back-link" onclick="showSection('password')">
-                ← 戻る
+                ← <?= htmlspecialchars(__('back')) ?>
             </button>
             
-            <p class="form-subtitle">
-                <span id="otpEmail"></span> に<br>認証コードを送信しました
-            </p>
+            <p class="form-subtitle" id="otpSentMessage"></p>
             
             <div class="otp-inputs">
                 <input type="text" class="otp-input" maxlength="1" data-index="0" inputmode="numeric">
@@ -237,58 +235,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
                 <input type="text" class="otp-input" maxlength="1" data-index="3" inputmode="numeric">
             </div>
             
-            <div class="timer" id="otpTimer">有効期限: 15:00</div>
+            <div class="timer" id="otpTimer"></div>
             
             <button type="button" class="btn btn-primary" id="verifyCodeBtn" onclick="verifyCode()">
-                <span id="verifyCodeText">確認</span>
+                <span id="verifyCodeText"><?= htmlspecialchars(__('confirm')) ?></span>
                 <span class="loading" id="verifyCodeLoading">
                     <span class="spinner"></span>
-                    確認中...
+                    <?= htmlspecialchars(__('verifying')) ?>
                 </span>
             </button>
             
             <div style="margin-top: 16px;">
-                <span class="resend-link disabled" id="resendLink" onclick="resendCode()">コードを再送信</span>
+                <span class="resend-link disabled" id="resendLink" onclick="resendCode()"><?= htmlspecialchars(__('resend_code')) ?></span>
             </div>
         </div>
         
         <!-- ③ パスワード設定（新規登録完了） -->
         <div class="form-section <?= $mode === 'set_password' ? 'active' : '' ?>" id="setPasswordSection">
-            <p class="form-subtitle">🎉 認証完了！<br>パスワードを設定してください</p>
+            <p class="form-subtitle">🎉 <?= htmlspecialchars(__('set_password_title')) ?><br><?= htmlspecialchars(__('set_password_subtitle')) ?></p>
             
             <div class="form-group" id="setPasswordEmailWrap" style="display: none;">
                 <label class="form-label">
                     <span class="icon">📧</span>
-                    メールアドレス（任意）
+                    <?= htmlspecialchars(__('email_optional')) ?>
                 </label>
                 <input type="email" id="setPasswordEmail" class="form-input" placeholder="example@email.com" autocomplete="email">
-                <div class="form-hint" style="font-size: 12px; color: #666; margin-top: 4px;">登録するとメール・携帯のどちらでもログインできます</div>
+                <div class="form-hint" style="font-size: 12px; color: #666; margin-top: 4px;"><?= htmlspecialchars(__('register_login_hint')) ?></div>
             </div>
             
             <div class="form-group">
                 <label class="form-label">
                     <span class="icon">🔒</span>
-                    パスワード
+                    <?= htmlspecialchars(__('password')) ?>
                 </label>
-                <input type="password" id="newPassword" class="form-input" placeholder="8文字以上" autocomplete="new-password">
+                <input type="password" id="newPassword" class="form-input" placeholder="<?= htmlspecialchars(__('password_min_length')) ?>" autocomplete="new-password">
                 <ul class="password-requirements">
-                    <li>8文字以上</li>
+                    <li><?= htmlspecialchars(__('password_min_length')) ?></li>
                 </ul>
             </div>
             
             <div class="form-group">
                 <label class="form-label">
                     <span class="icon">🔒</span>
-                    パスワード（確認）
+                    <?= htmlspecialchars(__('password_confirm')) ?>
                 </label>
-                <input type="password" id="confirmPassword" class="form-input" placeholder="もう一度入力" autocomplete="new-password">
+                <input type="password" id="confirmPassword" class="form-input" placeholder="<?= htmlspecialchars(__('placeholder_password_confirm')) ?>" autocomplete="new-password">
             </div>
             
             <button type="button" class="btn btn-primary" id="setPasswordBtn" onclick="setPassword()">
-                <span id="setPasswordText">登録を完了する</span>
+                <span id="setPasswordText"><?= htmlspecialchars(__('complete_registration')) ?></span>
                 <span class="loading" id="setPasswordLoading">
                     <span class="spinner"></span>
-                    設定中...
+                    <?= htmlspecialchars(__('setting')) ?>
                 </span>
             </button>
         </div>
@@ -300,13 +298,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
             <footer class="login-landing-footer" role="contentinfo">
                 <p><a href="terms.php"><?= __('terms_of_service') ?></a> · <a href="terms.php#privacy"><?= __('privacy_policy') ?></a></p>
                 <p>© Social9</p>
-                <p><?= $currentLang === 'en' ? 'This service is in trial operation. Please see the terms of use.' : ($currentLang === 'zh' ? '本服务处于试运行阶段，请参阅利用规约。' : '本サービスは試験運用の段階です。利用規約をご確認の上ご利用ください。') ?></p>
-                <p><?= $currentLang === 'en' ? 'Recommended: Chrome, Safari or other browsers.' : ($currentLang === 'zh' ? '推荐使用 Chrome、Safari 等浏览器。' : '推奨: Chrome、Safari 等のブラウザでご利用ください。') ?></p>
+                <p><?= htmlspecialchars(__('trial_notice')) ?></p>
+                <p><?= htmlspecialchars(__('browser_recommend')) ?></p>
             </footer>
         </div>
     </div>
     
     <script>
+        window.LOGIN_I18N = <?= json_encode([
+            'otp_sent_to' => __('otp_sent_to'),
+            'otp_expiry' => __('otp_expiry'),
+            'otp_expired' => __('otp_expired'),
+            'enter_email_phone' => __('enter_email_phone'),
+            'invalid_email_phone' => __('invalid_email_phone'),
+            'enter_4_digits' => __('enter_4_digits'),
+            'password_min_8' => __('password_min_8'),
+            'password_mismatch' => __('password_mismatch'),
+            'error_occurred' => __('error_occurred'),
+            'network_error' => __('network_error'),
+        ], JSON_UNESCAPED_UNICODE) ?>;
+        var I = window.LOGIN_I18N;
+        function _t(key) { return (I && I[key]) || key; }
         // 状態管理（メール or 携帯でコード送信時に設定）
         let currentEmail = '';
         let currentPhone = '';
@@ -350,7 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
         async function sendVerificationCodeFromLogin() {
             const raw = document.getElementById('loginEmail').value.trim();
             if (!raw) {
-                showAlert('メールアドレスまたは携帯電話番号を入力してください');
+                showAlert(_t('enter_email_phone'));
                 return;
             }
             if (raw.includes('@')) {
@@ -362,7 +374,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
                 await sendVerificationCode({ phone: phone });
                 return;
             }
-            showAlert('有効なメールアドレスまたは10桁以上の携帯電話番号を入力してください');
+            showAlert(_t('invalid_email_phone'));
         }
 
         // 認証コード送信（email または phone を渡す）
@@ -373,7 +385,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
                 if (currentEmail) payload = { email: currentEmail };
                 else if (currentPhone) payload = { phone: currentPhone };
                 else {
-                    showAlert('メールアドレスまたは携帯電話番号を入力してください');
+                    showAlert(_t('enter_email_phone'));
                     return;
                 }
             }
@@ -395,24 +407,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
                 const data = await response.json();
 
                 if (data.success) {
+                    var displayTarget = '';
                     if (payload.phone) {
                         currentPhone = payload.phone;
                         currentEmail = '';
-                        document.getElementById('otpEmail').textContent = payload.phone.slice(0, 4) + '****' + payload.phone.slice(-4);
+                        displayTarget = payload.phone.slice(0, 4) + '****' + payload.phone.slice(-4);
                     } else {
                         currentEmail = payload.email;
                         currentPhone = '';
-                        document.getElementById('otpEmail').textContent = payload.email;
+                        displayTarget = payload.email;
                     }
+                    var msgEl = document.getElementById('otpSentMessage');
+                    if (msgEl) msgEl.textContent = _t('otp_sent_to').replace('%s', displayTarget);
                     showSection('otp');
                     startTimer(data.expires_in || 900);
                     startResendCooldown(60);
                     document.querySelector('.otp-input').focus();
                 } else {
-                    showAlert(data.error || 'エラーが発生しました');
+                    showAlert(data.error || _t('error_occurred'));
                 }
             } catch (e) {
-                showAlert('通信エラーが発生しました');
+                showAlert(_t('network_error'));
             } finally {
                 setLoading('sendCodeBtn', false);
             }
@@ -424,7 +439,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
             const code = Array.from(inputs).map(i => i.value).join('');
             
             if (code.length !== 4) {
-                showAlert('4桁のコードを入力してください');
+                showAlert(_t('enter_4_digits'));
                 return;
             }
             
@@ -456,10 +471,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
                         if (emailInput) emailInput.value = '';
                     }
                 } else {
-                    showAlert(data.error || 'エラーが発生しました');
+                    showAlert(data.error || _t('error_occurred'));
                 }
             } catch (e) {
-                showAlert('通信エラーが発生しました');
+                showAlert(_t('network_error'));
             } finally {
                 setLoading('verifyCodeBtn', false);
             }
@@ -471,12 +486,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
             const passwordConfirm = document.getElementById('confirmPassword').value;
             
             if (password.length < 8) {
-                showAlert('パスワードは8文字以上で設定してください');
+                showAlert(_t('password_min_8'));
                 return;
             }
             
             if (password !== passwordConfirm) {
-                showAlert('パスワードが一致しません');
+                showAlert(_t('password_mismatch'));
                 return;
             }
             
@@ -503,10 +518,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
                 if (data.success) {
                     window.location.href = data.redirect || 'chat.php';
                 } else {
-                    showAlert(data.error || 'エラーが発生しました');
+                    showAlert(data.error || _t('error_occurred'));
                 }
             } catch (e) {
-                showAlert('通信エラーが発生しました');
+                showAlert(_t('network_error'));
             } finally {
                 setLoading('setPasswordBtn', false);
             }
@@ -522,11 +537,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
             function updateTimer() {
                 const mins = Math.floor(remaining / 60);
                 const secs = remaining % 60;
-                timerEl.textContent = `有効期限: ${mins}:${secs.toString().padStart(2, '0')}`;
+                var timeStr = mins + ':' + secs.toString().padStart(2, '0');
+                timerEl.textContent = _t('otp_expiry').replace('%s', timeStr);
                 
                 if (remaining <= 0) {
                     clearInterval(timerInterval);
-                    timerEl.textContent = 'コードの有効期限が切れました';
+                    timerEl.textContent = _t('otp_expired');
                     timerEl.classList.add('expired');
                 }
                 remaining--;
