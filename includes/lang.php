@@ -7,25 +7,68 @@
  * 2. __('key') または t('key') で翻訳テキストを取得
  */
 
-// セッションから言語を取得（デフォルト: 日本語）
-function getCurrentLanguage() {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    return $_SESSION['language'] ?? 'ja';
+/** 言語保存用 Cookie 名（ログイン前でも選択を永続化） */
+if (!defined('LANG_COOKIE_NAME')) {
+    define('LANG_COOKIE_NAME', 'social9_lang');
+}
+/** Cookie 有効日数 */
+if (!defined('LANG_COOKIE_DAYS')) {
+    define('LANG_COOKIE_DAYS', 365);
 }
 
-// 言語を設定
+// セッションまたは Cookie から言語を取得（デフォルト: 日本語）
+function getCurrentLanguage() {
+    if (session_status() === PHP_SESSION_NONE && function_exists('start_session_once')) {
+        start_session_once();
+    }
+    if (session_status() !== PHP_SESSION_NONE && isset($_SESSION['language'])) {
+        return $_SESSION['language'];
+    }
+    $valid = ['ja', 'en', 'zh'];
+    $cookieName = defined('LANG_COOKIE_NAME') ? LANG_COOKIE_NAME : 'social9_lang';
+    if (!empty($_COOKIE[$cookieName]) && in_array($_COOKIE[$cookieName], $valid, true)) {
+        if (session_status() !== PHP_SESSION_NONE) {
+            $_SESSION['language'] = $_COOKIE[$cookieName];
+        }
+        return $_COOKIE[$cookieName];
+    }
+    return 'ja';
+}
+
+// 言語を設定（セッション＋Cookie の両方に保存し、ログイン画面でも確実に反映）
 function setLanguage($lang) {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+    if (session_status() === PHP_SESSION_NONE && function_exists('start_session_once')) {
+        start_session_once();
     }
     $validLanguages = ['ja', 'en', 'zh'];
-    if (in_array($lang, $validLanguages)) {
-        $_SESSION['language'] = $lang;
-        return true;
+    if (!in_array($lang, $validLanguages)) {
+        return false;
     }
-    return false;
+    if (session_status() !== PHP_SESSION_NONE) {
+        $_SESSION['language'] = $lang;
+    }
+    $cookieName = defined('LANG_COOKIE_NAME') ? LANG_COOKIE_NAME : 'social9_lang';
+    $days = defined('LANG_COOKIE_DAYS') ? (int)LANG_COOKIE_DAYS : 365;
+    $expire = time() + ($days * 86400);
+    $path = '/';
+    $domain = '';
+    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+    $httponly = true;
+    $samesite = 'Lax';
+    if (PHP_VERSION_ID >= 70300) {
+        setcookie($cookieName, $lang, [
+            'expires' => $expire,
+            'path' => $path,
+            'domain' => $domain,
+            'secure' => $secure,
+            'httponly' => $httponly,
+            'samesite' => $samesite
+        ]);
+    } else {
+        setcookie($cookieName, $lang, $expire, $path . '; samesite=' . $samesite, $domain, $secure, $httponly);
+    }
+    return true;
 }
 
 // 翻訳辞書

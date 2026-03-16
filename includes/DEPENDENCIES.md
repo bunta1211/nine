@@ -171,7 +171,7 @@ $darkBgImages = ['sample_fuji.jpg', 'sample_night.jpg', 'sample_galaxy.jpg'];
 - `en` - English
 - `zh` - 中文
 
-**ログイン画面**: index.php も同じ仕組み（`getCurrentLanguage()` / `setLanguage()` / `__($key)`）を使用。上パネルの言語切替リンク（`?lang=ja|en|zh`）でセッションを切り替え、全ラベル・メッセージが選択言語で表示される。
+**ログイン画面**: index.php も同じ仕組み（`getCurrentLanguage()` / `setLanguage()` / `__($key)`）を使用。上パネルの言語切替（日本語・English・中文）で `?lang=ja|en|zh` に遷移するとセッションと Cookie（`social9_lang`）の両方に保存され、リダイレクト後に選択言語で表示される。Cookie によりセッションが切れても言語選択が保持される。
 
 ---
 

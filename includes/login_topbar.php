@@ -21,13 +21,13 @@ $header_id_attr = $login_topbar_header_id !== '' ? ' id="' . htmlspecialchars($l
         </div>
         <div class="top-right top-panel-login-right">
             <div class="language-selector" style="position: relative;">
-                <button class="top-btn" type="button" onclick="toggleLoginLanguageMenu(event)" id="loginLanguageBtn" aria-haspopup="true" aria-expanded="false">
+                <button class="top-btn" type="button" onclick="toggleLoginLanguageMenu(event)" id="loginLanguageBtn" aria-haspopup="true" aria-expanded="false" aria-label="<?= $currentLang === 'en' ? 'Language' : ($currentLang === 'zh' ? '语言' : '言語') ?>">
                     <img src="assets/icons/line/globe.svg" alt="" class="icon-line" width="20" height="20" onerror="this.style.display='none'"> <span class="btn-label"><?= $currentLang === 'en' ? 'EN' : ($currentLang === 'zh' ? '中' : 'JP') ?></span>
                 </button>
-                <div class="language-dropdown" id="loginLanguageDropdown" aria-hidden="true">
-                    <a href="<?= htmlspecialchars($index_path) ?>?lang=ja" class="language-option <?= $currentLang === 'ja' ? 'active' : '' ?>">🇯🇵 日本語</a>
-                    <a href="<?= htmlspecialchars($index_path) ?>?lang=en" class="language-option <?= $currentLang === 'en' ? 'active' : '' ?>">🇺🇸 English</a>
-                    <a href="<?= htmlspecialchars($index_path) ?>?lang=zh" class="language-option <?= $currentLang === 'zh' ? 'active' : '' ?>">🇨🇳 中文</a>
+                <div class="language-dropdown" id="loginLanguageDropdown" aria-hidden="true" role="menu">
+                    <a href="<?= htmlspecialchars($index_path) ?>?lang=ja" class="language-option <?= $currentLang === 'ja' ? 'active' : '' ?>" role="menuitem">🇯🇵 日本語</a>
+                    <a href="<?= htmlspecialchars($index_path) ?>?lang=en" class="language-option <?= $currentLang === 'en' ? 'active' : '' ?>" role="menuitem">🇺🇸 English</a>
+                    <a href="<?= htmlspecialchars($index_path) ?>?lang=zh" class="language-option <?= $currentLang === 'zh' ? 'active' : '' ?>" role="menuitem">🇨🇳 中文</a>
                 </div>
             </div>
             <span class="login-topbar-login-label"><?= __('login') ?></span>

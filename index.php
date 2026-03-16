@@ -14,6 +14,10 @@ require_once __DIR__ . '/includes/auth/Auth.php';
 require_once __DIR__ . '/includes/lang.php';
 require_once __DIR__ . '/includes/access_logger.php';
 
+if (function_exists('start_session_once')) {
+    start_session_once();
+}
+
 log_page_access('/index.php');
 
 // 既にログイン済みの場合はチャットへリダイレクト（絶対URLで移転後も確実）
@@ -25,9 +29,7 @@ if (isLoggedIn()) {
     exit;
 }
 
-$currentLang = getCurrentLanguage();
-
-// ログイン画面での言語切替（GET lang=ja|en|zh でセッションに保存してリダイレクト）
+// 言語切替（GET lang=ja|en|zh）を先に処理し、セッション・Cookie に保存してからリダイレクト
 if (isset($_GET['lang']) && in_array($_GET['lang'], ['ja', 'en', 'zh'], true)) {
     setLanguage($_GET['lang']);
     $base = getBaseUrl();
@@ -35,6 +37,8 @@ if (isset($_GET['lang']) && in_array($_GET['lang'], ['ja', 'en', 'zh'], true)) {
     header('Location: ' . $url);
     exit;
 }
+
+$currentLang = getCurrentLanguage();
 
 $pdo = getDB();
 $auth = new Auth($pdo);
